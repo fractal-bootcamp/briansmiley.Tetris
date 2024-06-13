@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Board from "./Board";
 
 const frameRate = 5;
 
@@ -7,7 +8,11 @@ function App() {
   useEffect(() => {
     setInterval(() => setFrame(frame + 1), 1000 / frameRate);
   }, []);
-  return <></>;
+  return (
+    <>
+      <Board />
+    </>
+  );
 }
 
 export default App;
