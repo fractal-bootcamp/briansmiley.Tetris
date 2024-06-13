@@ -2,89 +2,94 @@
  * Types
  */
 
-type Game = {
+export type Game = {
   board: Board;
-  fallingBlock: Block;
+  fallingBlock: Block | null;
   inputForbidden: boolean;
 };
-
-//Cell contains either a color code or null if it is empty
-type Cell = string | null;
-
-type Board = Cell[][];
-
-/**
- * Blocks are defined by their origin (board location of their pivot), and their body (offsets from their origin to each of their constituent cells)
- */
+export type Cell = string | null;
+export type Board = Cell[][];
 type Block = {
   origin: Coordinate;
   body: Coordinate[];
   shape: TetrisShape;
 };
 type Direction = "L" | "R" | "D";
+type RotDirection = "CW" | "CCW";
 type Coordinate = [number, number];
 
 type TetrisShape = "I" | "T" | "O" | "S" | "Z" | "L" | "J";
-
+export type Config = {
+    BLOCK_SHAPES: Record<TetrisShape, Coordinate[]>;
+    SPAWN_POINT: Coordinate;
+    SHAPE_COLORS: Record<TetrisShape, string>;
+    BOARD_WIDTH: number;
+    BOARD_HEIGHT: number;
+  };
 /**
  * Data
  */
-const BLOCK_SHAPES: Record<TetrisShape, Coordinate[]> = {
-  I: [
-    [0, -1],
-    [0, 1],
-    [0, 2],
-    [0, 3]
-  ],
-  T: [
-    [0, 0],
-    [0, 1],
-    [0, -1],
-    [1, 0]
-  ],
-  O: [
-    [0, 0],
-    [1, 0],
-    [0, 1],
-    [1, 1]
-  ],
-  S: [
-    [0, 0],
-    [1, 0],
-    [1, 1],
-    [0, -1]
-  ],
-  Z: [
-    [0, 0],
-    [1, 0],
-    [1, 1],
-    [0, -1]
-  ],
-  L: [
-    [0, 1],
-    [0, 0],
-    [0, -1],
-    [-1, 1]
-  ],
-  J: [
-    [0, 0],
-    [0, 1],
-    [0, -1],
-    [1, 1]
-  ]
-};
-const SPAWN_POINT: Coordinate = [4, 0];
-const SHAPE_COLORS: Record<TetrisShape, string> = {
-  I: "#00ffff",
-  T: "#800080",
-  O: "#ffff00",
-  S: "#ff0000",
-  Z: "#800080",
-  L: "#ff7f00",
-  J: "#0000ff"
-};
-const BOARD_WIDTH = 10;
-const BOARD_HEIGHT = 20;
+
+
+export const CONFIG:Config = {
+  BLOCK_SHAPES: {
+    I: [
+      [0, -1],
+      [0, 1],
+      [0, 2],
+      [0, 3]
+    ],
+    T: [
+      [0, 0],
+      [0, 1],
+      [0, -1],
+      [1, 0]
+    ],
+    O: [
+      [0, 0],
+      [1, 0],
+      [0, 1],
+      [1, 1]
+    ],
+    S: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, -1]
+    ],
+    Z: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, -1]
+    ],
+    L: [
+      [0, 1],
+      [0, 0],
+      [0, -1],
+      [-1, 1]
+    ],
+    J: [
+      [0, 0],
+      [0, 1],
+      [0, -1],
+      [1, 1]
+    ]
+  },
+  SPAWN_POINT: [4, 0] as Coordinate,
+  SHAPE_COLORS: {
+    I: "#00ffff",
+    T: "#800080",
+    O: "#ffff00",
+    S: "#ff0000",
+    Z: "#800080",
+    L: "#ff7f00",
+    J: "#0000ff"
+  },
+  BOARD_WIDTH: 10,
+  BOARD_HEIGHT: 20,
+  }
+
 /**
  * Functions
  */
@@ -92,6 +97,13 @@ const BOARD_HEIGHT = 20;
 // tickGravity (game) -> game
 // rotateBlock (game) -> game
 // dropBlock (game) -> game
+
+/**creates a new blank slate game object; requires a call to spawnNewBlock() to create first falling block */
+const gameInit = ():Game => {
+    return {board: [...Array(CONFIG.BOARD_HEIGHT)].map(_ => Array(CONFIG.BOARD_WIDTH).fill(null)),
+            fallingBlock: null,
+            inputForbidden:false}
+}
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
 
 const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
@@ -124,8 +136,10 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
 /**For later: The NES Tetris randomizer is super basic. Basically it rolls an 8 sided die, 1-7 being the 7 pieces
  *  and 8 being "reroll". If you get the same piece as the last piece you got, or you hit the reroll number, It'll
  * roll a 2nd 7 sided die. This time you can get the same piece as your previous one and the roll is final. */
-const getNewBlockShape = () => {
-  const keys = Object.keys(BLOCK_SHAPES) as Array<keyof typeof BLOCK_SHAPES>;
+const getNewBlockShape = ():TetrisShape => {
+  const keys = Object.keys(CONFIG.BLOCK_SHAPES) as Array<
+    keyof typeof CONFIG.BLOCK_SHAPES
+  >;
   return keys[(keys.length * Math.random()) << 0];
 };
 
@@ -172,9 +186,9 @@ const collapseGapRows = (board: Board): Board => {
  */
 const spawnNewBlock = (game: Game): Game => {
   const shape = getNewBlockShape();
-  const body = BLOCK_SHAPES[shape];
+  const body = CONFIG.BLOCK_SHAPES[shape];
   const newBlock: Block = {
-    origin: SPAWN_POINT,
+    origin: CONFIG.SPAWN_POINT,
     shape,
     body
   };
@@ -217,9 +231,18 @@ const sideShiftBlock = (game: Game, direction: Direction): Game => {
   };
 };
 
+/**
+ * moves the game's falling block down on square, or settles it if doing so would intersect
+ */
 const tickGravity = (game: Game): Game => {
   const nextBlock = shiftedBlock(game.fallingBlock, "D");
   if (blockIntersectsSettledOrWalls(game.board, nextBlock))
     return settleBlock(game);
   return { ...game, fallingBlock: nextBlock };
 };
+
+const rotateBlock = (game:Game, direction: RotDirection):Game {
+    return {...game, 
+        fallingBlock: {...game.fallingBlock, body: game.fallingBlock.body.map( (coord) => direction === "CW" ? [-coord[1], coord[0]] : [coord[1],-coord[0]])}}
+}
+
