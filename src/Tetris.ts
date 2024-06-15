@@ -6,6 +6,7 @@ export type Game = {
   board: Board;
   fallingBlock: Block | null;
   inputForbidden: boolean;
+  blocksSpawned: number;
 };
 export type Cell = string | null;
 export type Board = Cell[][];
@@ -104,7 +105,17 @@ export const gameInit = (): Game => {
       Array(CONFIG.BOARD_WIDTH).fill(null)
     ),
     fallingBlock: null,
-    inputForbidden: false
+    inputForbidden: false,
+    blocksSpawned: 0
+  };
+};
+export const startGame = (game: Game): Game =>
+  game.blocksSpawned === 0 ? spawnNewBlock(game) : game;
+const spawnNewBlock = (game: Game): Game => {
+  return {
+    ...game,
+    fallingBlock: newFallingBlock(),
+    blocksSpawned: game.blocksSpawned + 1
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
@@ -169,7 +180,7 @@ const settleBlock = (game: Game): Game => {
   fallenBlockEndCoords.forEach(
     coord => (newBoard[coord[0]][coord[1]] = newColor)
   );
-  return { ...game, board: newBoard, fallingBlock: newFallingBlock() };
+  return spawnNewBlock({ ...game, board: newBoard });
 };
 
 /**
@@ -235,7 +246,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
     }
   };
 };
-
+/**Takes in a block and returns one shifted L */
 const shiftedBlock = (
   block: Block,
   direction: Direction,
@@ -252,7 +263,7 @@ const shiftedBlock = (
   };
 };
 
-/**Shifts block one unit L | R | D */
+/**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
   const nextBlock = shiftedBlock(game.fallingBlock, direction, 1);
@@ -263,7 +274,8 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
       : nextBlock
   };
 };
-
+shiftBlock;
+/**Drops a block all the way to the settled pile settles it into the board*/
 export const hardDropBlock = (game: Game): Game => {
   if (game.fallingBlock === null) return game;
   const coords = blockOccupiedCells(game.fallingBlock);
