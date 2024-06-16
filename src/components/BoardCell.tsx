@@ -13,9 +13,11 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     background: cellValue || blankCellBackground.toString(),
     borderWidth: cellValue ? 8 : 0,
     borderStyle: "outset",
-    borderColor: `rgb(from ${cellValue} calc(.8*r) calc(.8*g) calc(.8*b))`
+    boxSizing: "border-box",
+    borderColor: `rgb(from ${cellValue} calc(.8*r) calc(.8*g) calc(.8*b))`,
+    flex: "1 1 16px"
   };
-  return <div className={` w-[9%]`} style={cellDynamicStyles}></div>;
+  return <div style={cellDynamicStyles}></div>;
 };
 
 export default BoardCell;
