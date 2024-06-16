@@ -266,25 +266,27 @@ export const clearThenCollapseRows = (game: Game): Game =>
   collapseGapRows(clearFullRows(game));
 /** INPUT RESPONSES */
 
-const rotatedBlock = (block: Block, direction: RotDirection): Block | null =>
+const rotatedBlock = <T extends Block | null>(
+  block: T,
+  direction: RotDirection
+): ConditionalNull<T, Block, Block> =>
   block === null
-    ? null
-    : {
+    ? (null as ConditionalNull<T, Block, Block>)
+    : ({
         ...block,
         body: block.body.map(coord =>
           direction === "CW"
             ? ([-coord[1], coord[0]] as Coordinate)
             : ([coord[1], -coord[0]] as Coordinate)
         )
-      };
+      } as ConditionalNull<T, Block, Block>);
 
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (game.fallingBlock === null || game.fallingBlock.shape === "O")
     return game;
-  const newBlock = rotatedBlock(game.fallingBlock, direction)!;
-  const newBlockCoords = blockOccupiedCells(newBlock);
-  // const leftJutOut = newBlockCoords.map();
+  const newBlock = rotatedBlock(game.fallingBlock, direction);
+  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return game;
   return {
     ...game,
     fallingBlock: {
@@ -294,6 +296,28 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
       )
     }
   };
+};
+/**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
+const outOfBoundsCorrection = (block: Block, board: Board): Coordinate => {
+  const coords = blockOccupiedCells(block);
+  const leftCorrection = -coords.reduce(
+    (prev, curr) => Math.min(prev, curr[1]),
+    0
+  );
+  const rightCorrection = -coords.reduce(
+    (prev, curr) => Math.max(prev, curr[1] - (board[0].length - 1)),
+    0
+  ); //maximum distance past right of board
+  const bottomCorrection = -coords.reduce(
+    (prev, curr) => Math.max(prev, curr[0] - (board.length - 1)),
+    0
+  ); //maximum row coordinate overflow
+  const topCorrection = -coords.reduce(
+    (prev, curr) => Math.min(prev, curr[0]),
+    0
+  ); //most negative row underflow
+
+  return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
 };
 /**Takes in a block and returns one shifted L */
 const shiftedBlock = (
