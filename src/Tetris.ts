@@ -7,6 +7,7 @@ export type Game = {
   fallingBlock: Block | null;
   inputForbidden: boolean;
   blocksSpawned: number;
+  tickInterval: number;
 };
 export type Cell = string | null;
 export type Board = Cell[][];
@@ -26,6 +27,7 @@ export type Config = {
   SHAPE_COLORS: Record<TetrisShape, string>;
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
+  STARTING_TICK_INTERVAL: number;
 };
 /**
  * Data
@@ -87,16 +89,18 @@ export const CONFIG: Config = {
     J: "#0000ff"
   },
   BOARD_WIDTH: 10,
-  BOARD_HEIGHT: 20
+  BOARD_HEIGHT: 20,
+  STARTING_TICK_INTERVAL: 500
 };
 
 /**
  * Functions
  */
 
-// tickGravity (game) -> game
-// rotateBlock (game) -> game
-// dropBlock (game) -> game
+export const setTickInterval = (game: Game, newInterval: number): Game => ({
+  ...game,
+  tickInterval: newInterval
+});
 
 /**creates a new blank slate game object; requires a call to spawnNewBlock() to create first falling block */
 export const gameInit = (): Game => {
@@ -106,7 +110,8 @@ export const gameInit = (): Game => {
     ),
     fallingBlock: null,
     inputForbidden: false,
-    blocksSpawned: 0
+    blocksSpawned: 0,
+    tickInterval: CONFIG.STARTING_TICK_INTERVAL
   };
 };
 export const startGame = (game: Game): Game =>
@@ -192,11 +197,14 @@ const settleBlock = (game: Game): Game => {
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
 export const tickGravity = (game: Game): Game => {
-  if (game.fallingBlock === null) return game;
-  const nextBlock = shiftedBlock(game.fallingBlock, "D");
-  if (blockIntersectsSettledOrWalls(game.board, nextBlock))
-    return settleBlock(game);
-  return { ...game, fallingBlock: nextBlock };
+  const newGame = clearThenCollapseRows(game);
+  if (newGame.fallingBlock === null) return newGame;
+  const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
+  if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
+    return settleBlock(newGame);
+  return clearFullRows(
+    collapseGapRows({ ...newGame, fallingBlock: nextBlock })
+  );
 };
 
 /** SCORE/CLEAR  EVENTS */
@@ -209,15 +217,22 @@ const fullRows = (board: Board): number[] => {
 };
 
 /**Returns a copy of the board with full rows nulled*/
-export const clearFullRows = (board: Board): Board => {
+export const clearFullRows = (game: Game): Game => {
+  const { board } = game;
   const rowsToClear = fullRows(board);
-  return board.map((row, r) =>
-    rowsToClear.includes(r) ? Array.from(row, () => null) : structuredClone(row)
-  );
+  return {
+    ...game,
+    board: board.map((row, r) =>
+      rowsToClear.includes(r)
+        ? Array.from(row, () => null)
+        : structuredClone(row)
+    )
+  };
 };
 
 /**Settle the board squares above a clear by an amount equal to the clear*/
-export const collapseGapRows = (board: Board): Board => {
+export const collapseGapRows = (game: Game): Game => {
+  const { board } = game;
   const firstNonEmptyRowIndex = board.findIndex(row => row.some(cell => cell));
   //indices of the empty rows below the topmost nonempty row
   const emptyRowIndices = board
@@ -233,9 +248,11 @@ export const collapseGapRows = (board: Board): Board => {
     newBoard.splice(rowIndex, 1);
     newBoard = [Array.from(newBoard[0], (): Cell => null)].concat(newBoard);
   });
-  return newBoard;
+  return { ...game, board: newBoard };
 };
-
+/** Clears any full rows and simultaneously collapses them */
+export const clearThenCollapseRows = (game: Game): Game =>
+  collapseGapRows(clearFullRows(game));
 /** INPUT RESPONSES */
 
 /** Rotates a block 90° CW | CCW about its origin */
