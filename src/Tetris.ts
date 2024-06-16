@@ -316,27 +316,27 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   };
 };
 /**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
-const outOfBoundsCorrection = (block: Block, board: Board): Coordinate => {
-  const coords = blockOccupiedCells(block);
-  const leftCorrection = -coords.reduce(
-    (prev, curr) => Math.min(prev, curr[1]),
-    0
-  );
-  const rightCorrection = -coords.reduce(
-    (prev, curr) => Math.max(prev, curr[1] - (board[0].length - 1)),
-    0
-  ); //maximum distance past right of board
-  const bottomCorrection = -coords.reduce(
-    (prev, curr) => Math.max(prev, curr[0] - (board.length - 1)),
-    0
-  ); //maximum row coordinate overflow
-  const topCorrection = -coords.reduce(
-    (prev, curr) => Math.min(prev, curr[0]),
-    0
-  ); //most negative row underflow
+// const outOfBoundsCorrection = (block: Block, board: Board): Coordinate => {
+//   const coords = blockOccupiedCells(block);
+//   const leftCorrection = -coords.reduce(
+//     (prev, curr) => Math.min(prev, curr[1]),
+//     0
+//   );
+//   const rightCorrection = -coords.reduce(
+//     (prev, curr) => Math.max(prev, curr[1] - (board[0].length - 1)),
+//     0
+//   ); //maximum distance past right of board
+//   const bottomCorrection = -coords.reduce(
+//     (prev, curr) => Math.max(prev, curr[0] - (board.length - 1)),
+//     0
+//   ); //maximum row coordinate overflow
+//   const topCorrection = -coords.reduce(
+//     (prev, curr) => Math.min(prev, curr[0]),
+//     0
+//   ); //most negative row underflow
 
-  return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
-};
+//   return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
+// };
 /**Takes in a block and returns one shifted L */
 const shiftedBlock = (
   block: Block,
