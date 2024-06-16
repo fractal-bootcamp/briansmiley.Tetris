@@ -1,7 +1,18 @@
-import { useState } from "react";
-import { Game, gameInit } from "./Tetris";
-const Board = ({ game }: { game: Game }) => {
-  const [gameState, setGameState] = useState(gameInit());
+import BoardCell from "./BoardCell";
+import { Board } from "./Tetris";
+
+const BoardDisplay = ({ board }: { board: Board }) => {
+  return (
+    <div className="flex flex-col w-[50%]">
+      {board.map((r, row) => (
+        <div className="flex flex-row w-[100%]">
+          {r.map((cell, col) => (
+            <BoardCell position={[row, col]} cellValue={cell} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 };
 
-export default Board;
+export default BoardDisplay;
