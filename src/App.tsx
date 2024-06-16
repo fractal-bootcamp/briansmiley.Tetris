@@ -55,7 +55,10 @@ function App() {
   return (
     <>
       <div className="m-2 flex flex-col items-center gap-2 ">
-        <BoardDisplay board={boardWithFallingBlock(gameState)} />
+        <BoardDisplay
+          board={boardWithFallingBlock(gameState)}
+          CONFIG={gameState.CONFIG}
+        />
         <div className="flex justify-center">
           <button
             className="btn"
