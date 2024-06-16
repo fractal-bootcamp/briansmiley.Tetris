@@ -17,8 +17,14 @@ function App() {
   }, [gameClock]);
   return (
     <>
-      <BoardDisplay board={gameState.board} />
-      <button onClick={() => startGame(gameState)}>Start</button>
+      <div className="flex flex-col">
+        <BoardDisplay board={gameState.board} />
+        <div className="flex justify-center">
+          <button className="btn" onClick={() => startGame(gameState)}>
+            Start
+          </button>
+        </div>
+      </div>
     </>
   );
 }
