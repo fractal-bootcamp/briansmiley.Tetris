@@ -142,6 +142,8 @@ export const startGame = (game: Game): Game =>
     : game;
 const spawnNewBlock = (game: Game): Game => {
   const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
+  const newBlock = newFallingBlock();
+  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return endGame(game);
   if (game.board[spawnR][spawnC]) return endGame(game);
   return {
     ...game,
@@ -167,7 +169,8 @@ const blockOccupiedCells = <T extends Block | null>(
 
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
-    coord[0] < 0 ||
+    //Lets allow things to go above the board?
+    // coord[0] < 0 ||
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
@@ -180,7 +183,7 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
   return occupiedCells.some(
     boardLocation =>
       isOffScreen(boardLocation, board) ||
-      board[boardLocation[0]][boardLocation[1]]
+      (boardLocation[0] >= 0 && board[boardLocation[0]][boardLocation[1]])
   );
 };
 //get the next spawnable block, currently at random
