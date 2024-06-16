@@ -30,6 +30,9 @@ export type Config = {
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
 };
+
+type ConditionalNull<argType, nonNullArgType, returnType> =
+  argType extends nonNullArgType ? returnType : null;
 /**
  * Data
  */
@@ -134,10 +137,14 @@ const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
   return [c1[0] + c2[0], c1[1] + c2[1]];
 };
 //gets the on-board coordinates of all of a block's cells
-const blockOccupiedCells = (block: Block | null) => {
+const blockOccupiedCells = <T extends Block | null>(
+  block: T
+): ConditionalNull<T, Block, Coordinate[]> => {
   return block === null
-    ? null
-    : block.body.map(cell => coordinateSum(cell, block.origin));
+    ? (null as ConditionalNull<T, Block, Coordinate[]>)
+    : (block.body.map(cell =>
+        coordinateSum(cell, block.origin)
+      ) as ConditionalNull<T, Block, Coordinate[]>);
 };
 
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
@@ -259,10 +266,25 @@ export const clearThenCollapseRows = (game: Game): Game =>
   collapseGapRows(clearFullRows(game));
 /** INPUT RESPONSES */
 
+const rotatedBlock = (block: Block, direction: RotDirection): Block | null =>
+  block === null
+    ? null
+    : {
+        ...block,
+        body: block.body.map(coord =>
+          direction === "CW"
+            ? ([-coord[1], coord[0]] as Coordinate)
+            : ([coord[1], -coord[0]] as Coordinate)
+        )
+      };
+
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (game.fallingBlock === null || game.fallingBlock.shape === "O")
     return game;
+  const newBlock = rotatedBlock(game.fallingBlock, direction)!;
+  const newBlockCoords = blockOccupiedCells(newBlock);
+  // const leftJutOut = newBlockCoords.map();
   return {
     ...game,
     fallingBlock: {
