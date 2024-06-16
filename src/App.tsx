@@ -33,7 +33,7 @@ function App() {
     setGameState(tickGravity(gameState));
   }, [gameClock]);
 
-  const processInput = (newGameState: Game) => {
+  const handleInput = (newGameState: Game) => {
     if (gameState.over || gameState.inputForbidden) return;
     setGameState(forbidInput(newGameState));
     setTimeout(
@@ -44,13 +44,13 @@ function App() {
 
   //prettier-ignore
   {
-  useKeyDown(() => processInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => processInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => processInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
-  useKeyDown(() => processInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
-  useKeyDown(() => processInput(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => processInput(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
-  useKeyDown(() => processInput(rotateBlock(gameState, "CCW")), ["e"]);
+  useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => handleInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
+  useKeyDown(() => handleInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
+  useKeyDown(() => handleInput(hardDropBlock(gameState)), [" "]);
+  useKeyDown(() => handleInput(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
+  useKeyDown(() => handleInput(rotateBlock(gameState, "CCW")), ["e"]);
   }
   return (
     <>
