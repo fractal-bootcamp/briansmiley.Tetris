@@ -5,8 +5,12 @@
 export type Game = {
   board: Board;
   fallingBlock: Block | null;
+  score: number;
   inputForbidden: boolean;
   blocksSpawned: number;
+  tickInterval: number;
+  over: boolean;
+  CONFIG: Config;
 };
 export type Cell = string | null;
 export type Board = Cell[][];
@@ -26,7 +30,12 @@ export type Config = {
   SHAPE_COLORS: Record<TetrisShape, string>;
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
+  STARTING_TICK_INTERVAL: number;
+  INPUT_REPEAT_DELAY: number;
 };
+
+type ConditionalNull<argType, nonNullArgType, returnType> =
+  argType extends nonNullArgType ? returnType : null;
 /**
  * Data
  */
@@ -87,16 +96,19 @@ export const CONFIG: Config = {
     J: "#0000ff"
   },
   BOARD_WIDTH: 10,
-  BOARD_HEIGHT: 20
+  BOARD_HEIGHT: 20,
+  STARTING_TICK_INTERVAL: 500,
+  INPUT_REPEAT_DELAY: 100
 };
 
 /**
  * Functions
  */
 
-// tickGravity (game) -> game
-// rotateBlock (game) -> game
-// dropBlock (game) -> game
+export const setTickInterval = (game: Game, newInterval: number): Game => ({
+  ...game,
+  tickInterval: newInterval
+});
 
 /**creates a new blank slate game object; requires a call to spawnNewBlock() to create first falling block */
 export const gameInit = (): Game => {
@@ -105,13 +117,34 @@ export const gameInit = (): Game => {
       Array(CONFIG.BOARD_WIDTH).fill(null)
     ),
     fallingBlock: null,
+    score: 0,
     inputForbidden: false,
-    blocksSpawned: 0
+    blocksSpawned: 0,
+    tickInterval: CONFIG.STARTING_TICK_INTERVAL,
+    over: false,
+    CONFIG: CONFIG
   };
 };
+export const forbidInput = (game: Game): Game => ({
+  ...game,
+  inputForbidden: true
+});
+export const allowInput = (game: Game): Game => ({
+  ...game,
+  inputForbidden: false
+});
+const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
-  game.blocksSpawned === 0 ? spawnNewBlock(game) : game;
+  game.blocksSpawned === 0
+    ? spawnNewBlock(game)
+    : game.over
+    ? spawnNewBlock(gameInit())
+    : game;
 const spawnNewBlock = (game: Game): Game => {
+  const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
+  const newBlock = newFallingBlock();
+  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return endGame(game);
+  if (game.board[spawnR][spawnC]) return endGame(game);
   return {
     ...game,
     fallingBlock: newFallingBlock(),
@@ -124,15 +157,20 @@ const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
   return [c1[0] + c2[0], c1[1] + c2[1]];
 };
 //gets the on-board coordinates of all of a block's cells
-const blockOccupiedCells = (block: Block | null) => {
+const blockOccupiedCells = <T extends Block | null>(
+  block: T
+): ConditionalNull<T, Block, Coordinate[]> => {
   return block === null
-    ? null
-    : block.body.map(cell => coordinateSum(cell, block.origin));
+    ? (null as ConditionalNull<T, Block, Coordinate[]>)
+    : (block.body.map(cell =>
+        coordinateSum(cell, block.origin)
+      ) as ConditionalNull<T, Block, Coordinate[]>);
 };
 
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
-    coord[0] < 0 ||
+    //Lets allow things to go above the board?
+    // coord[0] < 0 ||
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
@@ -145,7 +183,7 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
   return occupiedCells.some(
     boardLocation =>
       isOffScreen(boardLocation, board) ||
-      board[boardLocation[0]][boardLocation[1]]
+      (boardLocation[0] >= 0 && board[boardLocation[0]][boardLocation[1]])
   );
 };
 //get the next spawnable block, currently at random
@@ -181,7 +219,6 @@ const settleBlock = (game: Game): Game => {
   if (fallenBlockEndCoords === null) return game;
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
-  // console.log(newBoard, fallenBlockEndCoords);
   fallenBlockEndCoords.forEach(
     coord => (newBoard[coord[0]][coord[1]] = newColor)
   );
@@ -192,11 +229,14 @@ const settleBlock = (game: Game): Game => {
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
 export const tickGravity = (game: Game): Game => {
-  if (game.fallingBlock === null) return game;
-  const nextBlock = shiftedBlock(game.fallingBlock, "D");
-  if (blockIntersectsSettledOrWalls(game.board, nextBlock))
-    return settleBlock(game);
-  return { ...game, fallingBlock: nextBlock };
+  const newGame = clearThenCollapseRows(game);
+  if (newGame.fallingBlock === null) return newGame;
+  const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
+  if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
+    return settleBlock(newGame);
+  return clearFullRows(
+    collapseGapRows({ ...newGame, fallingBlock: nextBlock })
+  );
 };
 
 /** SCORE/CLEAR  EVENTS */
@@ -209,15 +249,22 @@ const fullRows = (board: Board): number[] => {
 };
 
 /**Returns a copy of the board with full rows nulled*/
-export const clearFullRows = (board: Board): Board => {
+export const clearFullRows = (game: Game): Game => {
+  const { board } = game;
   const rowsToClear = fullRows(board);
-  return board.map((row, r) =>
-    rowsToClear.includes(r) ? Array.from(row, () => null) : structuredClone(row)
-  );
+  return {
+    ...game,
+    board: board.map((row, r) =>
+      rowsToClear.includes(r)
+        ? Array.from(row, () => null)
+        : structuredClone(row)
+    )
+  };
 };
 
 /**Settle the board squares above a clear by an amount equal to the clear*/
-export const collapseGapRows = (board: Board): Board => {
+export const collapseGapRows = (game: Game): Game => {
+  const { board } = game;
   const firstNonEmptyRowIndex = board.findIndex(row => row.some(cell => cell));
   //indices of the empty rows below the topmost nonempty row
   const emptyRowIndices = board
@@ -233,14 +280,34 @@ export const collapseGapRows = (board: Board): Board => {
     newBoard.splice(rowIndex, 1);
     newBoard = [Array.from(newBoard[0], (): Cell => null)].concat(newBoard);
   });
-  return newBoard;
+  return { ...game, board: newBoard };
 };
-
+/** Clears any full rows and simultaneously collapses them */
+export const clearThenCollapseRows = (game: Game): Game =>
+  collapseGapRows(clearFullRows(game));
 /** INPUT RESPONSES */
+
+const rotatedBlock = <T extends Block | null>(
+  block: T,
+  direction: RotDirection
+): ConditionalNull<T, Block, Block> =>
+  block === null
+    ? (null as ConditionalNull<T, Block, Block>)
+    : ({
+        ...block,
+        body: block.body.map(coord =>
+          direction === "CW"
+            ? ([-coord[1], coord[0]] as Coordinate)
+            : ([coord[1], -coord[0]] as Coordinate)
+        )
+      } as ConditionalNull<T, Block, Block>);
 
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
-  if (game.fallingBlock === null) return game;
+  if (game.fallingBlock === null || game.fallingBlock.shape === "O")
+    return game;
+  const newBlock = rotatedBlock(game.fallingBlock, direction);
+  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return game;
   return {
     ...game,
     fallingBlock: {
@@ -251,6 +318,28 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
     }
   };
 };
+/**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
+// const outOfBoundsCorrection = (block: Block, board: Board): Coordinate => {
+//   const coords = blockOccupiedCells(block);
+//   const leftCorrection = -coords.reduce(
+//     (prev, curr) => Math.min(prev, curr[1]),
+//     0
+//   );
+//   const rightCorrection = -coords.reduce(
+//     (prev, curr) => Math.max(prev, curr[1] - (board[0].length - 1)),
+//     0
+//   ); //maximum distance past right of board
+//   const bottomCorrection = -coords.reduce(
+//     (prev, curr) => Math.max(prev, curr[0] - (board.length - 1)),
+//     0
+//   ); //maximum row coordinate overflow
+//   const topCorrection = -coords.reduce(
+//     (prev, curr) => Math.min(prev, curr[0]),
+//     0
+//   ); //most negative row underflow
+
+//   return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
+// };
 /**Takes in a block and returns one shifted L */
 const shiftedBlock = (
   block: Block,
@@ -288,7 +377,6 @@ export const hardDropBlock = (game: Game): Game => {
   const colFloorIndex = (column: number) => {
     const floorIndex = game.board.findIndex(row => isNotNull(row[column]));
 
-    console.log(`Column ${column} floor detected to be ${floorIndex}`);
     return floorIndex === -1 ? game.board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
   };
   //map the current falling block's cells to their distances from (1 cell above) the floor in their column
@@ -297,11 +385,6 @@ export const hardDropBlock = (game: Game): Game => {
   );
   const distanceToDrop = Math.min(...heights);
   const newBlock = shiftedBlock(game.fallingBlock, "D", distanceToDrop);
-  console.log(
-    `Dropped ${JSON.stringify(coords)} ${distanceToDrop} ending at ${
-      newBlock.origin
-    }`
-  );
   return settleBlock({ ...game, fallingBlock: newBlock });
 };
 
