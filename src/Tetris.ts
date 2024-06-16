@@ -5,10 +5,12 @@
 export type Game = {
   board: Board;
   fallingBlock: Block | null;
+  score: number;
   inputForbidden: boolean;
   blocksSpawned: number;
   tickInterval: number;
   over: boolean;
+  CONFIG: Config;
 };
 export type Cell = string | null;
 export type Board = Cell[][];
@@ -29,6 +31,7 @@ export type Config = {
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
+  INPUT_REPEAT_DELAY: number;
 };
 
 type ConditionalNull<argType, nonNullArgType, returnType> =
@@ -94,7 +97,8 @@ export const CONFIG: Config = {
   },
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 500
+  STARTING_TICK_INTERVAL: 500,
+  INPUT_REPEAT_DELAY: 200
 };
 
 /**
@@ -113,12 +117,22 @@ export const gameInit = (): Game => {
       Array(CONFIG.BOARD_WIDTH).fill(null)
     ),
     fallingBlock: null,
+    score: 0,
     inputForbidden: false,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
-    over: false
+    over: false,
+    CONFIG: CONFIG
   };
 };
+export const forbidInput = (game: Game): Game => ({
+  ...game,
+  inputForbidden: true
+});
+export const allowInput = (game: Game): Game => ({
+  ...game,
+  inputForbidden: false
+});
 const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
   game.blocksSpawned === 0 ? spawnNewBlock(game) : game;

@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
-import BoardDisplay from "./Board";
+import { useCallback, useEffect, useState } from "react";
+import BoardDisplay from "./components/Board";
 import {
+  Game,
+  allowInput,
   boardWithFallingBlock,
+  forbidInput,
   gameInit,
   hardDropBlock,
   rotateBlock,
@@ -9,22 +12,8 @@ import {
   startGame,
   tickGravity
 } from "./Tetris";
+import useKeyDown from "./hooks/useKeyDown";
 /** https://medium.com/@paulohfev/problem-solving-custom-react-hook-for-keydown-events-e68c8b0a371 */
-const useKeyDown = (callback: (...args: any) => any, keys: string[]) => {
-  const onKeyDown = (event: KeyboardEvent) => {
-    const wasAnyKeyPressed = keys.some(key => event.key === key);
-    if (wasAnyKeyPressed) {
-      event.preventDefault();
-      callback(event);
-    }
-  };
-  useEffect(() => {
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [onKeyDown]);
-};
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
@@ -43,14 +32,25 @@ function App() {
   useEffect(() => {
     setGameState(tickGravity(gameState));
   }, [gameClock]);
+
+  const processInput = (newGameState: Game) => {
+    if (gameState.over || gameState.inputForbidden) return;
+    setGameState(forbidInput(newGameState));
+    setTimeout(
+      () => setGameState(game => allowInput(game)),
+      gameState.CONFIG.INPUT_REPEAT_DELAY
+    );
+  };
+
   //prettier-ignore
   {
-  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
-  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
-  useKeyDown(() => !gameState.over && setGameState(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => !gameState.over && setGameState(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
-  useKeyDown(() => !gameState.over && setGameState(rotateBlock(gameState, "CCW")), ["e"]);
+  useKeyDown(() => processInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => processInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => processInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
+  useKeyDown(() => processInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
+  useKeyDown(() => processInput(hardDropBlock(gameState)), [" "]);
+  useKeyDown(() => processInput(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
+  useKeyDown(() => processInput(rotateBlock(gameState, "CCW")), ["e"]);
   }
   return (
     <>
