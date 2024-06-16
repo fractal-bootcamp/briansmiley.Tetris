@@ -21,7 +21,7 @@ function App() {
 
   //each time the game clock ticks, sets the next tick to happen after a delay set by the current value of tickInterval
   useEffect(() => {
-    if (gameState.over) return; //stop ticking if the game ends
+    // if (gameState.over) return; //stop ticking if the game ends
     const tickTimeout = setTimeout(
       () => setGameClock(gameClock + 1),
       gameState.tickInterval
