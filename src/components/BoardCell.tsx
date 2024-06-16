@@ -1,4 +1,4 @@
-import { Cell } from "./Tetris";
+import { Cell } from "../Tetris";
 
 interface BoardCellProps {
   cellValue: Cell;

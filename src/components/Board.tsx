@@ -1,5 +1,5 @@
 import BoardCell from "./BoardCell";
-import { Board } from "./Tetris";
+import { Board } from "../Tetris";
 
 const BoardDisplay = ({ board }: { board: Board }) => {
   return (
