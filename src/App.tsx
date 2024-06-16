@@ -3,9 +3,27 @@ import BoardDisplay from "./Board";
 import {
   boardWithFallingBlock,
   gameInit,
+  hardDropBlock,
+  shiftBlock,
   startGame,
   tickGravity
 } from "./Tetris";
+/** https://medium.com/@paulohfev/problem-solving-custom-react-hook-for-keydown-events-e68c8b0a371 */
+const useKeyDown = (callback: (...args: any) => any, keys: string[]) => {
+  const onKeyDown = (event: KeyboardEvent) => {
+    const wasAnyKeyPressed = keys.some(key => event.key === key);
+    if (wasAnyKeyPressed) {
+      event.preventDefault();
+      callback(event);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onKeyDown]);
+};
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
@@ -23,6 +41,10 @@ function App() {
   useEffect(() => {
     setGameState(tickGravity(gameState));
   }, [gameClock]);
+  useKeyDown(() => setGameState(shiftBlock(gameState, "L")), ["a"]);
+  useKeyDown(() => setGameState(shiftBlock(gameState, "R")), ["d"]);
+  useKeyDown(() => setGameState(shiftBlock(gameState, "D")), ["s"]);
+  useKeyDown(() => setGameState(hardDropBlock(gameState)), [" "]);
   return (
     <>
       <div className="flex flex-col">
