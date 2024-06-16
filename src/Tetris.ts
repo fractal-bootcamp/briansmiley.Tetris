@@ -35,9 +35,9 @@ export const CONFIG: Config = {
   BLOCK_SHAPES: {
     I: [
       [0, -1],
+      [0, 0],
       [0, 1],
-      [0, 2],
-      [0, 3]
+      [0, 2]
     ],
     T: [
       [0, 0],
@@ -54,8 +54,8 @@ export const CONFIG: Config = {
     S: [
       [0, 0],
       [1, 0],
-      [1, 1],
-      [0, -1]
+      [0, 1],
+      [1, -1]
     ],
     Z: [
       [0, 0],
@@ -278,7 +278,6 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
       : nextBlock
   };
 };
-shiftBlock;
 /**Drops a block all the way to the settled pile settles it into the board*/
 export const hardDropBlock = (game: Game): Game => {
   if (game.fallingBlock === null) return game;
