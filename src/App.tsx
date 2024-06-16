@@ -49,7 +49,7 @@ function App() {
   useKeyDown(() => setGameState(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
   useKeyDown(() => setGameState(hardDropBlock(gameState)), [" "]);
   useKeyDown(() => setGameState(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
-  useKeyDown(() => setGameState(rotateBlock(gameState, "CW")), ["e"]);
+  useKeyDown(() => setGameState(rotateBlock(gameState, "CCW")), ["e"]);
   }
   return (
     <>
