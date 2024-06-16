@@ -54,7 +54,7 @@ function App() {
   }
   return (
     <>
-      <div className="flex flex-col">
+      <div className="m-2 flex flex-col items-center ">
         <BoardDisplay board={boardWithFallingBlock(gameState)} />
         <div className="flex justify-center">
           <button

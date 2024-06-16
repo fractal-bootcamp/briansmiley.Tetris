@@ -10,7 +10,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     ((row % 2) + (col % 2)) % 2 ? "#919191" : "#999999";
   return (
     <div
-      className={`bg-red-500 p-2 w-[50px] h-[50px]`}
+      className={`bg-red-500 p-2 w-[10%]`}
       style={{ background: cellValue || blankCellBackground }}
     ></div>
   );

@@ -3,9 +3,9 @@ import { Board } from "./Tetris";
 
 const BoardDisplay = ({ board }: { board: Board }) => {
   return (
-    <div className="flex flex-col w-[50%]">
+    <div className="flex flex-col w-[70vw] h-[140vw] ">
       {board.map((r, row) => (
-        <div className="flex flex-row w-[100%]">
+        <div className="flex w-full h-full">
           {r.map((cell, col) => (
             <BoardCell position={[row, col]} cellValue={cell} />
           ))}
