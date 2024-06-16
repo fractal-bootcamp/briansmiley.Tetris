@@ -32,23 +32,25 @@ function App() {
 
   //each time the game clock ticks, sets the next tick to happen after a delay set by the current value of tickInterval
   useEffect(() => {
+    if (gameState.over) return; //stop ticking if the game ends
     const tickTimeout = setTimeout(
       () => setGameClock(gameClock + 1),
       gameState.tickInterval
     );
     return () => clearTimeout(tickTimeout);
   }, [gameClock]);
+  //call tick gravity every tick of the game clock
   useEffect(() => {
     setGameState(tickGravity(gameState));
   }, [gameClock]);
   //prettier-ignore
   {
-  useKeyDown(() => setGameState(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => setGameState(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
-  useKeyDown(() => setGameState(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
-  useKeyDown(() => setGameState(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => setGameState(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
-  useKeyDown(() => setGameState(rotateBlock(gameState, "CCW")), ["e"]);
+  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
+  useKeyDown(() => !gameState.over && setGameState(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
+  useKeyDown(() => !gameState.over && setGameState(hardDropBlock(gameState)), [" "]);
+  useKeyDown(() => !gameState.over && setGameState(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
+  useKeyDown(() => !gameState.over && setGameState(rotateBlock(gameState, "CCW")), ["e"]);
   }
   return (
     <>

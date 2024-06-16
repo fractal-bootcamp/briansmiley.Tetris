@@ -8,6 +8,7 @@ export type Game = {
   inputForbidden: boolean;
   blocksSpawned: number;
   tickInterval: number;
+  over: boolean;
 };
 export type Cell = string | null;
 export type Board = Cell[][];
@@ -111,12 +112,16 @@ export const gameInit = (): Game => {
     fallingBlock: null,
     inputForbidden: false,
     blocksSpawned: 0,
-    tickInterval: CONFIG.STARTING_TICK_INTERVAL
+    tickInterval: CONFIG.STARTING_TICK_INTERVAL,
+    over: false
   };
 };
+const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
   game.blocksSpawned === 0 ? spawnNewBlock(game) : game;
 const spawnNewBlock = (game: Game): Game => {
+  const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
+  if (game.board[spawnR][spawnC]) return endGame(game);
   return {
     ...game,
     fallingBlock: newFallingBlock(),
