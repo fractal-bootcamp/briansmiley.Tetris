@@ -91,7 +91,7 @@ export const CONFIG: Config = {
     T: "#800080",
     O: "#ffff00",
     S: "#ff0000",
-    Z: "#800080",
+    Z: "#00ff00",
     L: "#ff7f00",
     J: "#0000ff"
   },
