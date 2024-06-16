@@ -135,7 +135,11 @@ export const allowInput = (game: Game): Game => ({
 });
 const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
-  game.blocksSpawned === 0 ? spawnNewBlock(game) : game;
+  game.blocksSpawned === 0
+    ? spawnNewBlock(game)
+    : game.over
+    ? spawnNewBlock(gameInit())
+    : game;
 const spawnNewBlock = (game: Game): Game => {
   const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
   if (game.board[spawnR][spawnC]) return endGame(game);
