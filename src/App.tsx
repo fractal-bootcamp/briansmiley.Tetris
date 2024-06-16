@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import BoardDisplay from "./Board";
-import { gameInit, startGame } from "./Tetris";
+import {
+  boardWithFallingBlock,
+  gameInit,
+  startGame,
+  tickGravity
+} from "./Tetris";
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
@@ -13,14 +18,20 @@ function App() {
       () => setGameClock(gameClock + 1),
       tickInterval
     );
-    return clearTimeout(tickTimeout);
+    return () => clearTimeout(tickTimeout);
+  }, [gameClock]);
+  useEffect(() => {
+    setGameState(tickGravity(gameState));
   }, [gameClock]);
   return (
     <>
       <div className="flex flex-col">
-        <BoardDisplay board={gameState.board} />
+        <BoardDisplay board={boardWithFallingBlock(gameState)} />
         <div className="flex justify-center">
-          <button className="btn" onClick={() => startGame(gameState)}>
+          <button
+            className="btn"
+            onClick={() => setGameState(startGame(gameState))}
+          >
             Start
           </button>
         </div>

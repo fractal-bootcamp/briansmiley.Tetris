@@ -12,9 +12,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     <div
       className={`bg-red-500 p-2 w-[50px] h-[50px]`}
       style={{ background: cellValue || blankCellBackground }}
-    >
-      {cellValue ? cellValue : " "}
-    </div>
+    ></div>
   );
 };
 

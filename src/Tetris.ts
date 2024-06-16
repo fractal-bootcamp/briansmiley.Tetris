@@ -76,7 +76,7 @@ export const CONFIG: Config = {
       [1, 1]
     ]
   },
-  SPAWN_POINT: [4, 0] as Coordinate,
+  SPAWN_POINT: [0, 4] as Coordinate,
   SHAPE_COLORS: {
     I: "#00ffff",
     T: "#800080",
@@ -124,14 +124,16 @@ const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
   return [c1[0] + c2[0], c1[1] + c2[1]];
 };
 //gets the on-board coordinates of all of a block's cells
-const blockOccupiedCells = (block: Block) => {
-  return block.body.map(cell => coordinateSum(cell, block.origin));
+const blockOccupiedCells = (block: Block | null) => {
+  return block === null
+    ? null
+    : block.body.map(cell => coordinateSum(cell, block.origin));
 };
 
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
     coord[0] < 0 ||
-    coord[0] > board.length ||
+    coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
   );
@@ -139,6 +141,7 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
 //checks whether a proposed block position will be a collision
 const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
   const occupiedCells = blockOccupiedCells(block);
+  if (occupiedCells === null) return false;
   return occupiedCells.some(
     boardLocation =>
       isOffScreen(boardLocation, board) ||
@@ -175,6 +178,7 @@ const newFallingBlock = (): Block => {
 const settleBlock = (game: Game): Game => {
   const [oldBoard, fallenBlock] = [game.board, game.fallingBlock!];
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock);
+  if (fallenBlockEndCoords === null) return game;
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
@@ -281,10 +285,23 @@ export const hardDropBlock = (game: Game): Game => {
   const coords = blockOccupiedCells(game.fallingBlock);
   const floorCeilingDistance = (column: number) =>
     game.board.findIndex(row => isNotNull(row[column]));
-  const heights = coords.map(
+  const heights = coords!.map(
     ([row, column]) => -(row - floorCeilingDistance(column)) - 1
   );
   const distanceToDrop = Math.min(...heights);
   const newBlock = shiftedBlock(game.fallingBlock, "D", distanceToDrop);
   return settleBlock({ ...game, fallingBlock: newBlock });
+};
+
+export const boardWithFallingBlock = (game: Game): Board => {
+  const { fallingBlock, board } = game;
+  const occupiedCells = blockOccupiedCells(fallingBlock);
+  if (occupiedCells === null) return board;
+  return board.map((row, r) =>
+    row.map((cell, c) =>
+      occupiedCells.some(coord => coord[0] === r && coord[1] === c)
+        ? CONFIG.SHAPE_COLORS[fallingBlock!.shape]
+        : cell
+    )
+  );
 };
