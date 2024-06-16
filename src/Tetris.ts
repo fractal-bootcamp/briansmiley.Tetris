@@ -370,7 +370,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
 };
 /**Drops a block all the way to the settled pile settles it into the board*/
 export const hardDropBlock = (game: Game): Game => {
-  if (game.fallingBlock === null) return game;
+  if (game.fallingBlock === null || game.over) return game;
   const coords = blockOccupiedCells(game.fallingBlock);
 
   //get the index of the row containing a column's highest occupied cell

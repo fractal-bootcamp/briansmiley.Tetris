@@ -30,6 +30,7 @@ function App() {
   }, [gameClock]);
   //call tick gravity every tick of the game clock
   useEffect(() => {
+    if (gameState.over) return;
     setGameState(tickGravity(gameState));
   }, [gameClock]);
 
