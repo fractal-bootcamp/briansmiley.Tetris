@@ -181,6 +181,7 @@ const settleBlock = (game: Game): Game => {
   if (fallenBlockEndCoords === null) return game;
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
+  // console.log(newBoard, fallenBlockEndCoords);
   fallenBlockEndCoords.forEach(
     coord => (newBoard[coord[0]][coord[1]] = newColor)
   );
@@ -282,16 +283,29 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
 export const hardDropBlock = (game: Game): Game => {
   if (game.fallingBlock === null) return game;
   const coords = blockOccupiedCells(game.fallingBlock);
-  const floorCeilingDistance = (column: number) =>
-    game.board.findIndex(row => isNotNull(row[column]));
+
+  //get the index of the row containing a column's highest occupied cell
+  const colFloorIndex = (column: number) => {
+    const floorIndex = game.board.findIndex(row => isNotNull(row[column]));
+
+    console.log(`Column ${column} floor detected to be ${floorIndex}`);
+    return floorIndex === -1 ? game.board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
+  };
+  //map the current falling block's cells to their distances from (1 cell above) the floor in their column
   const heights = coords!.map(
-    ([row, column]) => -(row - floorCeilingDistance(column)) - 1
+    ([row, column]) => colFloorIndex(column) - 1 - row
   );
   const distanceToDrop = Math.min(...heights);
   const newBlock = shiftedBlock(game.fallingBlock, "D", distanceToDrop);
+  console.log(
+    `Dropped ${JSON.stringify(coords)} ${distanceToDrop} ending at ${
+      newBlock.origin
+    }`
+  );
   return settleBlock({ ...game, fallingBlock: newBlock });
 };
 
+/** Returns a board containing the fallingBlock cells filled in for rendering purposes */
 export const boardWithFallingBlock = (game: Game): Board => {
   const { fallingBlock, board } = game;
   const occupiedCells = blockOccupiedCells(fallingBlock);
