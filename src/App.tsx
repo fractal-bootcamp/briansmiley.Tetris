@@ -4,6 +4,7 @@ import {
   boardWithFallingBlock,
   gameInit,
   hardDropBlock,
+  rotateBlock,
   shiftBlock,
   startGame,
   tickGravity
@@ -41,10 +42,15 @@ function App() {
   useEffect(() => {
     setGameState(tickGravity(gameState));
   }, [gameClock]);
-  useKeyDown(() => setGameState(shiftBlock(gameState, "L")), ["a"]);
-  useKeyDown(() => setGameState(shiftBlock(gameState, "R")), ["d"]);
-  useKeyDown(() => setGameState(shiftBlock(gameState, "D")), ["s"]);
+  //prettier-ignore
+  {
+  useKeyDown(() => setGameState(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
+  useKeyDown(() => setGameState(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
+  useKeyDown(() => setGameState(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
   useKeyDown(() => setGameState(hardDropBlock(gameState)), [" "]);
+  useKeyDown(() => setGameState(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
+  useKeyDown(() => setGameState(rotateBlock(gameState, "CW")), ["e"]);
+  }
   return (
     <>
       <div className="flex flex-col">
