@@ -261,7 +261,8 @@ export const clearThenCollapseRows = (game: Game): Game =>
 
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
-  if (game.fallingBlock === null) return game;
+  if (game.fallingBlock === null || game.fallingBlock.shape === "O")
+    return game;
   return {
     ...game,
     fallingBlock: {
