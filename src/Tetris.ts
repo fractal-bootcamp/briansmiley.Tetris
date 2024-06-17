@@ -133,7 +133,7 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     boardLocation =>
-      boardLocation[0] > 0 && //if we are above the board we arent checking anything
+      boardLocation[0] >= 0 && //if we are above the board we arent checking anything
       (isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
         board[boardLocation[0]][boardLocation[1]]) //interaction if board is occupied
   );
