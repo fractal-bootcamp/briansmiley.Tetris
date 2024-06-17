@@ -6,6 +6,7 @@ export type Game = {
   board: Board;
   fallingBlock: Block | null;
   score: number;
+  linesCleared: number;
   inputForbidden: boolean;
   blocksSpawned: number;
   tickInterval: number;
@@ -31,6 +32,8 @@ export type Config = {
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
+  SPEED_SCALING: number;
+  LEVEL_LINES: number; //how many lines between speed scaling
   INPUT_REPEAT_DELAY: number;
 };
 
@@ -98,7 +101,9 @@ export const CONFIG: Config = {
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 500,
-  INPUT_REPEAT_DELAY: 75
+  SPEED_SCALING: 1.34, //step multiplier for game speed increase
+  LEVEL_LINES: 5,
+  INPUT_REPEAT_DELAY: 40
 };
 
 /**
@@ -118,6 +123,7 @@ export const gameInit = (): Game => {
     ),
     fallingBlock: null,
     score: 0,
+    linesCleared: 0,
     inputForbidden: false,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
@@ -133,6 +139,12 @@ export const allowInput = (game: Game): Game => ({
   ...game,
   inputForbidden: false
 });
+//
+// const incrementGameSpeed = (game: Game): Game => ({
+//   ...game,
+//   tickInterval: game.tickInterval * (1 / 1 + CONFIG.SPEED_SCALING)
+// });
+
 const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
   game.blocksSpawned === 0
@@ -148,7 +160,10 @@ const spawnNewBlock = (game: Game): Game => {
   return {
     ...game,
     fallingBlock: newFallingBlock(),
-    blocksSpawned: game.blocksSpawned + 1
+    blocksSpawned: game.blocksSpawned + 1,
+    tickInterval:
+      CONFIG.STARTING_TICK_INTERVAL /
+      CONFIG.SPEED_SCALING ** Math.floor(game.linesCleared / CONFIG.LEVEL_LINES)
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
@@ -234,7 +249,7 @@ export const tickGravity = (game: Game): Game => {
   const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
   if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
     return settleBlock(newGame);
-  return clearFullRows(
+  return clearFullRowsAndScore(
     collapseGapRows({ ...newGame, fallingBlock: nextBlock })
   );
 };
@@ -249,17 +264,23 @@ const fullRows = (board: Board): number[] => {
 };
 
 /**Returns a copy of the board with full rows nulled*/
-export const clearFullRows = (game: Game): Game => {
+export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
   return {
     ...game,
+    score: game.score + clearedLinesScore(rowsToClear.length),
+    linesCleared: game.linesCleared + rowsToClear.length,
     board: board.map((row, r) =>
       rowsToClear.includes(r)
         ? Array.from(row, () => null)
         : structuredClone(row)
     )
   };
+};
+
+const clearedLinesScore = (lines: number): number => {
+  return [0, 40, 100, 300, 1200][lines];
 };
 
 /**Settle the board squares above a clear by an amount equal to the clear*/
@@ -284,7 +305,7 @@ export const collapseGapRows = (game: Game): Game => {
 };
 /** Clears any full rows and simultaneously collapses them */
 export const clearThenCollapseRows = (game: Game): Game =>
-  collapseGapRows(clearFullRows(game));
+  collapseGapRows(clearFullRowsAndScore(game));
 /** INPUT RESPONSES */
 
 const rotatedBlock = <T extends Block | null>(
