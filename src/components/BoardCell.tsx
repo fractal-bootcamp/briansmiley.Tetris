@@ -8,7 +8,7 @@ interface BoardCellProps {
 const BoardCell = ({ cellValue, position }: BoardCellProps) => {
   const [row, col] = position;
   const blankCellBackground =
-    ((row % 2) + (col % 2)) % 2 ? "#151515" : "#101010";
+    ((row % 2) + (col % 2)) % 2 ? "#181818" : "#090909";
   const cellDynamicStyles: React.CSSProperties = {
     background: cellValue || blankCellBackground.toString(),
     borderWidth: cellValue ? 6 : 0,
