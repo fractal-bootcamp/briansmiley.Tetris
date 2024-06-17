@@ -166,9 +166,9 @@ const newFallingBlock = (): Block => {
 
 /** Locks the game's fallingBlock into place as part of the board*/
 const settleBlock = (game: Game): Game => {
-  const [oldBoard, fallenBlock] = [game.board, game.fallingBlock!];
+  const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
+  if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock);
-  if (fallenBlockEndCoords === null) return game;
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
