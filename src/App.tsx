@@ -74,20 +74,28 @@ function App() {
             board={boardWithFallingBlock(gameState)}
             CONFIG={gameState.CONFIG}
           />
-          <div className="flex justify-between w-full">
-            <div></div>
-            <button
-              className="btn"
-              onClick={() => setGameState(startGame(gameState))}
-            >
-              Start
-            </button>
-            <div onClick={e => handleSoundClick(e)}>
-              {unMuted ? (
-                <Volume2 className="w-10 h-10" />
-              ) : (
-                <VolumeX className="w-10 h-10" />
-              )}
+          <div className="flex justify-between w-full ">
+            <div className="flex justify-start basis-full">
+              <div className="text-5xl font-mono text-green-500">
+                {gameState.score}
+              </div>
+            </div>
+            <div className="flex justify-center basis-full">
+              <button
+                className="btn [border-style:outset] border-8 rounded-none border-[#7f7f7f] font-semibold text-xl"
+                onClick={() => setGameState(startGame(gameState))}
+              >
+                Start
+              </button>
+            </div>
+            <div className="flex justify-end basis-full">
+              <div onClick={e => handleSoundClick(e)}>
+                {unMuted ? (
+                  <Volume2 className="w-10 h-10" />
+                ) : (
+                  <VolumeX className="w-10 h-10" />
+                )}
+              </div>
             </div>
           </div>
         </div>
