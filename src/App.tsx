@@ -69,10 +69,7 @@ function App() {
     <>
       <div className="flex justify-center">
         <div className="m-2 flex flex-col items-center gap-2 w-fit">
-          <BoardDisplay
-            board={boardWithFallingBlock(gameState)}
-            CONFIG={gameState.CONFIG}
-          />
+          <BoardDisplay board={boardWithFallingBlock(gameState)} />
           <div className="flex justify-between w-full ">
             <div className="flex justify-start basis-full">
               <div className="text-5xl font-mono text-green-500">
