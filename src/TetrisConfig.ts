@@ -2,6 +2,7 @@ export type Config = {
   BLOCK_SHAPES: Record<TetrisShape, Coordinate[]>;
   SPAWN_POINT: Coordinate;
   SHAPE_COLORS: Record<TetrisShape, string>;
+  WALL_COLOR: string;
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
@@ -68,6 +69,7 @@ export const CONFIG: Config = {
     L: "#ff7f00",
     J: "#0000ff"
   },
+  WALL_COLOR: "#717171",
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 350,
