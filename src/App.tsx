@@ -59,7 +59,6 @@ function App() {
   //prettier-ignore
   {
   useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
   useKeyDown(() => handleInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
   useKeyDown(() => handleInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
   useKeyDown(() => handleInput(hardDropBlock(gameState)), [" "]);
