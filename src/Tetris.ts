@@ -117,11 +117,11 @@ const blockOccupiedCells = <T extends Block | null>(
         coordinateSum(cell, block.origin)
       ) as ConditionalNull<T, Block, Coordinate[]>);
 };
-
+/**Checks if a coordinate is off the screen; to allow poking over top of board, check that separately */
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
     //Lets allow things to go above the board?
-    // coord[0] < 0 ||
+    coord[0] < 0 ||
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
