@@ -75,6 +75,6 @@ export const CONFIG: Config = {
   STARTING_TICK_INTERVAL: 350,
   SPEED_SCALING: 1.34, //step multiplier for game speed increase
   LEVEL_LINES: 5,
-  INPUT_REPEAT_DELAY: 20,
+  INPUT_REPEAT_DELAY: 50,
   WALLS: true
 };
