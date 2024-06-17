@@ -78,7 +78,7 @@ function App() {
             </div>
             <div className="flex justify-center basis-full">
               <button
-                className="btn [border-style:outset] border-8 rounded-none border-[#7f7f7f] font-semibold text-xl"
+                className="btn [border-style:outset] active:[border-style:inset] border-8 rounded-none border-[#7f7f7f] font-semibold text-xl"
                 onClick={() => setGameState(startGame(gameState))}
               >
                 Start
