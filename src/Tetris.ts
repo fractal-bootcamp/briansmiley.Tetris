@@ -100,7 +100,7 @@ export const CONFIG: Config = {
   },
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 500,
+  STARTING_TICK_INTERVAL: 350,
   SPEED_SCALING: 1.34, //step multiplier for game speed increase
   LEVEL_LINES: 5,
   INPUT_REPEAT_DELAY: 40
