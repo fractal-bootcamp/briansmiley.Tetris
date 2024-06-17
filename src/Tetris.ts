@@ -172,7 +172,8 @@ const settleBlock = (game: Game): Game => {
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
-    coord => (newBoard[coord[0]][coord[1]] = newColor)
+    coord =>
+      !isOffScreen(coord, newBoard) && (newBoard[coord[0]][coord[1]] = newColor)
   );
   return spawnNewBlock({ ...game, board: newBoard });
 };
