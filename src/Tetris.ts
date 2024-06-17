@@ -53,14 +53,14 @@ const newBlankBoard = (): Board => {
   const unwalledBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ =>
     Array(CONFIG.BOARD_WIDTH).fill(null)
   );
-  const mainBoard = [...Array(CONFIG.BOARD_HEIGHT - 1)].map(_ =>
-    ["#717171"]
-      .concat(Array(CONFIG.BOARD_WIDTH - 2).fill(null))
-      .concat(["#717171"])
-  ) as Board;
-  const lastRow = [Array<Cell>(CONFIG.BOARD_WIDTH).fill("#717171")];
-  const board = mainBoard.concat(lastRow);
-  return board;
+  if (CONFIG.WALLS) {
+    const wallCell = "717171";
+    const walledBoard = unwalledBoard
+      .map(row => [wallCell].concat(row).concat([wallCell]))
+      .concat([Array(CONFIG.BOARD_WIDTH + 2).fill(wallCell)]);
+    return walledBoard;
+  }
+  return unwalledBoard;
 };
 export const setTickInterval = (game: Game, newInterval: number): Game => ({
   ...game,
