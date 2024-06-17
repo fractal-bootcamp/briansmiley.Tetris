@@ -51,7 +51,7 @@ function App() {
     );
   };
   const handleSoundClick = (e: React.MouseEvent) => {
-    // e.preventDefault();
+    e.preventDefault();
     if (unMuted === null) startMusic();
     setMuted(!unMuted);
   };
