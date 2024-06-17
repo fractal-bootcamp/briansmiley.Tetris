@@ -62,8 +62,8 @@ function App() {
   useKeyDown(() => handleInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
   useKeyDown(() => handleInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
   useKeyDown(() => handleInput(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CW")), ["w","ArrowUp"]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CCW")), ["e"]);
+  useKeyDown(() => handleInput(rotateBlock(gameState, "CCW")), ["w","ArrowUp"]);
+  useKeyDown(() => handleInput(rotateBlock(gameState, "CW")), ["e"]);
   }
   return (
     <>
