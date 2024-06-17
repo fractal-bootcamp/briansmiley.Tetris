@@ -1,22 +1,20 @@
 import BoardCell from "./BoardCell";
-import { Board, Config } from "../Tetris";
+import { Board } from "../Tetris";
 
 type BoardDisplayProps = {
   board: Board;
-  CONFIG: Config;
 };
 
 const keyFromPosition = (a: number, b: number) =>
   a.toString().padStart(2, "0") + b.toString().padStart(2, "0");
 
-const BoardDisplay = ({ board, CONFIG }: BoardDisplayProps) => {
-  const aspectRatio = CONFIG.BOARD_WIDTH / CONFIG.BOARD_HEIGHT;
+const BoardDisplay = ({ board }: BoardDisplayProps) => {
+  const aspectRatio = board[0].length / board.length;
   const dimensions: React.CSSProperties = {
-    height: "90vh",
-    width: `${aspectRatio * 90}vh`
+    aspectRatio: aspectRatio
   };
   return (
-    <div className="flex flex-col" style={dimensions}>
+    <div className="flex flex-col h-[90vh]" style={dimensions}>
       {board.map((r, row) => (
         <div className="flex flex-1" key={row}>
           {r.map((cell, col) => (

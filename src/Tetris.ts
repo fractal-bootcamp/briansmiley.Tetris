@@ -1,3 +1,5 @@
+import { CONFIG } from "./TetrisConfig";
+import type { Config, Coordinate, TetrisShape } from "./TetrisConfig";
 /**
  * Types
  */
@@ -22,20 +24,6 @@ type Block = {
 };
 export type Direction = "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
-type Coordinate = [number, number];
-
-type TetrisShape = "I" | "T" | "O" | "S" | "Z" | "L" | "J";
-export type Config = {
-  BLOCK_SHAPES: Record<TetrisShape, Coordinate[]>;
-  SPAWN_POINT: Coordinate;
-  SHAPE_COLORS: Record<TetrisShape, string>;
-  BOARD_WIDTH: number;
-  BOARD_HEIGHT: number;
-  STARTING_TICK_INTERVAL: number;
-  SPEED_SCALING: number;
-  LEVEL_LINES: number; //how many lines between speed scaling
-  INPUT_REPEAT_DELAY: number;
-};
 
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
@@ -43,84 +31,14 @@ type ConditionalNull<argType, nonNullArgType, returnType> =
  * Data
  */
 
-export const CONFIG: Config = {
-  BLOCK_SHAPES: {
-    I: [
-      [0, -1],
-      [0, 0],
-      [0, 1],
-      [0, 2]
-    ],
-    T: [
-      [0, 0],
-      [0, 1],
-      [0, -1],
-      [1, 0]
-    ],
-    O: [
-      [0, 0],
-      [1, 0],
-      [0, 1],
-      [1, 1]
-    ],
-    S: [
-      [0, 0],
-      [1, 0],
-      [0, 1],
-      [1, -1]
-    ],
-    Z: [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-      [0, -1]
-    ],
-    L: [
-      [0, 1],
-      [0, 0],
-      [0, -1],
-      [-1, 1]
-    ],
-    J: [
-      [0, 0],
-      [0, 1],
-      [0, -1],
-      [1, 1]
-    ]
-  },
-  SPAWN_POINT: [0, 4] as Coordinate,
-  SHAPE_COLORS: {
-    I: "#00ffff",
-    T: "#800080",
-    O: "#ffff00",
-    S: "#ff0000",
-    Z: "#00ff00",
-    L: "#ff7f00",
-    J: "#0000ff"
-  },
-  BOARD_WIDTH: 10,
-  BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 350,
-  SPEED_SCALING: 1.34, //step multiplier for game speed increase
-  LEVEL_LINES: 5,
-  INPUT_REPEAT_DELAY: 40
-};
-
 /**
  * Functions
  */
 
-export const setTickInterval = (game: Game, newInterval: number): Game => ({
-  ...game,
-  tickInterval: newInterval
-});
-
 /**creates a new blank slate game object; requires a call to spawnNewBlock() to create first falling block */
 export const gameInit = (): Game => {
   return {
-    board: [...Array(CONFIG.BOARD_HEIGHT)].map(_ =>
-      Array(CONFIG.BOARD_WIDTH).fill(null)
-    ),
+    board: newBlankBoard(),
     fallingBlock: null,
     score: 0,
     linesCleared: 0,
@@ -131,6 +49,24 @@ export const gameInit = (): Game => {
     CONFIG: CONFIG
   };
 };
+const newBlankBoard = (): Board => {
+  const unwalledBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ =>
+    Array(CONFIG.BOARD_WIDTH).fill(null)
+  );
+  if (CONFIG.WALLS) {
+    const wallCell = "717171";
+    const walledBoard = unwalledBoard
+      .map(row => [wallCell].concat(row).concat([wallCell]))
+      .concat([Array(CONFIG.BOARD_WIDTH + 2).fill(wallCell)]);
+    return walledBoard;
+  }
+  return unwalledBoard;
+};
+export const setTickInterval = (game: Game, newInterval: number): Game => ({
+  ...game,
+  tickInterval: newInterval
+});
+
 export const forbidInput = (game: Game): Game => ({
   ...game,
   inputForbidden: true
@@ -197,8 +133,8 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     boardLocation =>
-      isOffScreen(boardLocation, board) ||
-      (boardLocation[0] >= 0 && board[boardLocation[0]][boardLocation[1]])
+      (boardLocation[0] > 0 && isOffScreen(boardLocation, board)) || //if we are above the board we dont care
+      board[boardLocation[0]][boardLocation[1]]
   );
 };
 //get the next spawnable block, currently at random
@@ -259,7 +195,13 @@ export const tickGravity = (game: Game): Game => {
 /** Gets a list of the indices of full rows on the board */
 const fullRows = (board: Board): number[] => {
   return board
-    .map((row, rowIndex) => (row.every(cell => cell) ? rowIndex : null))
+    .map((row, rowIndex) =>
+      row.every(
+        cell => cell && Object.values(CONFIG.SHAPE_COLORS).includes(cell)
+      )
+        ? rowIndex
+        : null
+    )
     .filter(isNotNull);
 };
 
