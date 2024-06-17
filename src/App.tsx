@@ -90,9 +90,9 @@ function App() {
             <div className="flex justify-end basis-full">
               <div onClick={e => handleSoundClick(e)}>
                 {unMuted ? (
-                  <Volume2 className="w-10 h-10" />
+                  <Volume2 className="w-10 h-10" color="#ffffff" />
                 ) : (
-                  <VolumeX className="w-10 h-10" />
+                  <VolumeX className="w-10 h-10" color="#ffffff" />
                 )}
               </div>
             </div>
