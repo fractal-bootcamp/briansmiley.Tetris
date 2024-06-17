@@ -11,11 +11,13 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     ((row % 2) + (col % 2)) % 2 ? "#151515" : "#101010";
   const cellDynamicStyles: React.CSSProperties = {
     background: cellValue || blankCellBackground.toString(),
-    borderWidth: cellValue ? 8 : 0,
+    borderWidth: cellValue ? 6 : 0,
     borderStyle: "outset",
-    borderColor: `rgb(from ${cellValue} calc(.8*r) calc(.8*g) calc(.8*b))`
+    boxSizing: "border-box",
+    borderColor: `rgb(from ${cellValue} calc(.8*r) calc(.8*g) calc(.8*b))`,
+    flex: "1 1 16px"
   };
-  return <div className={` w-[10%]`} style={cellDynamicStyles}></div>;
+  return <div style={cellDynamicStyles}></div>;
 };
 
 export default BoardCell;
