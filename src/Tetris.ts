@@ -120,7 +120,6 @@ const blockOccupiedCells = <T extends Block | null>(
 /**Checks if a coordinate is off the screen; to allow poking over top of board, check that separately */
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
-    //Lets allow things to go above the board?
     coord[0] < 0 ||
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
@@ -336,10 +335,15 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
 export const hardDropBlock = (game: Game): Game => {
   if (game.fallingBlock === null || game.over) return game;
   const coords = blockOccupiedCells(game.fallingBlock);
-
-  //get the index of the row containing a column's highest occupied cell
+  const highestRowInBlock = coords.reduce(
+    (prev, curr) => Math.min(curr[0], prev),
+    game.board.length
+  );
+  //get the index of the row containing a column's highest occupied cell (that is below the top of the block)
   const colFloorIndex = (column: number) => {
-    const floorIndex = game.board.findIndex(row => isNotNull(row[column]));
+    const floorIndex = game.board.findIndex(
+      (row, idx) => idx > highestRowInBlock && isNotNull(row[column])
+    );
 
     return floorIndex === -1 ? game.board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
   };
