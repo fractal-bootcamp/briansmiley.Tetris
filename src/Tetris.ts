@@ -49,18 +49,17 @@ export const gameInit = (): Game => {
     CONFIG: CONFIG
   };
 };
+const newEmptyRow = (): Cell[] => {
+  const row = Array(CONFIG.BOARD_WIDTH).fill(null);
+  return CONFIG.WALLS
+    ? [CONFIG.WALL_COLOR].concat(row).concat([CONFIG.WALL_COLOR])
+    : row;
+};
 const newBlankBoard = (): Board => {
-  const unwalledBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ =>
-    Array(CONFIG.BOARD_WIDTH).fill(null)
-  );
-  if (CONFIG.WALLS) {
-    const wallCell = "717171";
-    const walledBoard = unwalledBoard
-      .map(row => [wallCell].concat(row).concat([wallCell]))
-      .concat([Array(CONFIG.BOARD_WIDTH + 2).fill(wallCell)]);
-    return walledBoard;
-  }
-  return unwalledBoard;
+  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ => newEmptyRow());
+  return CONFIG.WALLS
+    ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(CONFIG.WALL_COLOR)])
+    : newBoard;
 };
 export const setTickInterval = (game: Game, newInterval: number): Game => ({
   ...game,
@@ -103,7 +102,8 @@ const spawnNewBlock = (game: Game): Game => {
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
-
+// const isPartOfShape = (cell: Cell) =>
+//   cell === null ? false : Object.values(CONFIG.SHAPE_COLORS).includes(cell);
 const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
   return [c1[0] + c2[0], c1[1] + c2[1]];
 };
@@ -117,24 +117,25 @@ const blockOccupiedCells = <T extends Block | null>(
         coordinateSum(cell, block.origin)
       ) as ConditionalNull<T, Block, Coordinate[]>);
 };
-
+/**Checks if a coordinate is off the screen; to allow poking over top of board, check that separately */
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
     //Lets allow things to go above the board?
-    // coord[0] < 0 ||
+    coord[0] < 0 ||
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
   );
 };
 //checks whether a proposed block position will be a collision
-const blockIntersectsSettledOrWalls = (board: Board, block: Block) => {
+const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
   const occupiedCells = blockOccupiedCells(block);
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     boardLocation =>
-      (boardLocation[0] > 0 && isOffScreen(boardLocation, board)) || //if we are above the board we dont care
-      board[boardLocation[0]][boardLocation[1]]
+      boardLocation[0] >= 0 && //if we are above the board we arent checking anything
+      (isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
+        board[boardLocation[0]][boardLocation[1]]) //interaction if board is occupied
   );
 };
 //get the next spawnable block, currently at random
@@ -165,13 +166,14 @@ const newFallingBlock = (): Block => {
 
 /** Locks the game's fallingBlock into place as part of the board*/
 const settleBlock = (game: Game): Game => {
-  const [oldBoard, fallenBlock] = [game.board, game.fallingBlock!];
+  const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
+  if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock);
-  if (fallenBlockEndCoords === null) return game;
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
-    coord => (newBoard[coord[0]][coord[1]] = newColor)
+    coord =>
+      !isOffScreen(coord, newBoard) && (newBoard[coord[0]][coord[1]] = newColor)
   );
   return spawnNewBlock({ ...game, board: newBoard });
 };
@@ -190,22 +192,24 @@ export const tickGravity = (game: Game): Game => {
   );
 };
 
-/** SCORE/CLEAR  EVENTS */
+/** SCORING/CLEAR  EVENTS */
 
+/**A row is full if it contains no nulls and is not entirely wall (i.e. the floor)*/
+const rowIsFull = (row: Cell[]) =>
+  row.every(isNotNull) && !row.every(cell => cell === CONFIG.WALL_COLOR);
+const rowIsEmpty = (row: Cell[]) =>
+  !rowIncludesBlock(row) && !row.every(cell => cell === CONFIG.WALL_COLOR);
+/**Row has at least one cell that matches SHAPE_COLORS */
+const rowIncludesBlock = (row: Cell[]) =>
+  row.some(cell => cell && Object.values(CONFIG.SHAPE_COLORS).includes(cell));
 /** Gets a list of the indices of full rows on the board */
 const fullRows = (board: Board): number[] => {
   return board
-    .map((row, rowIndex) =>
-      row.every(
-        cell => cell && Object.values(CONFIG.SHAPE_COLORS).includes(cell)
-      )
-        ? rowIndex
-        : null
-    )
+    .map((row, rowIndex) => (rowIsFull(row) ? rowIndex : null))
     .filter(isNotNull);
 };
 
-/**Returns a copy of the board with full rows nulled*/
+/**Clears out filled rows and increments score/lines cleared*/
 export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
@@ -214,9 +218,7 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     score: game.score + clearedLinesScore(rowsToClear.length),
     linesCleared: game.linesCleared + rowsToClear.length,
     board: board.map((row, r) =>
-      rowsToClear.includes(r)
-        ? Array.from(row, () => null)
-        : structuredClone(row)
+      rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
     )
   };
 };
@@ -228,20 +230,19 @@ const clearedLinesScore = (lines: number): number => {
 /**Settle the board squares above a clear by an amount equal to the clear*/
 export const collapseGapRows = (game: Game): Game => {
   const { board } = game;
-  const firstNonEmptyRowIndex = board.findIndex(row => row.some(cell => cell));
+  const firstNonEmptyRowIndex = board.findIndex(rowIncludesBlock);
+  if (firstNonEmptyRowIndex === -1) return game;
   //indices of the empty rows below the topmost nonempty row
   const emptyRowIndices = board
     .map((row, rowIndex) =>
-      row.some(cell => cell) && rowIndex >= firstNonEmptyRowIndex
-        ? null
-        : rowIndex
+      !rowIsEmpty(row) && rowIndex >= firstNonEmptyRowIndex ? null : rowIndex
     )
     .filter(isNotNull);
   let newBoard = structuredClone(board);
   //for each empty row index, splice out that row in newBoard and then put a new empty row on top; this should let the rest of the indices keep working as expected
   emptyRowIndices.forEach(rowIndex => {
     newBoard.splice(rowIndex, 1);
-    newBoard = [Array.from(newBoard[0], (): Cell => null)].concat(newBoard);
+    newBoard = [newEmptyRow()].concat(newBoard);
   });
   return { ...game, board: newBoard };
 };
