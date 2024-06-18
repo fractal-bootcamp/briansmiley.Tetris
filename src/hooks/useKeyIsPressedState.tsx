@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 const useKeyIsPressedState = (key: string) => {
   const [keyDown, setKeyDown] = useState(false);
   useEffect(() => {
-    console.log(`Setting keybinding for ${key}`); //debug to check whether we are running the effect multiple times
     const keyWasPressed = (event: KeyboardEvent) => event.key === key;
     const onKeyDown = (e: KeyboardEvent) => {
       if (keyWasPressed(e)) setKeyDown(true);
