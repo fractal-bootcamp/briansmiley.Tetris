@@ -264,8 +264,8 @@ const rotatedBlock = <T extends Block | null>(
         ...block,
         body: block.body.map(coord =>
           direction === "CW"
-            ? ([-coord[1], coord[0]] as Coordinate)
-            : ([coord[1], -coord[0]] as Coordinate)
+            ? ([coord[1], -coord[0]] as Coordinate)
+            : ([-coord[1], coord[0]] as Coordinate)
         )
       } as ConditionalNull<T, Block, Block>);
 
