@@ -73,14 +73,14 @@ export const CONFIG: Config = {
   WALL_COLOR: "#717171",
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 350,
-  SPEED_SCALING: 1.34, //step multiplier for game speed increase
+  STARTING_TICK_INTERVAL: 450,
+  SPEED_SCALING: 1.25, //step multiplier for game speed increase
   LEVEL_LINES: 5,
   POLL_RATES: {
     base: 10,
     drop: 250,
     rotate: 250,
-    shift: 60
+    shift: 100
   },
   WALLS: true
 };
