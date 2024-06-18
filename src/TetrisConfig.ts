@@ -14,6 +14,7 @@ export type Config = {
   WALLS: boolean;
 };
 export type Coordinate = [number, number];
+export type InputCategory = "rotate" | "shift" | "drop";
 
 export type TetrisShape = "I" | "T" | "O" | "S" | "Z" | "L" | "J";
 export const CONFIG: Config = {

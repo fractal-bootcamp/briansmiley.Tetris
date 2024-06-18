@@ -1,5 +1,10 @@
 import { CONFIG } from "./TetrisConfig";
-import type { Config, Coordinate, TetrisShape } from "./TetrisConfig";
+import type {
+  Config,
+  Coordinate,
+  TetrisShape,
+  InputCategory
+} from "./TetrisConfig";
 /**
  * Types
  */
@@ -24,7 +29,6 @@ type Block = {
 };
 export type Direction = "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
-type InputCategory = "rotate" | "shift" | "drop";
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
 /**
