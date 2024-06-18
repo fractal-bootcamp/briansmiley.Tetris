@@ -56,7 +56,7 @@ const newEmptyRow = (): Cell[] => {
     : row;
 };
 const newBlankBoard = (): Board => {
-  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ => newEmptyRow());
+  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(() => newEmptyRow());
   return CONFIG.WALLS
     ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(CONFIG.WALL_COLOR)])
     : newBoard;
