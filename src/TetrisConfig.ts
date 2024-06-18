@@ -80,7 +80,7 @@ export const CONFIG: Config = {
     base: 10,
     drop: 250,
     rotate: 200,
-    shift: 30
+    shift: 50
   },
   WALLS: true
 };
