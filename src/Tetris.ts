@@ -164,7 +164,7 @@ const newFallingBlock = (): Block => {
 };
 
 /** Locks the game's fallingBlock into place as part of the board*/
-const settleBlock = (game: Game): Game => {
+const settleBlockAndSpawnNew = (game: Game): Game => {
   const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
   if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock);
@@ -185,7 +185,7 @@ export const tickGravity = (game: Game): Game => {
   if (newGame.fallingBlock === null) return newGame;
   const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
   if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
-    return settleBlock(newGame);
+    return settleBlockAndSpawnNew(newGame);
   return clearFullRowsAndScore(
     collapseGapRows({ ...newGame, fallingBlock: nextBlock })
   );
@@ -303,7 +303,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
 
 //   return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
 // };
-/**Takes in a block and returns one shifted L */
+/**Takes in a block and returns one shifted in the argument direction */
 const shiftedBlock = (
   block: Block,
   direction: Direction,
@@ -353,7 +353,7 @@ export const hardDropBlock = (game: Game): Game => {
   );
   const distanceToDrop = Math.min(...heights);
   const newBlock = shiftedBlock(game.fallingBlock, "D", distanceToDrop);
-  return settleBlock({ ...game, fallingBlock: newBlock });
+  return settleBlockAndSpawnNew({ ...game, fallingBlock: newBlock });
 };
 
 /** Returns a board containing the fallingBlock cells filled in for rendering purposes */
