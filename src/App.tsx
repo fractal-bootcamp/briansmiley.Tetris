@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BoardDisplay from "./components/Board";
 import { Volume2, VolumeX } from "lucide-react";
 import {
   Game,
-  allowInput,
   boardWithFallingBlock,
-  forbidInput,
   gameInit,
   hardDropBlock,
   rotateBlock,
@@ -42,47 +40,82 @@ const keyBindings: KeyBinding[] = [
 function App() {
   const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
+
   const [unMuted, setMuted] = useState<boolean | null>(null);
-  //each time the game clock ticks, sets the next tick to happen after a delay set by the current value of tickInterval
+  const keysPressed = useKeysPressed(keyBindings.map(binding => binding.key));
+  const keysPressedRef = useRef(keysPressed);
   useEffect(() => {
-    // if (gameState.over) return; //stop ticking if the game ends
+    keysPressedRef.current = keysPressed;
+  }, [keysPressed]);
+  //set up a regular input polling check
+  useEffect(() => {
+    const shiftInputLoop = setInterval(
+      allowShift,
+      gameState.CONFIG.SHIFT_POLL_RATE
+    );
+    const rotationInputLoop = setInterval(
+      allowDropInput,
+      gameState.CONFIG.ROTATION_POLL_RATE
+    );
+    const dropInputLoop = setInterval(
+      allowRotation,
+      gameState.CONFIG.DROP_POLL_RATE
+    );
+    return () => {
+      clearInterval(shiftInputLoop);
+      clearInterval(rotationInputLoop);
+      clearInterval(dropInputLoop);
+    };
+  }, []);
+
+  //Process any gamestate updates according to key listeners
+  const processShiftInputs = () => {
+    keyBindings.forEach(binding => {
+      if (keysPressedRef.current[binding.key] && binding.type === "shift") {
+        console.log(binding.key);
+        setGameState(prevState => binding.callback(prevState));
+      }
+    });
+  };
+  const processDropInput = () =>
+    keysPressedRef.current[" "] &&
+    setGameState(prevState => hardDropBlock(prevState));
+
+  const processRotationInputs = () => {
+    keyBindings.forEach(binding => {
+      if (keysPressedRef.current[binding.key] && binding.type === "rotation") {
+        console.log(binding.key);
+        setGameState(prevState => binding.callback(prevState));
+      }
+    });
+  };
+
+  //Increment game clock every tickInterval ms
+  useEffect(() => {
     const tickTimeout = setTimeout(
-      () => setGameClock(gameClock + 1),
+      () => setGameClock(prevTime => prevTime + 1),
       gameState.tickInterval
     );
     return () => clearTimeout(tickTimeout);
   }, [gameClock]);
   //call tick gravity every tick of the game clock
   useEffect(() => {
-    if (gameState.over) return;
-    setGameState(tickGravity(gameState));
-  }, [gameClock]);
+    setGameState(gameState =>
+      gameState.over ? gameState : tickGravity(gameState)
+    );
+  }, [gameClock, gameState.over]);
+
+  //tie mute state of music to muted state
   useEffect(() => {
     music.muted = !unMuted;
   }, [unMuted]);
-  const handleInput = (newGameState: Game) => {
-    if (gameState.over || gameState.inputForbidden) return;
-    setGameState(forbidInput(newGameState));
-    setTimeout(
-      () => setGameState(game => allowInput(game)),
-      gameState.CONFIG.INPUT_REPEAT_DELAY
-    );
-  };
+
   const handleSoundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (unMuted === null) startMusic();
     setMuted(!unMuted);
   };
 
-  //prettier-ignore
-  {
-  useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => handleInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
-  useKeyDown(() => handleInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
-  useKeyDown(() => handleInput(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CCW")), ["w","ArrowUp"]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CW")), ["e"]);
-  }
   return (
     <>
       <div className="flex justify-center">
