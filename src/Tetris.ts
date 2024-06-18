@@ -1,5 +1,10 @@
 import { CONFIG } from "./TetrisConfig";
-import type { Config, Coordinate, TetrisShape } from "./TetrisConfig";
+import type {
+  Config,
+  Coordinate,
+  TetrisShape,
+  InputCategory
+} from "./TetrisConfig";
 /**
  * Types
  */
@@ -9,10 +14,10 @@ export type Game = {
   fallingBlock: Block | null;
   score: number;
   linesCleared: number;
-  inputForbidden: boolean;
   blocksSpawned: number;
   tickInterval: number;
   over: boolean;
+  allowedInputs: Record<InputCategory, boolean>;
   CONFIG: Config;
 };
 export type Cell = string | null;
@@ -24,7 +29,6 @@ type Block = {
 };
 export type Direction = "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
-
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
 /**
@@ -42,10 +46,10 @@ export const gameInit = (): Game => {
     fallingBlock: null,
     score: 0,
     linesCleared: 0,
-    inputForbidden: false,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
+    allowedInputs: { rotate: true, shift: true, drop: true },
     CONFIG: CONFIG
   };
 };
@@ -56,7 +60,7 @@ const newEmptyRow = (): Cell[] => {
     : row;
 };
 const newBlankBoard = (): Board => {
-  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(_ => newEmptyRow());
+  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(() => newEmptyRow());
   return CONFIG.WALLS
     ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(CONFIG.WALL_COLOR)])
     : newBoard;
@@ -65,15 +69,15 @@ export const setTickInterval = (game: Game, newInterval: number): Game => ({
   ...game,
   tickInterval: newInterval
 });
-
-export const forbidInput = (game: Game): Game => ({
-  ...game,
-  inputForbidden: true
-});
-export const allowInput = (game: Game): Game => ({
-  ...game,
-  inputForbidden: false
-});
+export const setAllowedInput = (
+  game: Game,
+  input: InputCategory,
+  state: boolean
+): Game => {
+  const newGame = { ...game };
+  newGame.allowedInputs[input] = state;
+  return newGame;
+};
 //
 // const incrementGameSpeed = (game: Game): Game => ({
 //   ...game,
@@ -164,7 +168,7 @@ const newFallingBlock = (): Block => {
 };
 
 /** Locks the game's fallingBlock into place as part of the board*/
-const settleBlock = (game: Game): Game => {
+const settleBlockAndSpawnNew = (game: Game): Game => {
   const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
   if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock);
@@ -185,9 +189,9 @@ export const tickGravity = (game: Game): Game => {
   if (newGame.fallingBlock === null) return newGame;
   const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
   if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
-    return settleBlock(newGame);
+    return settleBlockAndSpawnNew(newGame);
   return clearFullRowsAndScore(
-    collapseGapRows({ ...newGame, fallingBlock: nextBlock })
+    collapseGapRows({ ...newGame, fallingBlock: nextBlock }) //NOTE THINK ABOUT THE GAME FLOW HERE?
   );
 };
 
@@ -260,8 +264,8 @@ const rotatedBlock = <T extends Block | null>(
         ...block,
         body: block.body.map(coord =>
           direction === "CW"
-            ? ([-coord[1], coord[0]] as Coordinate)
-            : ([coord[1], -coord[0]] as Coordinate)
+            ? ([coord[1], -coord[0]] as Coordinate)
+            : ([-coord[1], coord[0]] as Coordinate)
         )
       } as ConditionalNull<T, Block, Block>);
 
@@ -273,12 +277,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (blockIntersectsSettledOrWalls(game.board, newBlock)) return game;
   return {
     ...game,
-    fallingBlock: {
-      ...game.fallingBlock,
-      body: game.fallingBlock.body.map(coord =>
-        direction === "CW" ? [-coord[1], coord[0]] : [coord[1], -coord[0]]
-      )
-    }
+    fallingBlock: newBlock
   };
 };
 /**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
@@ -303,7 +302,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
 
 //   return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
 // };
-/**Takes in a block and returns one shifted L */
+/**Takes in a block and returns one shifted in the argument direction */
 const shiftedBlock = (
   block: Block,
   direction: Direction,
@@ -353,7 +352,7 @@ export const hardDropBlock = (game: Game): Game => {
   );
   const distanceToDrop = Math.min(...heights);
   const newBlock = shiftedBlock(game.fallingBlock, "D", distanceToDrop);
-  return settleBlock({ ...game, fallingBlock: newBlock });
+  return settleBlockAndSpawnNew({ ...game, fallingBlock: newBlock });
 };
 
 /** Returns a board containing the fallingBlock cells filled in for rendering purposes */

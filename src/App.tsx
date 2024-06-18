@@ -1,70 +1,114 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BoardDisplay from "./components/Board";
 import { Volume2, VolumeX } from "lucide-react";
 import {
   Game,
-  allowInput,
   boardWithFallingBlock,
-  forbidInput,
   gameInit,
   hardDropBlock,
   rotateBlock,
+  setAllowedInput,
   shiftBlock,
   startGame,
   tickGravity
 } from "./Tetris";
 import ThemeSong from "./assets/ThemeSong.mp3";
-import useKeyDown from "./hooks/useKeyDown";
-
+import useKeysPressed from "./hooks/useKeysPressed";
+import { CONFIG, InputCategory } from "./TetrisConfig";
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
   music.play();
 };
+interface KeyBinding {
+  key: string;
+  type: InputCategory;
+  callback: (prev: Game) => Game;
+}
+//prettier-ignore
+const keyBindings: KeyBinding[] = [
+  { key: "w", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW") },
+  { key: "e", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+  { key: "a", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
+  { key: "d", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
+  { key: "s", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
+  { key: " ", type: "drop", callback: (prevGameState) => hardDropBlock(prevGameState, )},
+  { key: "ArrowLeft", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
+  { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
+  { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
+  { key: "ArrowDown", type:"shift", callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+];
+
 function App() {
   const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
+  const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
-  //each time the game clock ticks, sets the next tick to happen after a delay set by the current value of tickInterval
+  const keysPressed = useKeysPressed(keyBindings.map(binding => binding.key));
+  const keysPressedRef = useRef(keysPressed);
+  //up to date ref to pass to our interval callbacks
   useEffect(() => {
-    // if (gameState.over) return; //stop ticking if the game ends
+    keysPressedRef.current = keysPressed;
+  }, [keysPressed]);
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
+
+  //Set up intervals to ALLOW categories of input: inputs will set their category to disallowed,
+  useEffect(() => {
+    const inputLoop = setInterval(
+      processInputs,
+      gameState.CONFIG.POLL_RATES.base
+    );
+    return () => {
+      clearInterval(inputLoop);
+    };
+  }, []);
+  //Check each possible input
+  const processInputs = () => {
+    keyBindings.forEach(binding => {
+      const inputType = binding.type;
+      //if that input type is disallowed, skip
+      if (!gameStateRef.current.allowedInputs[inputType]) return;
+      //otherwise, if the binding's key is currently pressed, process the input, disable that type and set a timeout to reenable it
+      if (keysPressedRef.current[binding.key]) {
+        setGameState(prev =>
+          setAllowedInput(binding.callback(prev), inputType, false)
+        );
+        setTimeout(
+          () => setGameState(prev => setAllowedInput(prev, inputType, true)),
+          CONFIG.POLL_RATES[inputType]
+        );
+      }
+    });
+  };
+
+  //Increment game clock every tickInterval ms
+  useEffect(() => {
     const tickTimeout = setTimeout(
-      () => setGameClock(gameClock + 1),
+      () => setGameClock(prevTime => prevTime + 1),
       gameState.tickInterval
     );
     return () => clearTimeout(tickTimeout);
   }, [gameClock]);
   //call tick gravity every tick of the game clock
   useEffect(() => {
-    if (gameState.over) return;
-    setGameState(tickGravity(gameState));
-  }, [gameClock]);
+    setGameState(gameState =>
+      gameState.over ? gameState : tickGravity(gameState)
+    );
+  }, [gameClock, gameState.over]);
+
+  //tie mute state of music to muted state
   useEffect(() => {
     music.muted = !unMuted;
   }, [unMuted]);
-  const handleInput = (newGameState: Game) => {
-    if (gameState.over || gameState.inputForbidden) return;
-    setGameState(forbidInput(newGameState));
-    setTimeout(
-      () => setGameState(game => allowInput(game)),
-      gameState.CONFIG.INPUT_REPEAT_DELAY
-    );
-  };
+
   const handleSoundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (unMuted === null) startMusic();
     setMuted(!unMuted);
   };
 
-  //prettier-ignore
-  {
-  useKeyDown(() => handleInput(shiftBlock(gameState, "L")), ["a","ArrowLeft"]);
-  useKeyDown(() => handleInput(shiftBlock(gameState, "R")), ["d","ArrowRight"]);
-  useKeyDown(() => handleInput(shiftBlock(gameState, "D")), ["s","ArrowDown"]);
-  useKeyDown(() => handleInput(hardDropBlock(gameState)), [" "]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CCW")), ["w","ArrowUp"]);
-  useKeyDown(() => handleInput(rotateBlock(gameState, "CW")), ["e"]);
-  }
   return (
     <>
       <div className="flex justify-center">
