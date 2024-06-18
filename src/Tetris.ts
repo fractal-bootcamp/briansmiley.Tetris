@@ -277,12 +277,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (blockIntersectsSettledOrWalls(game.board, newBlock)) return game;
   return {
     ...game,
-    fallingBlock: {
-      ...game.fallingBlock,
-      body: game.fallingBlock.body.map(coord =>
-        direction === "CW" ? [-coord[1], coord[0]] : [coord[1], -coord[0]]
-      )
-    }
+    fallingBlock: newBlock
   };
 };
 /**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
