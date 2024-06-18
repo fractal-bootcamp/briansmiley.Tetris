@@ -7,12 +7,14 @@ import {
   gameInit,
   hardDropBlock,
   rotateBlock,
+  setAllowedInput,
   shiftBlock,
   startGame,
   tickGravity
 } from "./Tetris";
 import ThemeSong from "./assets/ThemeSong.mp3";
 import useKeysPressed from "./hooks/useKeysPressed";
+import { CONFIG, InputCategory } from "./TetrisConfig";
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -20,72 +22,63 @@ const startMusic = () => {
 };
 interface KeyBinding {
   key: string;
-  type: "rotation" | "shift" | "drop";
+  type: InputCategory;
   callback: (prev: Game) => Game;
 }
 //prettier-ignore
 const keyBindings: KeyBinding[] = [
-  { key: "w", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CW") },
-  { key: "e", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+  { key: "w", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW") },
+  { key: "e", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
   { key: "a", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
   { key: "d", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
   { key: "s", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
   { key: " ", type: "drop", callback: (prevGameState) => hardDropBlock(prevGameState, )},
   { key: "ArrowLeft", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
   { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
-  { key: "ArrowUp", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
+  { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
   { key: "ArrowDown", type:"shift", callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
 ];
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
-
+  const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
   const keysPressed = useKeysPressed(keyBindings.map(binding => binding.key));
   const keysPressedRef = useRef(keysPressed);
+  //up to date ref to pass to our interval callbacks
   useEffect(() => {
     keysPressedRef.current = keysPressed;
   }, [keysPressed]);
-  //set up a regular input polling check
   useEffect(() => {
-    const shiftInputLoop = setInterval(
-      allowShift,
-      gameState.CONFIG.SHIFT_POLL_RATE
-    );
-    const rotationInputLoop = setInterval(
-      allowDropInput,
-      gameState.CONFIG.ROTATION_POLL_RATE
-    );
-    const dropInputLoop = setInterval(
-      allowRotation,
-      gameState.CONFIG.DROP_POLL_RATE
+    gameStateRef.current = gameState;
+  }, [gameState]);
+
+  //Set up intervals to ALLOW categories of input: inputs will set their category to disallowed,
+  useEffect(() => {
+    const inputLoop = setInterval(
+      processInputs,
+      gameState.CONFIG.POLL_RATES.base
     );
     return () => {
-      clearInterval(shiftInputLoop);
-      clearInterval(rotationInputLoop);
-      clearInterval(dropInputLoop);
+      clearInterval(inputLoop);
     };
   }, []);
-
-  //Process any gamestate updates according to key listeners
-  const processShiftInputs = () => {
+  //Check each possible input
+  const processInputs = () => {
     keyBindings.forEach(binding => {
-      if (keysPressedRef.current[binding.key] && binding.type === "shift") {
-        console.log(binding.key);
-        setGameState(prevState => binding.callback(prevState));
-      }
-    });
-  };
-  const processDropInput = () =>
-    keysPressedRef.current[" "] &&
-    setGameState(prevState => hardDropBlock(prevState));
-
-  const processRotationInputs = () => {
-    keyBindings.forEach(binding => {
-      if (keysPressedRef.current[binding.key] && binding.type === "rotation") {
-        console.log(binding.key);
-        setGameState(prevState => binding.callback(prevState));
+      const inputType = binding.type;
+      //if that input type is disallowed, skip
+      if (!gameStateRef.current.allowedInputs[inputType]) return;
+      //otherwise, if the binding's key is currently pressed, process the input, disable that type and set a timeout to reenable it
+      if (keysPressedRef.current[binding.key]) {
+        setGameState(prev =>
+          setAllowedInput(binding.callback(prev), inputType, false)
+        );
+        setTimeout(
+          () => setGameState(prev => setAllowedInput(prev, inputType, true)),
+          CONFIG.POLL_RATES[inputType]
+        );
       }
     });
   };
