@@ -14,13 +14,31 @@ import {
   tickGravity
 } from "./Tetris";
 import ThemeSong from "./assets/ThemeSong.mp3";
-import useKeyDown from "./hooks/useKeyDown";
-
+import useKeysPressed from "./hooks/useKeysPressed";
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
   music.play();
 };
+interface KeyBinding {
+  key: string;
+  type: "rotation" | "shift" | "drop";
+  callback: (prev: Game) => Game;
+}
+//prettier-ignore
+const keyBindings: KeyBinding[] = [
+  { key: "w", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CW") },
+  { key: "e", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+  { key: "a", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
+  { key: "d", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
+  { key: "s", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
+  { key: " ", type: "drop", callback: (prevGameState) => hardDropBlock(prevGameState, )},
+  { key: "ArrowLeft", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
+  { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
+  { key: "ArrowUp", type: "rotation",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
+  { key: "ArrowDown", type:"shift", callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+];
+
 function App() {
   const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
