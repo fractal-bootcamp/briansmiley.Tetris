@@ -79,8 +79,8 @@ export const CONFIG: Config = {
   POLL_RATES: {
     base: 10,
     drop: 250,
-    rotate: 200,
-    shift: 50
+    rotate: 250,
+    shift: 60
   },
   WALLS: true
 };
