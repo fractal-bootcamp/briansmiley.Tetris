@@ -8,7 +8,9 @@ export type Config = {
   STARTING_TICK_INTERVAL: number;
   SPEED_SCALING: number;
   LEVEL_LINES: number; //how many lines between speed scaling
-  INPUT_REPEAT_DELAY: number;
+  ROTATION_POLL_RATE: number;
+  DROP_POLL_RATE: number;
+  SHIFT_POLL_RATE: number;
   WALLS: boolean;
 };
 export type Coordinate = [number, number];
@@ -75,6 +77,8 @@ export const CONFIG: Config = {
   STARTING_TICK_INTERVAL: 350,
   SPEED_SCALING: 1.34, //step multiplier for game speed increase
   LEVEL_LINES: 5,
-  INPUT_REPEAT_DELAY: 50,
+  ROTATION_POLL_RATE: 200,
+  DROP_POLL_RATE: 200,
+  SHIFT_POLL_RATE: 40,
   WALLS: true
 };

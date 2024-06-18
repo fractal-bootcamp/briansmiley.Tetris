@@ -9,10 +9,10 @@ export type Game = {
   fallingBlock: Block | null;
   score: number;
   linesCleared: number;
-  inputForbidden: boolean;
   blocksSpawned: number;
   tickInterval: number;
   over: boolean;
+  allowedInputs: Record<InputCategory, boolean>;
   CONFIG: Config;
 };
 export type Cell = string | null;
@@ -24,7 +24,7 @@ type Block = {
 };
 export type Direction = "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
-
+type InputCategory = "rotate" | "shift" | "drop";
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
 /**
@@ -42,10 +42,10 @@ export const gameInit = (): Game => {
     fallingBlock: null,
     score: 0,
     linesCleared: 0,
-    inputForbidden: false,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
+    allowedInputs: { rotate: true, shift: true, drop: true },
     CONFIG: CONFIG
   };
 };
@@ -65,15 +65,15 @@ export const setTickInterval = (game: Game, newInterval: number): Game => ({
   ...game,
   tickInterval: newInterval
 });
-
-export const forbidInput = (game: Game): Game => ({
-  ...game,
-  inputForbidden: true
-});
-export const allowInput = (game: Game): Game => ({
-  ...game,
-  inputForbidden: false
-});
+export const setAllowedInput = (
+  game: Game,
+  input: InputCategory,
+  state: boolean
+): Game => {
+  const newGame = { ...game };
+  newGame.allowedInputs[input] = state;
+  return newGame;
+};
 //
 // const incrementGameSpeed = (game: Game): Game => ({
 //   ...game,
@@ -187,7 +187,7 @@ export const tickGravity = (game: Game): Game => {
   if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
     return settleBlockAndSpawnNew(newGame);
   return clearFullRowsAndScore(
-    collapseGapRows({ ...newGame, fallingBlock: nextBlock })
+    collapseGapRows({ ...newGame, fallingBlock: nextBlock }) //NOTE THINK ABOUT THE GAME FLOW HERE?
   );
 };
 
