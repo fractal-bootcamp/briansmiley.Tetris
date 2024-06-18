@@ -6,8 +6,10 @@ import { useEffect, useRef } from "react";
  */
 const useKeyIsPressedRef = (key: string) => {
   const keyDown = useRef(false);
-  const keyWasPressed = (event: KeyboardEvent) => event.key === key;
   useEffect(() => {
+    console.log(`Setting keybinding for ${key}`); //debug to check whether we are running the effect multiple times
+
+    const keyWasPressed = (event: KeyboardEvent) => event.key === key;
     const onKeyDown = (e: KeyboardEvent) => {
       if (keyWasPressed(e)) keyDown.current = true;
     };
@@ -20,7 +22,7 @@ const useKeyIsPressedRef = (key: string) => {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("keyup", onKeyUp);
     };
-  }, []);
+  }, [key]);
   return keyDown;
 };
 export default useKeyIsPressedRef;

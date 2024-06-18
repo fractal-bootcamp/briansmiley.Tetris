@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
  * @param interval repeat speed in milliseconds between callbacks; @default 50
  */
 const useKeyPressedCallback = (
-  callback: (...args: any) => any,
+  callback: () => void,
   keys: string[],
   debounce: number = 500,
   interval: number = 500
@@ -51,7 +51,7 @@ const useKeyPressedCallback = (
     document.addEventListener("keydown", onKeyDown);
     //return a cleanup which removes our main listener and the listeners
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, []); //useeffect will remake everything if any of the parameters change
+  }, [callback, debounce, interval, keys]); //useeffect will remake everything if any of the parameters change
 };
 
 export default useKeyPressedCallback;
