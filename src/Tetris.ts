@@ -309,9 +309,9 @@ const shiftedBlock = (
   distance: number = 1
 ): Block => {
   const transforms: Record<Direction, Coordinate> = {
-    L: [0, -1],
-    R: [0, 1],
-    U: [-1, 0],
+    L: [0, -distance],
+    R: [0, distance],
+    U: [-distance, 0],
     D: [distance, 0]
   };
   return {
