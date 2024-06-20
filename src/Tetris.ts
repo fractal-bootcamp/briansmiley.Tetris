@@ -27,7 +27,7 @@ type Block = {
   body: Coordinate[];
   shape: TetrisShape;
 };
-export type Direction = "L" | "R" | "D";
+export type Direction = "U" | "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
@@ -311,6 +311,7 @@ const shiftedBlock = (
   const transforms: Record<Direction, Coordinate> = {
     L: [0, -1],
     R: [0, 1],
+    U: [-1, 0],
     D: [distance, 0]
   };
   return {
