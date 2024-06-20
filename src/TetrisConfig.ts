@@ -7,9 +7,10 @@ export type Config = {
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
   SPEED_SCALING: number;
-  LEVEL_LINES: number; //how many lines between speed scaling
+  LEVEL_LINES: number;
   POLL_RATES: Record<InputCategory | "base", number>;
   WALLS: boolean;
+  MAX_GRACE_COUNT: number;
 };
 export type Coordinate = [number, number];
 export type InputCategory = "rotate" | "shift" | "drop";
@@ -73,14 +74,15 @@ export const CONFIG: Config = {
   WALL_COLOR: "#717171",
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 450,
+  STARTING_TICK_INTERVAL: 500,
   SPEED_SCALING: 1.25, //step multiplier for game speed increase
-  LEVEL_LINES: 5,
+  LEVEL_LINES: 8, //how many lines between speed scaling
   POLL_RATES: {
     base: 10,
     drop: 250,
     rotate: 250,
-    shift: 100
+    shift: 70
   },
-  WALLS: true
+  WALLS: true,
+  MAX_GRACE_COUNT: 5 //maximum number of gravity ticks you can skip settling from by moving
 };
