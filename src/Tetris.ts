@@ -18,6 +18,10 @@ export type Game = {
   tickInterval: number;
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
+  groundGracePeriod: {
+    protected: boolean;
+    counter: number;
+  };
   CONFIG: Config;
 };
 export type Cell = string | null;
@@ -27,7 +31,7 @@ type Block = {
   body: Coordinate[];
   shape: TetrisShape;
 };
-export type Direction = "L" | "R" | "D";
+export type Direction = "U" | "L" | "R" | "D";
 export type RotDirection = "CW" | "CCW";
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
@@ -50,6 +54,10 @@ export const gameInit = (): Game => {
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true },
+    groundGracePeriod: {
+      protected: false,
+      counter: 0
+    },
     CONFIG: CONFIG
   };
 };
@@ -102,7 +110,12 @@ const spawnNewBlock = (game: Game): Game => {
     blocksSpawned: game.blocksSpawned + 1,
     tickInterval:
       CONFIG.STARTING_TICK_INTERVAL /
-      CONFIG.SPEED_SCALING ** Math.floor(game.linesCleared / CONFIG.LEVEL_LINES)
+      CONFIG.SPEED_SCALING **
+        Math.floor(game.linesCleared / CONFIG.LEVEL_LINES),
+    groundGracePeriod: {
+      protected: false,
+      counter: 0
+    }
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
@@ -188,8 +201,19 @@ export const tickGravity = (game: Game): Game => {
   const newGame = clearThenCollapseRows(game);
   if (newGame.fallingBlock === null) return newGame;
   const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
-  if (blockIntersectsSettledOrWalls(newGame.board, nextBlock))
-    return settleBlockAndSpawnNew(newGame);
+  if (blockOnGround(game))
+    //prevent settling if the grace period bool is true and hasnt been reset more than the MAX COUNT number of times
+    return game.groundGracePeriod.protected &&
+      game.groundGracePeriod.counter < CONFIG.MAX_GRACE_COUNT
+      ? {
+          ...game,
+          groundGracePeriod: {
+            protected: false,
+            counter: game.groundGracePeriod.counter + 1
+          }
+        }
+      : //otherwise settle and spawn new
+        settleBlockAndSpawnNew(newGame);
   return clearFullRowsAndScore(
     collapseGapRows({ ...newGame, fallingBlock: nextBlock }) //NOTE THINK ABOUT THE GAME FLOW HERE?
   );
@@ -269,39 +293,44 @@ const rotatedBlock = <T extends Block | null>(
         )
       } as ConditionalNull<T, Block, Block>);
 
+// /**Tells us if a block is on the ground (i.e. one more gravity tick would settle it)*/
+const blockOnGround = (game: Game): boolean =>
+  game.fallingBlock !== null &&
+  blockIntersectsSettledOrWalls(
+    game.board,
+    shiftedBlock(game.fallingBlock, "D")
+  );
+/**Grants the falling block protection against being settled by gravity because it was just moved (gets removed by one gravity tick)*/
+const grantGrace = (game: Game): Game => ({
+  ...game,
+  groundGracePeriod: { ...game.groundGracePeriod, protected: true }
+});
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (game.fallingBlock === null || game.fallingBlock.shape === "O")
     return game;
   const newBlock = rotatedBlock(game.fallingBlock, direction);
-  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return game;
-  return {
+  //if the rotated block intersects the board or walls, try shifting it one or two spaces in every direction and pick the first that works. Otherwise return with no rotation
+  if (blockIntersectsSettledOrWalls(game.board, newBlock)) {
+    const directions: Direction[] = ["R", "L", "U", "D"];
+    for (const shiftDir of directions) {
+      for (const distance of [1, 2]) {
+        const shiftCandidate = shiftedBlock(newBlock, shiftDir, distance);
+        //return as soon as we find a shift that makes the rotation work (and set grace to true)
+        if (!blockIntersectsSettledOrWalls(game.board, shiftCandidate))
+          return grantGrace({ ...game, fallingBlock: shiftCandidate });
+      }
+    }
+    //if no shifts worked, return game as is
+    return game;
+  }
+  //if we dont intersect, return the game with a rotated block
+  return grantGrace({
     ...game,
     fallingBlock: newBlock
-  };
+  });
 };
-/**Calculate how far out of any board boundary the block sticks and return the resulting coordinate offsets we need to add to correct */
-// const outOfBoundsCorrection = (block: Block, board: Board): Coordinate => {
-//   const coords = blockOccupiedCells(block);
-//   const leftCorrection = -coords.reduce(
-//     (prev, curr) => Math.min(prev, curr[1]),
-//     0
-//   );
-//   const rightCorrection = -coords.reduce(
-//     (prev, curr) => Math.max(prev, curr[1] - (board[0].length - 1)),
-//     0
-//   ); //maximum distance past right of board
-//   const bottomCorrection = -coords.reduce(
-//     (prev, curr) => Math.max(prev, curr[0] - (board.length - 1)),
-//     0
-//   ); //maximum row coordinate overflow
-//   const topCorrection = -coords.reduce(
-//     (prev, curr) => Math.min(prev, curr[0]),
-//     0
-//   ); //most negative row underflow
 
-//   return [leftCorrection + rightCorrection, bottomCorrection + topCorrection];
-// };
 /**Takes in a block and returns one shifted in the argument direction */
 const shiftedBlock = (
   block: Block,
@@ -309,8 +338,9 @@ const shiftedBlock = (
   distance: number = 1
 ): Block => {
   const transforms: Record<Direction, Coordinate> = {
-    L: [0, -1],
-    R: [0, 1],
+    L: [0, -distance],
+    R: [0, distance],
+    U: [-distance, 0],
     D: [distance, 0]
   };
   return {
@@ -323,12 +353,11 @@ const shiftedBlock = (
 export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
   const nextBlock = shiftedBlock(game.fallingBlock, direction, 1);
-  return {
-    ...game,
-    fallingBlock: blockIntersectsSettledOrWalls(game.board, nextBlock)
-      ? game.fallingBlock
-      : nextBlock
-  };
+  return blockIntersectsSettledOrWalls(game.board, nextBlock)
+    ? direction === "D"
+      ? settleBlockAndSpawnNew(game)
+      : game
+    : grantGrace({ ...game, fallingBlock: nextBlock });
 };
 /**Drops a block all the way to the settled pile settles it into the board*/
 export const hardDropBlock = (game: Game): Game => {
