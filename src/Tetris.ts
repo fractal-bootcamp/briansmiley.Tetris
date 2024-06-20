@@ -201,7 +201,8 @@ export const tickGravity = (game: Game): Game => {
   const newGame = clearThenCollapseRows(game);
   if (newGame.fallingBlock === null) return newGame;
   const nextBlock = shiftedBlock(newGame.fallingBlock, "D");
-  if (blockOnGround(game))
+  //if we are on the ground OR have been (since thats the only way the counter could have gotten incremented...)
+  if (blockOnGround(game) || game.groundGracePeriod.counter > 0)
     //prevent settling if the grace period bool is true and hasnt been reset more than the MAX COUNT number of times
     return game.groundGracePeriod.protected &&
       game.groundGracePeriod.counter < CONFIG.MAX_GRACE_COUNT
