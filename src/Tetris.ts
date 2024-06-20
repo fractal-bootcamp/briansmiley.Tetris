@@ -354,7 +354,9 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
   const nextBlock = shiftedBlock(game.fallingBlock, direction, 1);
   return blockIntersectsSettledOrWalls(game.board, nextBlock)
-    ? game
+    ? direction === "D"
+      ? settleBlockAndSpawnNew(game)
+      : game
     : grantGrace({ ...game, fallingBlock: nextBlock });
 };
 /**Drops a block all the way to the settled pile settles it into the board*/
