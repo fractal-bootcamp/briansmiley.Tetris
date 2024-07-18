@@ -1,8 +1,8 @@
 export type Config = {
   BLOCK_SHAPES: Record<TetrisShape, Coordinate[]>;
   SPAWN_POINT: Coordinate;
-  SHAPE_COLORS: Record<TetrisShape, string>;
-  WALL_COLOR: string;
+  SHAPE_COLORS: Record<TetrisShape, Color>;
+  WALL_COLOR: Color;
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
@@ -12,6 +12,7 @@ export type Config = {
   WALLS: boolean;
   MAX_GRACE_COUNT: number;
 };
+export type Color = [number, number, number, number];
 export type Coordinate = [number, number];
 export type InputCategory = "rotate" | "shift" | "drop";
 
@@ -63,15 +64,15 @@ export const CONFIG: Config = {
   },
   SPAWN_POINT: [0, 5] as Coordinate,
   SHAPE_COLORS: {
-    I: "#00ffff",
-    T: "#800080",
-    O: "#ffff00",
-    S: "#ff0000",
-    Z: "#00ff00",
-    L: "#ff7f00",
-    J: "#0000ff"
+    I: [0, 255, 255, 1],
+    T: [128, 0, 128, 1],
+    O: [255, 255, 0, 1],
+    S: [255, 0, 0, 1],
+    Z: [0, 255, 0, 1],
+    L: [255, 127, 0, 1],
+    J: [0, 0, 255, 1]
   },
-  WALL_COLOR: "#717171",
+  WALL_COLOR: [113, 113, 113, 1],
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 500,

@@ -1,20 +1,25 @@
+import { useMemo } from "react";
 import { Cell } from "../Tetris";
 
 interface BoardCellProps {
   cellValue: Cell;
   position: [number, number];
 }
-
 const BoardCell = ({ cellValue, position }: BoardCellProps) => {
   const [row, col] = position;
-  const blankCellBackground =
-    ((row % 2) + (col % 2)) % 2 ? "#121212" : "#090909";
+  const blankCellBackground = ((row % 2) + (col % 2)) % 2 ? 18 : 9;
+  const [r, g, b, a] = useMemo(
+    () => cellValue || Array(4).fill(blankCellBackground),
+    [cellValue, blankCellBackground]
+  );
   const cellDynamicStyles: React.CSSProperties = {
-    background: cellValue || blankCellBackground.toString(),
+    background: `rgba(${r}, ${g}, ${b}, ${a})`,
     borderWidth: cellValue ? 6 : 0,
     borderStyle: "outset",
     boxSizing: "border-box",
-    borderColor: `rgb(from ${cellValue} calc(.8*r) calc(.8*g) calc(.8*b))`,
+    borderColor: `rgba(${Math.floor(0.8 * r)}, ${Math.floor(
+      0.8 * g
+    )}, ${Math.floor(0.8 * b)}, ${a})`,
     flex: "1 1 16px"
   };
   return <div style={cellDynamicStyles}></div>;
