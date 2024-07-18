@@ -237,7 +237,11 @@ export const tickGravity = (game: Game): Game => {
   return clearFullRowsAndScore(
     collapseGapRows({
       ...newGame,
-      fallingBlock: { ...newGame.fallingBlock, self: nextBlock }
+      fallingBlock: {
+        ...newGame.fallingBlock,
+        self: nextBlock,
+        dropLocation: hardDropEndOrigin(newGame.board, nextBlock)
+      }
     }) //NOTE THINK ABOUT THE GAME FLOW HERE?
   );
 };
@@ -293,7 +297,13 @@ export const collapseGapRows = (game: Game): Game => {
     newBoard.splice(rowIndex, 1);
     newBoard = [newEmptyRow()].concat(newBoard);
   });
-  return { ...game, board: newBoard };
+  const newFallingBlock = game.fallingBlock
+    ? {
+        ...game.fallingBlock,
+        dropLocation: hardDropEndOrigin(newBoard, game.fallingBlock.self)
+      }
+    : null;
+  return { ...game, board: newBoard, fallingBlock: newFallingBlock };
 };
 /** Clears any full rows and simultaneously collapses them */
 export const clearThenCollapseRows = (game: Game): Game =>
