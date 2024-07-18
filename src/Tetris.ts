@@ -28,7 +28,10 @@ export type Game = {
   };
   CONFIG: Config;
 };
-export type Cell = Color | null;
+export type Cell = {
+  color: Color;
+  type: "wall" | "block" | "shadow" | "empty";
+};
 export type Board = Cell[][];
 type Block = {
   origin: Coordinate;
@@ -65,16 +68,19 @@ export const gameInit = (): Game => {
     CONFIG: CONFIG
   };
 };
+const newEmptyCell = (): Cell => ({ color: [0, 0, 0], type: "empty" });
+const newWallCell = (): Cell => ({
+  color: [...CONFIG.WALL_COLOR],
+  type: "wall"
+});
 const newEmptyRow = (): Cell[] => {
-  const row = Array(CONFIG.BOARD_WIDTH).fill(null);
-  return CONFIG.WALLS
-    ? [CONFIG.WALL_COLOR].concat(row).concat([CONFIG.WALL_COLOR])
-    : row;
+  const row = Array(CONFIG.BOARD_WIDTH).fill(newEmptyCell());
+  return CONFIG.WALLS ? [newWallCell()].concat(row).concat(newWallCell()) : row;
 };
 const newBlankBoard = (): Board => {
   const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(() => newEmptyRow());
   return CONFIG.WALLS
-    ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(CONFIG.WALL_COLOR)])
+    ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(newWallCell())])
     : newBoard;
 };
 export const setTickInterval = (game: Game, newInterval: number): Game => ({
@@ -104,10 +110,11 @@ export const startGame = (game: Game): Game =>
     ? spawnNewBlock(gameInit())
     : game;
 const spawnNewBlock = (game: Game): Game => {
-  const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
+  // const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
   const newBlock = newFallingBlock();
   if (blockIntersectsSettledOrWalls(game.board, newBlock)) return endGame(game);
-  if (game.board[spawnR][spawnC]) return endGame(game);
+  if (boardCoordIsOccupied(game.board, CONFIG.SPAWN_POINT))
+    return endGame(game);
   return {
     ...game,
     fallingBlock: {
@@ -150,6 +157,10 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
     coord[1] > board[0].length - 1
   );
 };
+//check whether a board location is occupied by a block or wall
+const boardCoordIsOccupied = (board: Board, coord: Coordinate): boolean =>
+  cellIsOccupied(board[coord[0]][coord[1]]);
+const cellIsOccupied = (cell: Cell) => ["block", "wall"].includes(cell.type);
 //checks whether a proposed block position will be a collision
 const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
   const occupiedCells = blockOccupiedCells(block);
@@ -158,7 +169,7 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
     boardLocation =>
       boardLocation[0] >= 0 && //if we are above the board we arent checking anything
       (isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
-        board[boardLocation[0]][boardLocation[1]]) //interaction if board is occupied
+        boardCoordIsOccupied(board, boardLocation)) //interaction if board is occupied
   );
 };
 //get the next spawnable block, currently at random
@@ -196,7 +207,8 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
     coord =>
-      !isOffScreen(coord, newBoard) && (newBoard[coord[0]][coord[1]] = newColor)
+      !isOffScreen(coord, newBoard) &&
+      (newBoard[coord[0]][coord[1]] = { color: newColor, type: "block" })
   );
   return spawnNewBlock({ ...game, board: newBoard });
 };
@@ -231,17 +243,14 @@ export const tickGravity = (game: Game): Game => {
 };
 
 /** SCORING/CLEAR  EVENTS */
-//returns true if the cell is a wall cell (replaces old check for equality with wall color now that colors are tuples)
-const cellIsWall = (cell: Cell) =>
-  cell ? cell.every((val, idx) => val === CONFIG.WALL_COLOR[idx]) : false;
 /**A row is full if it contains no nulls and is not entirely wall (i.e. the floor)*/
 const rowIsFull = (row: Cell[]) =>
-  row.every(isNotNull) && !row.every(cellIsWall);
+  row.every(cellIsOccupied) && !row.every(cell => cell.type === "wall");
 const rowIsEmpty = (row: Cell[]) =>
-  !rowIncludesBlock(row) && !row.every(cellIsWall);
+  !rowIncludesBlock(row) && !row.every(cell => cell.type === "wall");
 /**Row has at least one cell that matches SHAPE_COLORS */
 const rowIncludesBlock = (row: Cell[]) =>
-  row.some(cell => cell && !cellIsWall(cell));
+  row.some(cell => cell.type === "block");
 /** Gets a list of the indices of full rows on the board */
 const fullRows = (board: Board): number[] => {
   return board
@@ -403,7 +412,7 @@ const hardDropEndOrigin = (
   //for a given column, get the index of the row containing a column's highest occupied cell (that is below the top of the block)
   const colFloorIndex = (column: number) => {
     const floorIndex = board.findIndex(
-      (row, idx) => idx > highestRowInBlock && isNotNull(row[column])
+      (row, idx) => idx > highestRowInBlock && cellIsOccupied(row[column])
     );
 
     return floorIndex === -1 ? board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
@@ -440,11 +449,12 @@ export const boardWithFallingBlock = (game: Game): Board => {
   return board.map((row, r) =>
     row.map((cell, c) =>
       fallingBlockOccupiedCells.some(coord => coord[0] === r && coord[1] === c)
-        ? CONFIG.SHAPE_COLORS[fallingBlock.self.shape]
+        ? { color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape], type: "block" }
         : shadowOccupiedCells.some(coord => coord[0] === r && coord[1] === c)
-        ? (CONFIG.SHAPE_COLORS[fallingBlock.self.shape]
-            .slice(0, 3)
-            .concat(0.1) as Color)
+        ? {
+            color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape],
+            type: "shadow"
+          }
         : cell
     )
   );

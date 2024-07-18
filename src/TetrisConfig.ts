@@ -12,7 +12,8 @@ export type Config = {
   WALLS: boolean;
   MAX_GRACE_COUNT: number;
 };
-export type Color = [number, number, number, number];
+export type Color = [number, number, number];
+
 export type Coordinate = [number, number];
 export type InputCategory = "rotate" | "shift" | "drop";
 
@@ -64,15 +65,15 @@ export const CONFIG: Config = {
   },
   SPAWN_POINT: [0, 5] as Coordinate,
   SHAPE_COLORS: {
-    I: [0, 255, 255, 1],
-    T: [128, 0, 128, 1],
-    O: [255, 255, 0, 1],
-    S: [255, 0, 0, 1],
-    Z: [0, 255, 0, 1],
-    L: [255, 127, 0, 1],
-    J: [0, 0, 255, 1]
+    I: [0, 255, 255],
+    T: [128, 0, 128],
+    O: [255, 255, 0],
+    S: [255, 0, 0],
+    Z: [0, 255, 0],
+    L: [255, 127, 0],
+    J: [0, 0, 255]
   },
-  WALL_COLOR: [113, 113, 113, 1],
+  WALL_COLOR: [113, 113, 113],
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 500,
