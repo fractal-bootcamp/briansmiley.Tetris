@@ -8,22 +8,32 @@ interface BoardCellProps {
 }
 const BoardCell = ({ cellValue, position }: BoardCellProps) => {
   const [row, col] = position;
-  const blankCellBackground = ((row % 2) + (col % 2)) % 2 ? 18 : 9;
+  const blankCellBackground = ((row % 2) + (col % 2)) % 2 ? 22 : 6;
   //we use the color of a cell unless it is empty or shadow, in which case we use the blank cell background checkerboard pattern
   const [r, g, b] = useMemo<Color>(
     () =>
-      cellValue.type === "empty" || cellValue.type === "shadow"
+      cellValue.type === "empty"
         ? [blankCellBackground, blankCellBackground, blankCellBackground]
         : cellValue.color,
     [cellValue, blankCellBackground]
   );
+  const backgroundColor = useMemo(() => {
+    switch (cellValue.type) {
+      case "shadow":
+      case "empty":
+        return `#${blankCellBackground
+          .toString(16)
+          .padStart(2, "0")
+          .repeat(3)}`;
+      default:
+        return `rgba(${r}, ${g}, ${b})`;
+    }
+  }, [cellValue]);
   const borderColor = useMemo(
     () =>
-      cellValue.type === "shadow"
-        ? `#FFF`
-        : `rgb(${Math.floor(0.8 * r)}, ${Math.floor(0.8 * g)}, ${Math.floor(
-            0.8 * b
-          )})`,
+      `rgb(${Math.floor(0.8 * r)}, ${Math.floor(0.8 * g)}, ${Math.floor(
+        0.8 * b
+      )})`,
     [cellValue, r, g, b]
   );
   const borderStyle = useMemo(() => {
@@ -42,7 +52,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       case "empty":
         return 0;
       case "shadow":
-        return 2;
+        return 3;
       case "block":
       case "wall":
         return 6;
@@ -50,7 +60,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
   }, [cellValue]);
 
   const cellDynamicStyles: React.CSSProperties = {
-    background: `rgba(${r}, ${g}, ${b})`,
+    background: backgroundColor,
     borderWidth: borderWidth,
     borderStyle: borderStyle,
     boxSizing: "border-box",
