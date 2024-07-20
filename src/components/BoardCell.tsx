@@ -5,8 +5,13 @@ import { Color } from "../TetrisConfig";
 interface BoardCellProps {
   cellValue: Cell;
   position: [number, number];
+  cellBorderStyle: string;
 }
-const BoardCell = ({ cellValue, position }: BoardCellProps) => {
+const BoardCell = ({
+  cellValue,
+  position,
+  cellBorderStyle
+}: BoardCellProps) => {
   const [row, col] = position;
   const blankCellBackground = ((row % 2) + (col % 2)) % 2 ? 22 : 6;
   //we use the color of a cell unless it is empty or shadow, in which case we use the blank cell background checkerboard pattern
@@ -43,10 +48,11 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       case "shadow":
         return "solid";
       case "block":
+        return cellBorderStyle;
       case "wall":
         return "outset";
     }
-  }, [cellValue]);
+  }, [cellValue, cellBorderStyle]);
   const borderWidth = useMemo(() => {
     switch (cellValue.type) {
       case "empty":
@@ -67,7 +73,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     borderColor: borderColor,
     flex: "1 1 16px"
   };
-  return <div style={cellDynamicStyles}></div>;
+  return <div className="w-full h-full" style={cellDynamicStyles}></div>;
 };
 
 export default BoardCell;

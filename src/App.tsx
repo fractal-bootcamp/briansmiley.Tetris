@@ -15,6 +15,7 @@ import {
 import ThemeSong from "./assets/ThemeSong.mp3";
 import useKeysPressed from "./hooks/useKeysPressed";
 import { CONFIG, InputCategory } from "./TetrisConfig";
+import BoardCell from "./components/BoardCell";
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -38,12 +39,14 @@ const keyBindings: KeyBinding[] = [
   { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
   { key: "ArrowDown", type:"shift", callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
 ];
+const cellBorderStyles = ["outset", "none"];
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
   const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
+  const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
   const keysPressed = useKeysPressed(keyBindings.map(binding => binding.key));
   const keysPressedRef = useRef(keysPressed);
   //up to date ref to pass to our interval callbacks
@@ -82,7 +85,10 @@ function App() {
       }
     });
   };
-
+  const toggleCellBorderStyle = () => {
+    const newIndex = (cellBorderStyleIndex + 1) % cellBorderStyles.length;
+    setCellBorderStyle(newIndex);
+  };
   //Increment game clock every tickInterval ms
   useEffect(() => {
     const tickTimeout = setTimeout(
@@ -113,7 +119,10 @@ function App() {
     <>
       <div className="flex justify-center">
         <div className="m-2 flex flex-col items-center gap-2 w-fit">
-          <BoardDisplay board={boardWithFallingBlock(gameState)} />
+          <BoardDisplay
+            board={boardWithFallingBlock(gameState)}
+            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+          />
           <div className="flex justify-between w-full ">
             <div className="flex justify-start basis-full">
               <div className="text-5xl font-mono text-green-500">
@@ -128,13 +137,22 @@ function App() {
                 Start
               </button>
             </div>
-            <div className="flex justify-end basis-full">
-              <div onClick={e => handleSoundClick(e)}>
-                {unMuted ? (
-                  <Volume2 className="w-10 h-10" color="#ffffff" />
-                ) : (
-                  <VolumeX className="w-10 h-10" color="#ffffff" />
-                )}
+            <div className="flex justify-end items-start basis-full">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8" onClick={toggleCellBorderStyle}>
+                  <BoardCell
+                    cellValue={{ color: [0, 255, 255], type: "block" }}
+                    cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+                    position={[0, 0]}
+                  />
+                </div>
+                <div onClick={e => handleSoundClick(e)}>
+                  {unMuted ? (
+                    <Volume2 className="w-10 h-10" color="#ffffff" />
+                  ) : (
+                    <VolumeX className="w-10 h-10" color="#ffffff" />
+                  )}
+                </div>
               </div>
             </div>
           </div>
