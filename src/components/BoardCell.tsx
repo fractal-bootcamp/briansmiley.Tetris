@@ -20,7 +20,7 @@ const BoardCell = ({
       cellValue.type === "empty"
         ? [blankCellBackground, blankCellBackground, blankCellBackground]
         : cellValue.color,
-    [cellValue, blankCellBackground]
+    [cellValue.color[0], cellValue.color[1], cellValue.color[2], cellValue.type]
   );
   const backgroundColor = useMemo(() => {
     switch (cellValue.type) {
@@ -33,13 +33,13 @@ const BoardCell = ({
       default:
         return `rgba(${r}, ${g}, ${b})`;
     }
-  }, [cellValue]);
+  }, [cellValue.type, r, g, b]);
   const borderColor = useMemo(
     () =>
       `rgb(${Math.floor(0.8 * r)}, ${Math.floor(0.8 * g)}, ${Math.floor(
         0.8 * b
       )})`,
-    [cellValue, r, g, b]
+    [r, g, b]
   );
   const borderStyle = useMemo(() => {
     switch (cellValue.type) {
@@ -52,7 +52,7 @@ const BoardCell = ({
       case "wall":
         return "outset";
     }
-  }, [cellValue, cellBorderStyle]);
+  }, [cellValue.type, cellBorderStyle]);
   const borderWidth = useMemo(() => {
     switch (cellValue.type) {
       case "empty":
@@ -63,7 +63,7 @@ const BoardCell = ({
       case "wall":
         return 6;
     }
-  }, [cellValue]);
+  }, [cellValue.type]);
 
   const cellDynamicStyles: React.CSSProperties = {
     background: backgroundColor,
