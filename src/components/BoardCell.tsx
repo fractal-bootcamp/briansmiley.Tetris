@@ -5,8 +5,13 @@ import { Color } from "../TetrisConfig";
 interface BoardCellProps {
   cellValue: Cell;
   position: [number, number];
+  cellBorderStyle: string;
 }
-const BoardCell = ({ cellValue, position }: BoardCellProps) => {
+const BoardCell = ({
+  cellValue,
+  position,
+  cellBorderStyle
+}: BoardCellProps) => {
   const [row, col] = position;
   const blankCellBackground = ((row % 2) + (col % 2)) % 2 ? 22 : 6;
   //we use the color of a cell unless it is empty or shadow, in which case we use the blank cell background checkerboard pattern
@@ -15,7 +20,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       cellValue.type === "empty"
         ? [blankCellBackground, blankCellBackground, blankCellBackground]
         : cellValue.color,
-    [cellValue, blankCellBackground]
+    [cellValue.color[0], cellValue.color[1], cellValue.color[2], cellValue.type]
   );
   const backgroundColor = useMemo(() => {
     switch (cellValue.type) {
@@ -28,13 +33,13 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       default:
         return `rgba(${r}, ${g}, ${b})`;
     }
-  }, [cellValue]);
+  }, [cellValue.type, r, g, b]);
   const borderColor = useMemo(
     () =>
       `rgb(${Math.floor(0.8 * r)}, ${Math.floor(0.8 * g)}, ${Math.floor(
         0.8 * b
       )})`,
-    [cellValue, r, g, b]
+    [r, g, b]
   );
   const borderStyle = useMemo(() => {
     switch (cellValue.type) {
@@ -43,10 +48,11 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       case "shadow":
         return "solid";
       case "block":
+        return cellBorderStyle;
       case "wall":
         return "outset";
     }
-  }, [cellValue]);
+  }, [cellValue.type, cellBorderStyle]);
   const borderWidth = useMemo(() => {
     switch (cellValue.type) {
       case "empty":
@@ -57,7 +63,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
       case "wall":
         return 6;
     }
-  }, [cellValue]);
+  }, [cellValue.type]);
 
   const cellDynamicStyles: React.CSSProperties = {
     background: backgroundColor,
@@ -67,7 +73,7 @@ const BoardCell = ({ cellValue, position }: BoardCellProps) => {
     borderColor: borderColor,
     flex: "1 1 16px"
   };
-  return <div style={cellDynamicStyles}></div>;
+  return <div className="w-full h-full" style={cellDynamicStyles}></div>;
 };
 
 export default BoardCell;

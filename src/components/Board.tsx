@@ -3,12 +3,13 @@ import { Board } from "../Tetris";
 
 type BoardDisplayProps = {
   board: Board;
+  cellBorderStyle: string;
 };
 
 const keyFromPosition = (a: number, b: number) =>
   a.toString().padStart(2, "0") + b.toString().padStart(2, "0");
 
-const BoardDisplay = ({ board }: BoardDisplayProps) => {
+const BoardDisplay = ({ board, cellBorderStyle }: BoardDisplayProps) => {
   const aspectRatio = board[0].length / board.length;
   const dimensions: React.CSSProperties = {
     aspectRatio: aspectRatio
@@ -21,6 +22,7 @@ const BoardDisplay = ({ board }: BoardDisplayProps) => {
             <BoardCell
               position={[row, col]}
               cellValue={cell}
+              cellBorderStyle={cellBorderStyle}
               key={keyFromPosition(row, col)}
             />
           ))}
