@@ -21,10 +21,10 @@ export type TetrisShape = (typeof SHAPE_NAMES)[number];
 export const CONFIG: Config = {
   BLOCK_SHAPES: {
     I: [
+      [0, -2],
       [0, -1],
       [0, 0],
-      [0, 1],
-      [0, 2]
+      [0, 1]
     ],
     T: [
       [0, 0],
