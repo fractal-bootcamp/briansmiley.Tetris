@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import BoardDisplay from "./components/Board";
+import BoardDisplay from "./components/BoardDisplay";
 import { Volume2, VolumeX } from "lucide-react";
 import {
   Game,
