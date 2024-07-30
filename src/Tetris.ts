@@ -6,6 +6,7 @@ import type {
   InputCategory,
   Color
 } from "./TetrisConfig";
+import { SHAPE_NAMES } from "./TetrisConfig";
 /**
  * Types
  */
@@ -16,6 +17,7 @@ export type Game = {
     self: Block;
     dropLocation: Coordinate;
   } | null;
+  shapeQueue: TetrisShape[];
   score: number;
   linesCleared: number;
   blocksSpawned: number;
@@ -55,6 +57,7 @@ export const gameInit = (): Game => {
   return {
     board: newBlankBoard(),
     fallingBlock: null,
+    shapeQueue: [...newShapeBag(), ...newShapeBag()],
     score: 0,
     linesCleared: 0,
     blocksSpawned: 0,
@@ -110,8 +113,17 @@ export const startGame = (game: Game): Game =>
     ? spawnNewBlock(gameInit())
     : game;
 const spawnNewBlock = (game: Game): Game => {
-  // const [spawnR, spawnC] = CONFIG.SPAWN_POINT;
-  const newBlock = newFallingBlock();
+  // pop the next shape off the queue
+  const newBlockShape = game.shapeQueue[0];
+  const newBlockBody = CONFIG.BLOCK_SHAPES[newBlockShape];
+  const newBlock: Block = {
+    origin: CONFIG.SPAWN_POINT,
+    shape: newBlockShape,
+    body: newBlockBody
+  };
+  const newQueue = game.shapeQueue
+    .slice(1)
+    .concat(game.shapeQueue.length < 8 ? newShapeBag() : []); //
   if (blockIntersectsSettledOrWalls(game.board, newBlock)) return endGame(game);
   if (boardCoordIsOccupied(game.board, CONFIG.SPAWN_POINT))
     return endGame(game);
@@ -121,6 +133,7 @@ const spawnNewBlock = (game: Game): Game => {
       self: newBlock,
       dropLocation: hardDropEndOrigin(game.board, newBlock)
     },
+    shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
     tickInterval:
       CONFIG.STARTING_TICK_INTERVAL /
@@ -174,28 +187,28 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
 };
 //get the next spawnable block, currently at random
 
-/**For later: The NES Tetris randomizer is super basic. Basically it rolls an 8 sided die, 1-7 being the 7 pieces
- *  and 8 being "reroll". If you get the same piece as the last piece you got, or you hit the reroll number, It'll
- * roll a 2nd 7 sided die. This time you can get the same piece as your previous one and the roll is final. */
-const getNewBlockShape = (): TetrisShape => {
-  const keys = Object.keys(CONFIG.BLOCK_SHAPES) as Array<
-    keyof typeof CONFIG.BLOCK_SHAPES
-  >;
-  return keys[(keys.length * Math.random()) << 0];
-};
+/**Deprecated fully random enxt shape algorithm*/
+// const getRandomNewBlockShape = (): TetrisShape => {
+//   //just a random block every
+//   const keys = Object.keys(CONFIG.BLOCK_SHAPES) as Array<
+//     keyof typeof CONFIG.BLOCK_SHAPES
+//   >;
+//   return keys[(keys.length * Math.random()) << 0];
+// };
 
-/**
- * Creates a falling block at the top of the board (overwrites any current falling block)
- */
-const newFallingBlock = (): Block => {
-  const shape = getNewBlockShape();
-  const body = CONFIG.BLOCK_SHAPES[shape];
-  const newBlock: Block = {
-    origin: CONFIG.SPAWN_POINT,
-    shape,
-    body
-  };
-  return newBlock;
+/**Create/replace the bag of shapes abvailable to pick the next block in the queue from */
+const newShapeBag = (): TetrisShape[] => {
+  // Create a well-shuffled copy of SHAPE_NAMES
+  const shuffledShapes = [...SHAPE_NAMES];
+  for (let i = shuffledShapes.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledShapes[i], shuffledShapes[j]] = [
+      shuffledShapes[j],
+      shuffledShapes[i]
+    ];
+  }
+  // Assign the shuffled array to the game's shapeBag
+  return shuffledShapes;
 };
 
 /** Locks the game's fallingBlock into place as part of the board*/
