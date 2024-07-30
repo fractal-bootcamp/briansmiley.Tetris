@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BoardDisplay from "./components/Board";
 import { Volume2, VolumeX } from "lucide-react";
 import {
@@ -6,6 +6,7 @@ import {
   boardWithFallingBlock,
   gameInit,
   hardDropBlock,
+  miniPreviewBoard,
   rotateBlock,
   setAllowedInput,
   shiftBlock,
@@ -108,7 +109,10 @@ function App() {
   useEffect(() => {
     music.muted = !unMuted;
   }, [unMuted]);
-
+  const previewBoard = useMemo(
+    () => miniPreviewBoard(gameState.shapeQueue),
+    [JSON.stringify(gameState.shapeQueue)]
+  );
   const handleSoundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (unMuted === null) startMusic();
@@ -118,11 +122,13 @@ function App() {
   return (
     <>
       <div className="flex justify-center">
+        <div className="w-full"> </div>
         <div className="m-2 flex flex-col items-center gap-2 w-fit">
           <BoardDisplay
             board={boardWithFallingBlock(gameState)}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
           />
+
           <div className="flex justify-between w-full ">
             <div className="flex justify-start basis-full">
               <div className="text-5xl font-mono text-green-500">
@@ -157,6 +163,10 @@ function App() {
             </div>
           </div>
         </div>
+        <BoardDisplay
+          board={previewBoard}
+          cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+        />
       </div>
     </>
   );
