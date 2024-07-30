@@ -408,9 +408,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
   const nextBlock = shiftedBlock(game.fallingBlock.self, direction, 1);
   return blockIntersectsSettledOrWalls(game.board, nextBlock)
-    ? direction === "D"
-      ? settleBlockAndSpawnNew(game)
-      : game
+    ? game
     : grantGrace({
         ...game,
         fallingBlock: {
