@@ -482,3 +482,35 @@ export const boardWithFallingBlock = (game: Game): Board => {
     )
   );
 };
+
+/**Returns a board for displaying upcoming shape(s) */
+export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
+  const upcomingShape = shapeQueue[0];
+
+  // Create a small box with walls
+  const boxSize = 8; // 6x6 inner area + 1 cell padding on each side
+  const miniBoard: Board = Array(boxSize)
+    .fill(null)
+    .map(() => Array(boxSize).fill({ color: CONFIG.WALL_COLOR, type: "wall" }));
+
+  // Fill the inner area with empty cells
+  for (let r = 1; r < boxSize - 1; r++) {
+    for (let c = 1; c < boxSize - 1; c++) {
+      miniBoard[r][c] = { color: [0, 0, 0], type: "empty" };
+    }
+  }
+
+  // Place the upcoming shape in the center of the box
+  const origin: Coordinate = [4, 4];
+  const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map(coord =>
+    coordinateSum(coord, origin)
+  );
+  shapeCoords.forEach(([r, c]) => {
+    miniBoard[r][c] = {
+      color: CONFIG.SHAPE_COLORS[upcomingShape],
+      type: "block"
+    };
+  });
+
+  return miniBoard;
+};
