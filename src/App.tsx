@@ -121,12 +121,13 @@ function App() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="w-full"> </div>
-        <div className="m-2 flex flex-col items-center gap-2 w-fit">
+      <div className="flex justify-center m-2 gap-2">
+        <div className="w-1/3"> </div>
+        <div className=" flex flex-col items-center gap-2 w-fit">
           <BoardDisplay
             board={boardWithFallingBlock(gameState)}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            classNames="h-[90vh]"
           />
 
           <div className="flex justify-between w-full ">
@@ -163,10 +164,13 @@ function App() {
             </div>
           </div>
         </div>
-        <BoardDisplay
-          board={previewBoard}
-          cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-        />
+        <div className="w-1/3">
+          <BoardDisplay
+            board={previewBoard}
+            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            classNames="h-[280px] aspect-square"
+          />
+        </div>
       </div>
     </>
   );
