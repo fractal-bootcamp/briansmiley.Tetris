@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import BoardDisplay from "./components/Board";
+import { useEffect, useMemo, useRef, useState } from "react";
+import BoardDisplay from "./components/BoardDisplay";
 import { Volume2, VolumeX } from "lucide-react";
 import {
   Game,
   boardWithFallingBlock,
   gameInit,
   hardDropBlock,
+  miniPreviewBoard,
   rotateBlock,
   setAllowedInput,
   shiftBlock,
@@ -37,7 +38,7 @@ const keyBindings: KeyBinding[] = [
   { key: "ArrowLeft", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "L")},
   { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
   { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
-  { key: "ArrowDown", type:"shift", callback: (prevGameState) => rotateBlock(prevGameState, "CCW")},
+  { key: "ArrowDown", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
 ];
 const cellBorderStyles = ["outset", "none"];
 
@@ -108,7 +109,10 @@ function App() {
   useEffect(() => {
     music.muted = !unMuted;
   }, [unMuted]);
-
+  const previewBoard = useMemo(
+    () => miniPreviewBoard(gameState.shapeQueue),
+    [JSON.stringify(gameState.shapeQueue)]
+  );
   const handleSoundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (unMuted === null) startMusic();
@@ -117,12 +121,15 @@ function App() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="m-2 flex flex-col items-center gap-2 w-fit">
+      <div className="flex justify-center m-2 gap-2">
+        <div className="w-1/3"> </div>
+        <div className=" flex flex-col items-center gap-2 w-fit">
           <BoardDisplay
             board={boardWithFallingBlock(gameState)}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            classNames="h-[90vh]"
           />
+
           <div className="flex justify-between w-full ">
             <div className="flex justify-start basis-full">
               <div className="text-5xl font-mono text-green-500">
@@ -156,6 +163,13 @@ function App() {
               </div>
             </div>
           </div>
+        </div>
+        <div className="w-1/3">
+          <BoardDisplay
+            board={previewBoard}
+            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            classNames="h-[280px] aspect-square"
+          />
         </div>
       </div>
     </>

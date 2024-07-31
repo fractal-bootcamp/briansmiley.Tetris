@@ -16,15 +16,15 @@ export type Color = [number, number, number];
 
 export type Coordinate = [number, number];
 export type InputCategory = "rotate" | "shift" | "drop";
-
-export type TetrisShape = "I" | "T" | "O" | "S" | "Z" | "L" | "J";
+export const SHAPE_NAMES = ["I", "T", "O", "S", "Z", "L", "J"] as const;
+export type TetrisShape = (typeof SHAPE_NAMES)[number];
 export const CONFIG: Config = {
   BLOCK_SHAPES: {
     I: [
+      [0, -2],
       [0, -1],
       [0, 0],
-      [0, 1],
-      [0, 2]
+      [0, 1]
     ],
     T: [
       [0, 0],
