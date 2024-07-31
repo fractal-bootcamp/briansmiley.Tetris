@@ -15,7 +15,7 @@ export type Config = {
 export type Color = [number, number, number];
 
 export type Coordinate = [number, number];
-export type InputCategory = "rotate" | "shift" | "drop";
+export type InputCategory = "rotate" | "shift" | "drop" | "hold";
 export const SHAPE_NAMES = ["I", "T", "O", "S", "Z", "L", "J"] as const;
 export type TetrisShape = (typeof SHAPE_NAMES)[number];
 export const CONFIG: Config = {
@@ -83,7 +83,8 @@ export const CONFIG: Config = {
     base: 10,
     drop: 250,
     rotate: 250,
-    shift: 70
+    shift: 70,
+    hold: 1000000 //hold allowance is handled by the hold/spawn block functions
   },
   WALLS: true,
   MAX_GRACE_COUNT: 5 //maximum number of gravity ticks you can skip settling from by moving

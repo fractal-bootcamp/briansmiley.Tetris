@@ -18,6 +18,7 @@ export type Game = {
     dropLocation: Coordinate;
   } | null;
   shapeQueue: TetrisShape[];
+  heldShape: TetrisShape | null;
   score: number;
   linesCleared: number;
   blocksSpawned: number;
@@ -58,12 +59,13 @@ export const gameInit = (): Game => {
     board: newBlankBoard(),
     fallingBlock: null,
     shapeQueue: [...newShapeBag(), ...newShapeBag()],
+    heldShape: null,
     score: 0,
     linesCleared: 0,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
-    allowedInputs: { rotate: true, shift: true, drop: true },
+    allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     groundGracePeriod: {
       protected: false,
       counter: 0
@@ -94,11 +96,10 @@ export const setAllowedInput = (
   game: Game,
   input: InputCategory,
   state: boolean
-): Game => {
-  const newGame = { ...game };
-  newGame.allowedInputs[input] = state;
-  return newGame;
-};
+): Game => ({
+  ...game,
+  allowedInputs: { ...game.allowedInputs, [input]: state }
+});
 //
 // const incrementGameSpeed = (game: Game): Game => ({
 //   ...game,
@@ -112,15 +113,16 @@ export const startGame = (game: Game): Game =>
     : game.over
     ? spawnNewBlock(gameInit())
     : game;
+const newBlockFromShape = (shape: TetrisShape): Block => ({
+  origin: CONFIG.SPAWN_POINT,
+  shape: shape,
+  body: CONFIG.BLOCK_SHAPES[shape]
+});
+/**Does nothing more less than pop a shape off the next queue and start it falling */
 const spawnNewBlock = (game: Game): Game => {
   // pop the next shape off the queue
   const newBlockShape = game.shapeQueue[0];
-  const newBlockBody = CONFIG.BLOCK_SHAPES[newBlockShape];
-  const newBlock: Block = {
-    origin: CONFIG.SPAWN_POINT,
-    shape: newBlockShape,
-    body: newBlockBody
-  };
+  const newBlock = newBlockFromShape(newBlockShape);
   const newQueue = game.shapeQueue
     .slice(1)
     .concat(game.shapeQueue.length < 8 ? newShapeBag() : []); //
@@ -139,6 +141,7 @@ const spawnNewBlock = (game: Game): Game => {
       CONFIG.STARTING_TICK_INTERVAL /
       CONFIG.SPEED_SCALING **
         Math.floor(game.linesCleared / CONFIG.LEVEL_LINES),
+    allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
     groundGracePeriod: {
       protected: false,
       counter: 0
@@ -402,7 +405,27 @@ const shiftedBlock = (
     origin: coordinateSum(block.origin, transforms[direction])
   };
 };
-
+/**Add current falling piece to the heldShape slot; spawns next block popped either from held slot or the queue if it's the first held piece*/
+export const holdAndPopHeld = (game: Game): Game => {
+  //if there is no falling block, do nothing
+  if (game.fallingBlock === null) return game;
+  //If there is no held shape, we hold the current falling block then spawn a new block as usual
+  let newGame: Game;
+  if (game.heldShape === null)
+    newGame = spawnNewBlock({
+      ...game,
+      heldShape: game.fallingBlock!.self.shape
+    });
+  //Otherwise:
+  //return a game state where we spawn a new block having just shifted the held shape onto the head of the queue
+  else
+    newGame = spawnNewBlock({
+      ...game,
+      heldShape: game.fallingBlock.self.shape, //previous falling shape is now held
+      shapeQueue: [game.heldShape, ...game.shapeQueue.slice(1)] //previously held shape is now popped off the queue by spawnNewBlock
+    });
+  return setAllowedInput(newGame, "hold", false); //disable hold until next piece
+};
 /**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
@@ -497,7 +520,7 @@ export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
       miniBoard[r][c] = { color: [0, 0, 0], type: "empty" };
     }
   }
-
+  if (upcomingShape === undefined) return miniBoard; //if there is no upcoming shape, return the blank board
   // Place the upcoming shape in the center of the box
   const origin: Coordinate = [4, 4];
   const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map(coord =>
@@ -512,3 +535,7 @@ export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
 
   return miniBoard;
 };
+
+/**Literally does the same thing as miniPreviewBoard but for the held shape for now */
+export const miniHeldBoard = (heldShape: TetrisShape | null) =>
+  heldShape ? miniPreviewBoard([heldShape]) : miniPreviewBoard([]);

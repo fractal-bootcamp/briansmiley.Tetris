@@ -6,6 +6,8 @@ import {
   boardWithFallingBlock,
   gameInit,
   hardDropBlock,
+  holdAndPopHeld,
+  miniHeldBoard,
   miniPreviewBoard,
   rotateBlock,
   setAllowedInput,
@@ -39,6 +41,7 @@ const keyBindings: KeyBinding[] = [
   { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
   { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
   { key: "ArrowDown", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
+  { key: "c", type:"hold", callback: (prevGameState) => holdAndPopHeld(prevGameState)},
 ];
 const cellBorderStyles = ["outset", "none"];
 
@@ -122,7 +125,15 @@ function App() {
   return (
     <>
       <div className="flex justify-center m-2 gap-2">
-        <div className="w-1/3"> </div>
+        <div className="w-1/3 flex justify-end gap-2 text-green-500 text-2xl font-mono">
+          Held <br />
+          (c)
+          <BoardDisplay
+            board={miniHeldBoard(gameState.heldShape)}
+            classNames="h-[20vh] aspect-square"
+            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+          />
+        </div>
         <div className=" flex flex-col items-center gap-2 w-fit">
           <BoardDisplay
             board={boardWithFallingBlock(gameState)}
@@ -164,12 +175,13 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="w-1/3">
+        <div className="w-1/3 flex justify-start gap-2 text-green-500 text-2xl font-mono">
           <BoardDisplay
             board={previewBoard}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="h-[280px] aspect-square"
+            classNames="h-[20vh] aspect-square"
           />
+          Next
         </div>
       </div>
     </>
