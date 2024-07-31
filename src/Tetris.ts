@@ -520,7 +520,7 @@ export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
       miniBoard[r][c] = { color: [0, 0, 0], type: "empty" };
     }
   }
-
+  if (upcomingShape === undefined) return miniBoard; //if there is no upcoming shape, return the blank board
   // Place the upcoming shape in the center of the box
   const origin: Coordinate = [4, 4];
   const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map(coord =>
@@ -535,3 +535,7 @@ export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
 
   return miniBoard;
 };
+
+/**Literally does the same thing as miniPreviewBoard but for the held shape for now */
+export const miniHeldBoard = (heldShape: TetrisShape | null) =>
+  heldShape ? miniPreviewBoard([heldShape]) : miniPreviewBoard([]);
