@@ -125,12 +125,12 @@ function App() {
   return (
     <>
       <div className="flex justify-center m-2 gap-2">
-        <div className="w-1/3 flex justify-end gap-2 text-green-500 text-3xl font-mono">
+        <div className="w-1/3 flex justify-end gap-2 text-green-500 text-2xl font-mono">
           Held <br />
           (c)
           <BoardDisplay
             board={miniHeldBoard(gameState.heldShape)}
-            classNames="h-[280px] aspect-square"
+            classNames="h-[20vh] aspect-square"
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
           />
         </div>
@@ -175,11 +175,11 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="w-1/3 flex justify-start gap-2 text-green-500 text-3xl font-mono">
+        <div className="w-1/3 flex justify-start gap-2 text-green-500 text-2xl font-mono">
           <BoardDisplay
             board={previewBoard}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="h-[280px] aspect-square"
+            classNames="h-[20vh] aspect-square"
           />
           Next
         </div>
