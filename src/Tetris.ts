@@ -18,6 +18,7 @@ export type Game = {
     dropLocation: Coordinate;
   } | null;
   shapeQueue: TetrisShape[];
+  heldShape: TetrisShape | null;
   score: number;
   linesCleared: number;
   blocksSpawned: number;
@@ -58,6 +59,7 @@ export const gameInit = (): Game => {
     board: newBlankBoard(),
     fallingBlock: null,
     shapeQueue: [...newShapeBag(), ...newShapeBag()],
+    heldShape: null,
     score: 0,
     linesCleared: 0,
     blocksSpawned: 0,
@@ -112,15 +114,16 @@ export const startGame = (game: Game): Game =>
     : game.over
     ? spawnNewBlock(gameInit())
     : game;
+const newBlockFromShape = (shape: TetrisShape): Block => ({
+  origin: CONFIG.SPAWN_POINT,
+  shape: shape,
+  body: CONFIG.BLOCK_SHAPES[shape]
+});
+/**Does nothing more less than pop a shape off the next queue and start it falling */
 const spawnNewBlock = (game: Game): Game => {
   // pop the next shape off the queue
   const newBlockShape = game.shapeQueue[0];
-  const newBlockBody = CONFIG.BLOCK_SHAPES[newBlockShape];
-  const newBlock: Block = {
-    origin: CONFIG.SPAWN_POINT,
-    shape: newBlockShape,
-    body: newBlockBody
-  };
+  const newBlock = newBlockFromShape(newBlockShape);
   const newQueue = game.shapeQueue
     .slice(1)
     .concat(game.shapeQueue.length < 8 ? newShapeBag() : []); //
@@ -402,7 +405,24 @@ const shiftedBlock = (
     origin: coordinateSum(block.origin, transforms[direction])
   };
 };
-
+/**Add current falling piece to the heldShape slot; spawns next block popped either from held slot or the queue if it's the first held piece*/
+export const holdAndPopHeld = (game: Game): Game => {
+  //if there is no falling block, do nothing
+  if (game.fallingBlock === null) return game;
+  //If there is no held shape, we hold the current falling block then spawn a new block as usual
+  if (game.heldShape === null)
+    return spawnNewBlock({
+      ...game,
+      heldShape: game.fallingBlock.self.shape
+    });
+  //Otherwise:
+  //return a game state where we spawn a new block having just shifted the held shape onto the head of the queue
+  return spawnNewBlock({
+    ...game,
+    heldShape: game.fallingBlock.self.shape, //previous falling shape is now held
+    shapeQueue: [game.heldShape, ...game.shapeQueue.slice(1)] //previously held shape is now popped off the queue by spawnNewBlock
+  });
+};
 /**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
