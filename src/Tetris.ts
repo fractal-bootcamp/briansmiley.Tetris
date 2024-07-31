@@ -65,7 +65,7 @@ export const gameInit = (): Game => {
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
-    allowedInputs: { rotate: true, shift: true, drop: true },
+    allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     groundGracePeriod: {
       protected: false,
       counter: 0
@@ -96,11 +96,10 @@ export const setAllowedInput = (
   game: Game,
   input: InputCategory,
   state: boolean
-): Game => {
-  const newGame = { ...game };
-  newGame.allowedInputs[input] = state;
-  return newGame;
-};
+): Game => ({
+  ...game,
+  allowedInputs: { ...game.allowedInputs, [input]: state }
+});
 //
 // const incrementGameSpeed = (game: Game): Game => ({
 //   ...game,
@@ -142,6 +141,7 @@ const spawnNewBlock = (game: Game): Game => {
       CONFIG.STARTING_TICK_INTERVAL /
       CONFIG.SPEED_SCALING **
         Math.floor(game.linesCleared / CONFIG.LEVEL_LINES),
+    allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
     groundGracePeriod: {
       protected: false,
       counter: 0
@@ -410,18 +410,21 @@ export const holdAndPopHeld = (game: Game): Game => {
   //if there is no falling block, do nothing
   if (game.fallingBlock === null) return game;
   //If there is no held shape, we hold the current falling block then spawn a new block as usual
+  let newGame: Game;
   if (game.heldShape === null)
-    return spawnNewBlock({
+    newGame = spawnNewBlock({
       ...game,
-      heldShape: game.fallingBlock.self.shape
+      heldShape: game.fallingBlock!.self.shape
     });
   //Otherwise:
   //return a game state where we spawn a new block having just shifted the held shape onto the head of the queue
-  return spawnNewBlock({
-    ...game,
-    heldShape: game.fallingBlock.self.shape, //previous falling shape is now held
-    shapeQueue: [game.heldShape, ...game.shapeQueue.slice(1)] //previously held shape is now popped off the queue by spawnNewBlock
-  });
+  else
+    newGame = spawnNewBlock({
+      ...game,
+      heldShape: game.fallingBlock.self.shape, //previous falling shape is now held
+      shapeQueue: [game.heldShape, ...game.shapeQueue.slice(1)] //previously held shape is now popped off the queue by spawnNewBlock
+    });
+  return setAllowedInput(newGame, "hold", false); //disable hold until next piece
 };
 /**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {

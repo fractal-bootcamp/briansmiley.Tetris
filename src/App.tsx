@@ -6,6 +6,7 @@ import {
   boardWithFallingBlock,
   gameInit,
   hardDropBlock,
+  holdAndPopHeld,
   miniPreviewBoard,
   rotateBlock,
   setAllowedInput,
@@ -39,6 +40,7 @@ const keyBindings: KeyBinding[] = [
   { key: "ArrowRight", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "R")},
   { key: "ArrowUp", type: "rotate",callback: (prevGameState) => rotateBlock(prevGameState, "CW")},
   { key: "ArrowDown", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
+  { key: "c", type:"hold", callback: (prevGameState) => holdAndPopHeld(prevGameState)},
 ];
 const cellBorderStyles = ["outset", "none"];
 
