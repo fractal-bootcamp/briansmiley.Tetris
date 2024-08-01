@@ -1,11 +1,6 @@
 import { CONFIG } from "./TetrisConfig";
-import type {
-  Config,
-  Coordinate,
-  TetrisShape,
-  InputCategory,
-  Color
-} from "./TetrisConfig";
+//prettier-ignore
+import type {Config,Coordinate,TetrisShape,InputCategory,Color} from "./TetrisConfig";
 import { SHAPE_NAMES } from "./TetrisConfig";
 /**
  * Types
