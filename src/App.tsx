@@ -125,23 +125,30 @@ function App() {
   return (
     <>
       <div className="m-2 flex justify-center gap-2">
-        <div className="flex w-1/3 justify-end gap-2 font-mono text-2xl text-green-500">
-          Held <br />
-          (c)
-          <BoardDisplay
-            board={miniHeldBoard(gameState.heldShape)}
-            classNames="h-[20vh] aspect-square"
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-          />
+        <div className="flex flex-col items-end justify-start gap-10">
+          <div className="flex w-1/3 justify-end gap-5 font-mono text-2xl text-green-500">
+            Held <br />
+            (c)
+            <BoardDisplay
+              board={miniHeldBoard(gameState.heldShape)}
+              classNames="h-[20vh] aspect-square"
+              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            />
+          </div>
+          <div className="min-w-[13ch] font-mono text-3xl text-green-500">
+            Score: {gameState.score} <br />
+            Lines: {gameState.linesCleared}
+          </div>
         </div>
         <div className="flex w-fit flex-col items-center gap-2">
+          {/* game board */}
           <div className="relative">
             <BoardDisplay
               board={boardWithFallingBlock(gameState)}
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
               classNames="h-[90vh]"
             />
-            {!gameState.over && (
+            {gameState.over && (
               <div className="text-default animate-flash absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
                 GAME OVER
               </div>
@@ -149,11 +156,7 @@ function App() {
           </div>
 
           <div className="flex w-full justify-between">
-            <div className="flex basis-full justify-start">
-              <div className="font-mono text-5xl text-green-500">
-                {gameState.score}
-              </div>
-            </div>
+            <div className="flex basis-full justify-start"></div>
             <div className="flex basis-full justify-center">
               <button
                 className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold [border-style:outset] active:[border-style:inset]"
