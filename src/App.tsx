@@ -125,8 +125,8 @@ function App() {
   return (
     <>
       <div className="m-2 flex justify-center gap-2">
-        <div className="flex flex-col items-end justify-start gap-10">
-          <div className="flex w-1/3 justify-end gap-5 font-mono text-2xl text-green-500">
+        <div className="flex w-1/3 flex-col items-end justify-start gap-10">
+          <div className="flex justify-end gap-2 font-mono text-2xl text-green-500">
             Held <br />
             (c)
             <BoardDisplay
@@ -149,8 +149,8 @@ function App() {
               classNames="h-[90vh]"
             />
             {gameState.over && (
-              <div className="text-default animate-flash absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
-                GAME OVER
+              <div className="text-default absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
+                <span className="animate-flash">GAME OVER</span>
               </div>
             )}
           </div>
