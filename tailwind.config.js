@@ -6,12 +6,12 @@ export default {
       keyframes: {
         flash: {
           '0%, 100%': { opacity: '1' },
-          '20%, 80%': { opacity: '.8' },
-          '50%': { opacity: '.2' },
+
+          '50%': { opacity: '0' },
         },
       },
       animation: {
-        flash: 'flash 1s linear infinite',
+        flash: 'flash 2s step-end infinite',
       },
     },
   },

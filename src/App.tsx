@@ -141,8 +141,8 @@ function App() {
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
               classNames="h-[90vh]"
             />
-            {gameState.over && (
-              <div className="text-default absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 animate-[flash_3s_linear_infinite] items-center justify-center bg-slate-300 bg-opacity-30 px-8 py-4 text-5xl">
+            {!gameState.over && (
+              <div className="text-default animate-flash absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
                 GAME OVER
               </div>
             )}
