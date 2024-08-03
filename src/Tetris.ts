@@ -276,7 +276,7 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
   const newLinesCleared = game.linesCleared + rowsToClear.length;
-  const newLevel = Math.min(
+  const newLevel = Math.max(
     1,
     Math.floor(newLinesCleared / CONFIG.LEVEL_LINES)
   );
