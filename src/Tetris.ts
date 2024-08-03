@@ -1,7 +1,7 @@
-import { CONFIG } from "./TetrisConfig";
+import { CONFIG } from './TetrisConfig';
 //prettier-ignore
 import type {Config,Coordinate,TetrisShape,InputCategory,Color} from "./TetrisConfig";
-import { SHAPE_NAMES } from "./TetrisConfig";
+import { SHAPE_NAMES } from './TetrisConfig';
 /**
  * Types
  */
@@ -28,7 +28,7 @@ export type Game = {
 };
 export type Cell = {
   color: Color;
-  type: "wall" | "block" | "shadow" | "empty";
+  type: 'wall' | 'block' | 'shadow' | 'empty';
 };
 export type Board = Cell[][];
 type Block = {
@@ -36,8 +36,8 @@ type Block = {
   body: Coordinate[];
   shape: TetrisShape;
 };
-export type Direction = "U" | "L" | "R" | "D";
-export type RotDirection = "CW" | "CCW";
+export type Direction = 'U' | 'L' | 'R' | 'D';
+export type RotDirection = 'CW' | 'CCW';
 type ConditionalNull<argType, nonNullArgType, returnType> =
   argType extends nonNullArgType ? returnType : null;
 /**
@@ -63,15 +63,15 @@ export const gameInit = (): Game => {
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     groundGracePeriod: {
       protected: false,
-      counter: 0
+      counter: 0,
     },
-    CONFIG: CONFIG
+    CONFIG: CONFIG,
   };
 };
-const newEmptyCell = (): Cell => ({ color: [0, 0, 0], type: "empty" });
+const newEmptyCell = (): Cell => ({ color: [0, 0, 0], type: 'empty' });
 const newWallCell = (): Cell => ({
   color: [...CONFIG.WALL_COLOR],
-  type: "wall"
+  type: 'wall',
 });
 const newEmptyRow = (): Cell[] => {
   const row = Array(CONFIG.BOARD_WIDTH).fill(newEmptyCell());
@@ -85,7 +85,7 @@ const newBlankBoard = (): Board => {
 };
 export const setTickInterval = (game: Game, newInterval: number): Game => ({
   ...game,
-  tickInterval: newInterval
+  tickInterval: newInterval,
 });
 export const setAllowedInput = (
   game: Game,
@@ -93,7 +93,7 @@ export const setAllowedInput = (
   state: boolean
 ): Game => ({
   ...game,
-  allowedInputs: { ...game.allowedInputs, [input]: state }
+  allowedInputs: { ...game.allowedInputs, [input]: state },
 });
 //
 // const incrementGameSpeed = (game: Game): Game => ({
@@ -106,12 +106,12 @@ export const startGame = (game: Game): Game =>
   game.blocksSpawned === 0
     ? spawnNewBlock(game)
     : game.over
-    ? spawnNewBlock(gameInit())
-    : game;
+      ? spawnNewBlock(gameInit())
+      : game;
 const newBlockFromShape = (shape: TetrisShape): Block => ({
   origin: CONFIG.SPAWN_POINT,
   shape: shape,
-  body: CONFIG.BLOCK_SHAPES[shape]
+  body: CONFIG.BLOCK_SHAPES[shape],
 });
 /**Does nothing more less than pop a shape off the next queue and start it falling */
 const spawnNewBlock = (game: Game): Game => {
@@ -128,7 +128,7 @@ const spawnNewBlock = (game: Game): Game => {
     ...game,
     fallingBlock: {
       self: newBlock,
-      dropLocation: hardDropEndOrigin(game.board, newBlock)
+      dropLocation: hardDropEndOrigin(game.board, newBlock),
     },
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
@@ -139,8 +139,8 @@ const spawnNewBlock = (game: Game): Game => {
     allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
     groundGracePeriod: {
       protected: false,
-      counter: 0
-    }
+      counter: 0,
+    },
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
@@ -155,7 +155,7 @@ const blockOccupiedCells = <T extends Block | null>(
 ): ConditionalNull<T, Block, Coordinate[]> => {
   return block === null
     ? (null as ConditionalNull<T, Block, Coordinate[]>)
-    : (block.body.map(cell =>
+    : (block.body.map((cell) =>
         coordinateSum(cell, block.origin)
       ) as ConditionalNull<T, Block, Coordinate[]>);
 };
@@ -171,13 +171,13 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
 //check whether a board location is occupied by a block or wall
 const boardCoordIsOccupied = (board: Board, coord: Coordinate): boolean =>
   cellIsOccupied(board[coord[0]][coord[1]]);
-const cellIsOccupied = (cell: Cell) => ["block", "wall"].includes(cell.type);
+const cellIsOccupied = (cell: Cell) => ['block', 'wall'].includes(cell.type);
 //checks whether a proposed block position will be a collision
 const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
   const occupiedCells = blockOccupiedCells(block);
   if (occupiedCells === null) return false;
   return occupiedCells.some(
-    boardLocation =>
+    (boardLocation) =>
       boardLocation[0] >= 0 && //if we are above the board we arent checking anything
       (isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
         boardCoordIsOccupied(board, boardLocation)) //interaction if board is occupied
@@ -202,7 +202,7 @@ const newShapeBag = (): TetrisShape[] => {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffledShapes[i], shuffledShapes[j]] = [
       shuffledShapes[j],
-      shuffledShapes[i]
+      shuffledShapes[i],
     ];
   }
   // Assign the shuffled array to the game's shapeBag
@@ -217,9 +217,9 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
   const newColor = CONFIG.SHAPE_COLORS[fallenBlock.self.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
-    coord =>
+    (coord) =>
       !isOffScreen(coord, newBoard) &&
-      (newBoard[coord[0]][coord[1]] = { color: newColor, type: "block" })
+      (newBoard[coord[0]][coord[1]] = { color: newColor, type: 'block' })
   );
   return spawnNewBlock({ ...game, board: newBoard });
 };
@@ -230,7 +230,7 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
 export const tickGravity = (game: Game): Game => {
   const newGame = clearThenCollapseRows(game);
   if (newGame.fallingBlock === null) return newGame;
-  const nextBlock = shiftedBlock(newGame.fallingBlock.self, "D");
+  const nextBlock = shiftedBlock(newGame.fallingBlock.self, 'D');
   //if we are on the ground...)
   if (blockOnGround(game))
     //prevent settling if the grace period bool is true and hasnt been reset more than the MAX COUNT number of times
@@ -240,8 +240,8 @@ export const tickGravity = (game: Game): Game => {
           ...game,
           groundGracePeriod: {
             protected: false,
-            counter: game.groundGracePeriod.counter + 1
-          }
+            counter: game.groundGracePeriod.counter + 1,
+          },
         }
       : //otherwise settle and spawn new
         settleBlockAndSpawnNew(newGame);
@@ -251,8 +251,8 @@ export const tickGravity = (game: Game): Game => {
       fallingBlock: {
         ...newGame.fallingBlock,
         self: nextBlock,
-        dropLocation: hardDropEndOrigin(newGame.board, nextBlock)
-      }
+        dropLocation: hardDropEndOrigin(newGame.board, nextBlock),
+      },
     }) //NOTE THINK ABOUT THE GAME FLOW HERE?
   );
 };
@@ -260,12 +260,12 @@ export const tickGravity = (game: Game): Game => {
 /** SCORING/CLEAR  EVENTS */
 /**A row is full if it contains no nulls and is not entirely wall (i.e. the floor)*/
 const rowIsFull = (row: Cell[]) =>
-  row.every(cellIsOccupied) && !row.every(cell => cell.type === "wall");
+  row.every(cellIsOccupied) && !row.every((cell) => cell.type === 'wall');
 const rowIsEmpty = (row: Cell[]) =>
-  !rowIncludesBlock(row) && !row.every(cell => cell.type === "wall");
+  !rowIncludesBlock(row) && !row.every((cell) => cell.type === 'wall');
 /**Row has at least one cell that matches SHAPE_COLORS */
 const rowIncludesBlock = (row: Cell[]) =>
-  row.some(cell => cell.type === "block");
+  row.some((cell) => cell.type === 'block');
 /** Gets a list of the indices of full rows on the board */
 const fullRows = (board: Board): number[] => {
   return board
@@ -283,7 +283,7 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     linesCleared: game.linesCleared + rowsToClear.length,
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
-    )
+    ),
   };
 };
 
@@ -304,14 +304,14 @@ export const collapseGapRows = (game: Game): Game => {
     .filter(isNotNull);
   let newBoard = structuredClone(board);
   //for each empty row index, splice out that row in newBoard and then put a new empty row on top; this should let the rest of the indices keep working as expected
-  emptyRowIndices.forEach(rowIndex => {
+  emptyRowIndices.forEach((rowIndex) => {
     newBoard.splice(rowIndex, 1);
     newBoard = [newEmptyRow()].concat(newBoard);
   });
   const newFallingBlock = game.fallingBlock
     ? {
         ...game.fallingBlock,
-        dropLocation: hardDropEndOrigin(newBoard, game.fallingBlock.self)
+        dropLocation: hardDropEndOrigin(newBoard, game.fallingBlock.self),
       }
     : null;
   return { ...game, board: newBoard, fallingBlock: newFallingBlock };
@@ -329,11 +329,11 @@ const rotatedBlock = <T extends Block | null>(
     ? (null as ConditionalNull<T, Block, Block>)
     : ({
         ...block,
-        body: block.body.map(coord =>
-          direction === "CW"
+        body: block.body.map((coord) =>
+          direction === 'CW'
             ? ([coord[1], -coord[0]] as Coordinate)
             : ([-coord[1], coord[0]] as Coordinate)
-        )
+        ),
       } as ConditionalNull<T, Block, Block>);
 
 // /**Tells us if a block is on the ground (i.e. one more gravity tick would settle it)*/
@@ -341,21 +341,21 @@ const blockOnGround = (game: Game): boolean =>
   game.fallingBlock !== null &&
   blockIntersectsSettledOrWalls(
     game.board,
-    shiftedBlock(game.fallingBlock.self, "D")
+    shiftedBlock(game.fallingBlock.self, 'D')
   );
 /**Grants the falling block protection against being settled by gravity because it was just moved (gets removed by one gravity tick)*/
 const grantGrace = (game: Game): Game => ({
   ...game,
-  groundGracePeriod: { ...game.groundGracePeriod, protected: true }
+  groundGracePeriod: { ...game.groundGracePeriod, protected: true },
 });
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
-  if (game.fallingBlock === null || game.fallingBlock.self.shape === "O")
+  if (game.fallingBlock === null || game.fallingBlock.self.shape === 'O')
     return game;
   const newBlock = rotatedBlock(game.fallingBlock.self, direction);
   //if the rotated block intersects the board or walls, try shifting it one or two spaces in every direction and pick the first that works. Otherwise return with no rotation
   if (blockIntersectsSettledOrWalls(game.board, newBlock)) {
-    const directions: Direction[] = ["R", "L", "U", "D"];
+    const directions: Direction[] = ['R', 'L', 'U', 'D'];
     for (const shiftDir of directions) {
       for (const distance of [1, 2]) {
         const shiftCandidate = shiftedBlock(newBlock, shiftDir, distance);
@@ -365,8 +365,8 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
             ...game,
             fallingBlock: {
               self: shiftCandidate,
-              dropLocation: hardDropEndOrigin(game.board, shiftCandidate)
-            }
+              dropLocation: hardDropEndOrigin(game.board, shiftCandidate),
+            },
           });
       }
     }
@@ -378,8 +378,8 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
     ...game,
     fallingBlock: {
       self: newBlock,
-      dropLocation: hardDropEndOrigin(game.board, newBlock)
-    }
+      dropLocation: hardDropEndOrigin(game.board, newBlock),
+    },
   });
 };
 
@@ -393,11 +393,11 @@ const shiftedBlock = (
     L: [0, -distance],
     R: [0, distance],
     U: [-distance, 0],
-    D: [distance, 0]
+    D: [distance, 0],
   };
   return {
     ...block,
-    origin: coordinateSum(block.origin, transforms[direction])
+    origin: coordinateSum(block.origin, transforms[direction]),
   };
 };
 /**Add current falling piece to the heldShape slot; spawns next block popped either from held slot or the queue if it's the first held piece*/
@@ -409,7 +409,7 @@ export const holdAndPopHeld = (game: Game): Game => {
   if (game.heldShape === null)
     newGame = spawnNewBlock({
       ...game,
-      heldShape: game.fallingBlock!.self.shape
+      heldShape: game.fallingBlock!.self.shape,
     });
   //Otherwise:
   //return a game state where we spawn a new block having just shifted the held shape onto the head of the queue
@@ -417,9 +417,9 @@ export const holdAndPopHeld = (game: Game): Game => {
     newGame = spawnNewBlock({
       ...game,
       heldShape: game.fallingBlock.self.shape, //previous falling shape is now held
-      shapeQueue: [game.heldShape, ...game.shapeQueue] //previously held shape is now popped off the queue by spawnNewBlock
+      shapeQueue: [game.heldShape, ...game.shapeQueue], //previously held shape is now popped off the queue by spawnNewBlock
     });
-  return setAllowedInput(newGame, "hold", false); //disable hold until next piece
+  return setAllowedInput(newGame, 'hold', false); //disable hold until next piece
 };
 /**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {
@@ -431,8 +431,8 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
         ...game,
         fallingBlock: {
           self: nextBlock,
-          dropLocation: hardDropEndOrigin(game.board, nextBlock)
-        }
+          dropLocation: hardDropEndOrigin(game.board, nextBlock),
+        },
       });
 };
 
@@ -471,7 +471,7 @@ export const hardDropBlock = (game: Game): Game => {
   const newBlockOrigin = hardDropEndOrigin(game.board, game.fallingBlock.self); //get the position of a hard drop
   const newBlock = {
     ...game.fallingBlock,
-    self: { ...game.fallingBlock.self, origin: newBlockOrigin }
+    self: { ...game.fallingBlock.self, origin: newBlockOrigin },
   };
   return settleBlockAndSpawnNew({ ...game, fallingBlock: newBlock }); //move the falling block to that end position, settle, and spawn new
 };
@@ -483,48 +483,50 @@ export const boardWithFallingBlock = (game: Game): Board => {
   const fallingBlockOccupiedCells = blockOccupiedCells(fallingBlock.self);
   const shadowOccupiedCells = blockOccupiedCells({
     ...fallingBlock.self,
-    origin: fallingBlock.dropLocation
+    origin: fallingBlock.dropLocation,
   });
   return board.map((row, r) =>
     row.map((cell, c) =>
-      fallingBlockOccupiedCells.some(coord => coord[0] === r && coord[1] === c)
-        ? { color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape], type: "block" }
-        : shadowOccupiedCells.some(coord => coord[0] === r && coord[1] === c)
-        ? {
-            color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape],
-            type: "shadow"
-          }
-        : cell
+      fallingBlockOccupiedCells.some(
+        (coord) => coord[0] === r && coord[1] === c
+      )
+        ? { color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape], type: 'block' }
+        : shadowOccupiedCells.some((coord) => coord[0] === r && coord[1] === c)
+          ? {
+              color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape],
+              type: 'shadow',
+            }
+          : cell
     )
   );
 };
 
 /**Returns a board for displaying upcoming shape(s) */
-export const miniPreviewBoard = (shapeQueue: Game["shapeQueue"]): Board => {
+export const miniPreviewBoard = (shapeQueue: Game['shapeQueue']): Board => {
   const upcomingShape = shapeQueue[0];
 
   // Create a small box with walls
   const boxSize = 8; // 6x6 inner area + 1 cell padding on each side
   const miniBoard: Board = Array(boxSize)
     .fill(null)
-    .map(() => Array(boxSize).fill({ color: CONFIG.WALL_COLOR, type: "wall" }));
+    .map(() => Array(boxSize).fill({ color: CONFIG.WALL_COLOR, type: 'wall' }));
 
   // Fill the inner area with empty cells
   for (let r = 1; r < boxSize - 1; r++) {
     for (let c = 1; c < boxSize - 1; c++) {
-      miniBoard[r][c] = { color: [0, 0, 0], type: "empty" };
+      miniBoard[r][c] = { color: [0, 0, 0], type: 'empty' };
     }
   }
   if (upcomingShape === undefined) return miniBoard; //if there is no upcoming shape, return the blank board
   // Place the upcoming shape in the center of the box
   const origin: Coordinate = [4, 4];
-  const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map(coord =>
+  const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map((coord) =>
     coordinateSum(coord, origin)
   );
   shapeCoords.forEach(([r, c]) => {
     miniBoard[r][c] = {
       color: CONFIG.SHAPE_COLORS[upcomingShape],
-      type: "block"
+      type: 'block',
     };
   });
 
