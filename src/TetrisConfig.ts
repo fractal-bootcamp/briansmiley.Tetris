@@ -6,6 +6,7 @@ export type Config = {
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
   STARTING_TICK_INTERVAL: number;
+  MIN_TICK_INTERVAL: number;
   SPEED_SCALING: number;
   LEVEL_LINES: number;
   POLL_RATES: Record<InputCategory | 'base', number>;
@@ -77,8 +78,9 @@ export const CONFIG: Config = {
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 500,
-  SPEED_SCALING: 1.25, //step multiplier for game speed increase
-  LEVEL_LINES: 8, //how many lines between speed scaling
+  MIN_TICK_INTERVAL: 100, //minimum tick interval
+  SPEED_SCALING: 30, //how many milliseconds to take off the tick time for each level
+  LEVEL_LINES: 10, //how many lines between speed scaling
   POLL_RATES: {
     base: 10,
     drop: 250,

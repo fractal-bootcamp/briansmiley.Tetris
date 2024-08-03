@@ -16,6 +16,7 @@ export type Game = {
   heldShape: TetrisShape | null;
   score: number;
   linesCleared: number;
+  level: number;
   blocksSpawned: number;
   tickInterval: number;
   over: boolean;
@@ -57,6 +58,7 @@ export const gameInit = (): Game => {
     heldShape: null,
     score: 0,
     linesCleared: 0,
+    level: 1,
     blocksSpawned: 0,
     tickInterval: CONFIG.STARTING_TICK_INTERVAL,
     over: false,
@@ -132,10 +134,6 @@ const spawnNewBlock = (game: Game): Game => {
     },
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
-    tickInterval:
-      CONFIG.STARTING_TICK_INTERVAL /
-      CONFIG.SPEED_SCALING **
-        Math.floor(game.linesCleared / CONFIG.LEVEL_LINES),
     allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
     groundGracePeriod: {
       protected: false,
@@ -277,10 +275,16 @@ const fullRows = (board: Board): number[] => {
 export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
+  const newLinesCleared = game.linesCleared + rowsToClear.length;
   return {
     ...game,
     score: game.score + clearedLinesScore(rowsToClear.length),
-    linesCleared: game.linesCleared + rowsToClear.length,
+    linesCleared: newLinesCleared,
+    level: newLinesCleared / CONFIG.LEVEL_LINES,
+    tickInterval: Math.max(
+      CONFIG.MIN_TICK_INTERVAL,
+      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING ** newLinesCleared
+    ), //tick interval is decreased for each level
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
     ),
