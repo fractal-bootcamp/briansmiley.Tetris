@@ -287,7 +287,7 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     level: newLevel,
     tickInterval: Math.max(
       CONFIG.MIN_TICK_INTERVAL,
-      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING ** newLevel
+      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING * newLevel
     ), //tick interval is decreased for each level
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
