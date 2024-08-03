@@ -135,11 +135,18 @@ function App() {
           />
         </div>
         <div className="flex w-fit flex-col items-center gap-2">
-          <BoardDisplay
-            board={boardWithFallingBlock(gameState)}
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="h-[90vh]"
-          />
+          <div className="relative">
+            <BoardDisplay
+              board={boardWithFallingBlock(gameState)}
+              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+              classNames="h-[90vh]"
+            />
+            {gameState.over && (
+              <div className="text-default absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 animate-[flash_3s_linear_infinite] items-center justify-center bg-slate-300 bg-opacity-30 px-8 py-4 text-5xl">
+                GAME OVER
+              </div>
+            )}
+          </div>
 
           <div className="flex w-full justify-between">
             <div className="flex basis-full justify-start">
