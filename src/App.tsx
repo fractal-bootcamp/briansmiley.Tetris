@@ -136,9 +136,17 @@ function App() {
             />
           </div>
           <div className="min-w-[13ch] font-mono text-3xl text-green-500">
-            Score: {gameState.score} <br />
-            Lines: {gameState.linesCleared}
-            Level: {gameState.level}
+            <div className="flex flex-col">
+              <div className="border border-green-500">
+                Score: {gameState.score}
+              </div>
+              <div className="border border-green-500">
+                Lines: {gameState.linesCleared}
+              </div>
+              <div className="border border-green-500">
+                Level: {gameState.level}
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex w-fit flex-col items-center gap-2">

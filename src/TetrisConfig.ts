@@ -78,7 +78,7 @@ export const CONFIG: Config = {
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   STARTING_TICK_INTERVAL: 500,
-  MIN_TICK_INTERVAL: 100, //minimum tick interval
+  MIN_TICK_INTERVAL: 50, //minimum tick interval
   SPEED_SCALING: 30, //how many milliseconds to take off the tick time for each level
   LEVEL_LINES: 10, //how many lines between speed scaling
   POLL_RATES: {

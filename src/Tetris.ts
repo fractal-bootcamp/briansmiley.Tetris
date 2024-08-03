@@ -276,14 +276,18 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
   const newLinesCleared = game.linesCleared + rowsToClear.length;
+  const newLevel = Math.min(
+    1,
+    Math.floor(newLinesCleared / CONFIG.LEVEL_LINES)
+  );
   return {
     ...game,
     score: game.score + clearedLinesScore(rowsToClear.length),
     linesCleared: newLinesCleared,
-    level: newLinesCleared / CONFIG.LEVEL_LINES,
+    level: newLevel,
     tickInterval: Math.max(
       CONFIG.MIN_TICK_INTERVAL,
-      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING ** newLinesCleared
+      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING ** newLevel
     ), //tick interval is decreased for each level
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
