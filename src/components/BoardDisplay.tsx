@@ -1,5 +1,5 @@
-import BoardCell from "./BoardCell";
-import { Board } from "../Tetris";
+import BoardCell from './BoardCell';
+import { Board } from '../Tetris';
 
 type BoardDisplayProps = {
   board: Board;
@@ -8,16 +8,16 @@ type BoardDisplayProps = {
 };
 
 const keyFromPosition = (a: number, b: number) =>
-  a.toString().padStart(2, "0") + b.toString().padStart(2, "0");
+  a.toString().padStart(2, '0') + b.toString().padStart(2, '0');
 
 const BoardDisplay = ({
   board,
   cellBorderStyle,
-  classNames
+  classNames,
 }: BoardDisplayProps) => {
   const aspectRatio = board[0].length / board.length;
   const dimensions: React.CSSProperties = {
-    aspectRatio: aspectRatio
+    aspectRatio: aspectRatio,
   };
   return (
     <div className={`flex flex-col ${classNames}`} style={dimensions}>

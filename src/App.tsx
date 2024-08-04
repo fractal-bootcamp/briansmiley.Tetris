@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import BoardDisplay from "./components/BoardDisplay";
-import { Volume2, VolumeX } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import BoardDisplay from './components/BoardDisplay';
+import { Volume2, VolumeX } from 'lucide-react';
 import {
   Game,
   boardWithFallingBlock,
@@ -13,12 +13,12 @@ import {
   setAllowedInput,
   shiftBlock,
   startGame,
-  tickGravity
-} from "./Tetris";
-import ThemeSong from "./assets/ThemeSong.mp3";
-import useKeysPressed from "./hooks/useKeysPressed";
-import { CONFIG, InputCategory } from "./TetrisConfig";
-import BoardCell from "./components/BoardCell";
+  tickGravity,
+} from './Tetris';
+import ThemeSong from './assets/ThemeSong.mp3';
+import useKeysPressed from './hooks/useKeysPressed';
+import { CONFIG, InputCategory } from './TetrisConfig';
+import BoardCell from './components/BoardCell';
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -43,7 +43,7 @@ const keyBindings: KeyBinding[] = [
   { key: "ArrowDown", type:"shift", callback: (prevGameState) => shiftBlock(prevGameState, "D")},
   { key: "c", type:"hold", callback: (prevGameState) => holdAndPopHeld(prevGameState)},
 ];
-const cellBorderStyles = ["outset", "none"];
+const cellBorderStyles = ['outset', 'none'];
 
 function App() {
   const [gameClock, setGameClock] = useState(0);
@@ -51,7 +51,7 @@ function App() {
   const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
   const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
-  const keysPressed = useKeysPressed(keyBindings.map(binding => binding.key));
+  const keysPressed = useKeysPressed(keyBindings.map((binding) => binding.key));
   const keysPressedRef = useRef(keysPressed);
   //up to date ref to pass to our interval callbacks
   useEffect(() => {
@@ -73,17 +73,17 @@ function App() {
   }, []);
   //Check each possible input
   const processInputs = () => {
-    keyBindings.forEach(binding => {
+    keyBindings.forEach((binding) => {
       const inputType = binding.type;
       //if that input type is disallowed, skip
       if (!gameStateRef.current.allowedInputs[inputType]) return;
       //otherwise, if the binding's key is currently pressed, process the input, disable that type and set a timeout to reenable it
       if (keysPressedRef.current[binding.key]) {
-        setGameState(prev =>
+        setGameState((prev) =>
           setAllowedInput(binding.callback(prev), inputType, false)
         );
         setTimeout(
-          () => setGameState(prev => setAllowedInput(prev, inputType, true)),
+          () => setGameState((prev) => setAllowedInput(prev, inputType, true)),
           CONFIG.POLL_RATES[inputType]
         );
       }
@@ -96,14 +96,14 @@ function App() {
   //Increment game clock every tickInterval ms
   useEffect(() => {
     const tickTimeout = setTimeout(
-      () => setGameClock(prevTime => prevTime + 1),
+      () => setGameClock((prevTime) => prevTime + 1),
       gameState.tickInterval
     );
     return () => clearTimeout(tickTimeout);
   }, [gameClock]);
   //call tick gravity every tick of the game clock
   useEffect(() => {
-    setGameState(gameState =>
+    setGameState((gameState) =>
       gameState.over ? gameState : tickGravity(gameState)
     );
   }, [gameClock, gameState.over]);
@@ -124,58 +124,78 @@ function App() {
 
   return (
     <>
-      <div className="flex justify-center m-2 gap-2">
-        <div className="w-1/3 flex justify-end gap-2 text-green-500 text-2xl font-mono">
-          Held <br />
-          (c)
-          <BoardDisplay
-            board={miniHeldBoard(gameState.heldShape)}
-            classNames="h-[20vh] aspect-square"
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-          />
-        </div>
-        <div className=" flex flex-col items-center gap-2 w-fit">
-          <BoardDisplay
-            board={boardWithFallingBlock(gameState)}
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="h-[90vh]"
-          />
-
-          <div className="flex justify-between w-full ">
-            <div className="flex justify-start basis-full">
-              <div className="text-5xl font-mono text-green-500">
-                {gameState.score}
+      <div className="m-2 flex justify-center gap-2">
+        <div className="flex w-1/3 flex-col items-end justify-start gap-10">
+          <div className="flex justify-end gap-2 font-mono text-2xl text-green-500">
+            Held <br />
+            (c)
+            <BoardDisplay
+              board={miniHeldBoard(gameState.heldShape)}
+              classNames="h-[20vh] aspect-square"
+              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            />
+          </div>
+          <div className="min-w-[13ch] font-mono text-3xl text-green-500">
+            <div className="flex flex-col">
+              <div className="border border-green-500">
+                Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
+              </div>
+              <div className="border border-green-500">
+                Lines:{' '}
+                {gameState.blocksSpawned === 0 ? '-' : gameState.linesCleared}
+              </div>
+              <div className="border border-green-500">
+                Level: {gameState.blocksSpawned === 0 ? '-' : gameState.level}
               </div>
             </div>
-            <div className="flex justify-center basis-full">
+          </div>
+        </div>
+        <div className="flex w-fit flex-col items-center gap-2">
+          {/* game board */}
+          <div className="relative">
+            <BoardDisplay
+              board={boardWithFallingBlock(gameState)}
+              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+              classNames="h-[90vh]"
+            />
+            {gameState.over && (
+              <div className="text-default absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
+                <span className="animate-flash">GAME OVER</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex w-full justify-between">
+            <div className="flex basis-full justify-start"></div>
+            <div className="flex basis-full justify-center">
               <button
-                className="btn [border-style:outset] active:[border-style:inset] border-8 rounded-none border-[#7f7f7f] font-semibold text-xl"
+                className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold [border-style:outset] active:[border-style:inset]"
                 onClick={() => setGameState(startGame(gameState))}
               >
                 Start
               </button>
             </div>
-            <div className="flex justify-end items-start basis-full">
+            <div className="flex basis-full items-start justify-end">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8" onClick={toggleCellBorderStyle}>
+                <div className="h-8 w-8" onClick={toggleCellBorderStyle}>
                   <BoardCell
-                    cellValue={{ color: [0, 255, 255], type: "block" }}
+                    cellValue={{ color: [0, 255, 255], type: 'block' }}
                     cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
                     position={[0, 0]}
                   />
                 </div>
-                <div onClick={e => handleSoundClick(e)}>
+                <div onClick={(e) => handleSoundClick(e)}>
                   {unMuted ? (
-                    <Volume2 className="w-10 h-10" color="#ffffff" />
+                    <Volume2 className="h-10 w-10" color="#ffffff" />
                   ) : (
-                    <VolumeX className="w-10 h-10" color="#ffffff" />
+                    <VolumeX className="h-10 w-10" color="#ffffff" />
                   )}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="w-1/3 flex justify-start gap-2 text-green-500 text-2xl font-mono">
+        <div className="flex w-1/3 justify-start gap-2 font-mono text-2xl text-green-500">
           <BoardDisplay
             board={previewBoard}
             cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
