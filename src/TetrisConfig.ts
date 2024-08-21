@@ -89,7 +89,7 @@ export const CONFIG: Config = {
     shift: 60,
     hold: 1000000, //hold allowance is handled by the hold/spawn block functions
   },
-  SHIFT_DEBOUNCE: 200,
+  SHIFT_DEBOUNCE: 160,
   WALLS: true,
   MAX_GRACE_COUNT: 5, //maximum number of gravity ticks you can skip settling from by moving
 };
