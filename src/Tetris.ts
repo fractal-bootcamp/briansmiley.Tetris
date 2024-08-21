@@ -23,6 +23,8 @@ export type Game = {
   level: number;
   blocksSpawned: number;
   gravityTickInterval: number;
+  maxGroundTime: number;
+  settleTime: number;
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
   groundGracePeriod: {
@@ -67,6 +69,8 @@ export const gameInit = (): Game => {
     level: 1,
     blocksSpawned: 0,
     gravityTickInterval: CONFIG.STARTING_G_TICK_INTERVAL,
+    maxGroundTime: CONFIG.BASE_MAX_GROUND_TIME,
+    settleTime: CONFIG.BASE_SETTLE_TIME,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     groundGracePeriod: {
@@ -158,7 +162,7 @@ const spawnNewBlock = (game: Game): Game => {
       self: newBlock,
       dropLocation: hardDropEndOrigin(game.board, newBlock),
       totalGroundTime: 0,
-      groundTimer: CONFIG.BASE_SETTLE_TIME,
+      groundTimer: game.settleTime,
     },
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
@@ -266,7 +270,7 @@ export const tickGravity = (game: Game): Game => {
   if (blockOnGround(game)) {
     if (
       newGame.fallingBlock.groundTimer <= 0 ||
-      newGame.fallingBlock.totalGroundTime > CONFIG.BASE_MAX_GROUND_TIME
+      newGame.fallingBlock.totalGroundTime > game.maxGroundTime
     ) {
       return settleBlockAndSpawnNew(newGame);
     }
@@ -324,6 +328,17 @@ export const clearFullRowsAndScore = (game: Game): Game => {
       CONFIG.MIN_G_TICK_INTERVAL,
       CONFIG.STARTING_G_TICK_INTERVAL - CONFIG.SPEED_SCALING * newLevel
     ), //tick interval is decreased for each level
+    // Linearly interpolate settle times and max ground times based on level
+    maxGroundTime:
+      CONFIG.MIN_MAX_GROUND_TIME +
+      ((CONFIG.BASE_MAX_GROUND_TIME - CONFIG.MIN_MAX_GROUND_TIME) *
+        Math.max(20 - newLevel, 0)) /
+        19,
+    settleTime:
+      CONFIG.MIN_SETTLE_TIME +
+      ((CONFIG.BASE_SETTLE_TIME - CONFIG.MIN_SETTLE_TIME) *
+        Math.max(20 - newLevel, 0)) /
+        19,
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
     ),
@@ -410,7 +425,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
             ...game,
             fallingBlock: {
               ...game.fallingBlock,
-              groundTimer: CONFIG.BASE_SETTLE_TIME,
+              groundTimer: game.settleTime,
               self: shiftCandidate,
               dropLocation: hardDropEndOrigin(game.board, shiftCandidate),
             },
@@ -425,7 +440,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
     ...game,
     fallingBlock: {
       ...game.fallingBlock,
-      groundTimer: CONFIG.BASE_SETTLE_TIME,
+      groundTimer: game.settleTime,
       self: newBlock,
       dropLocation: hardDropEndOrigin(game.board, newBlock),
     },
@@ -480,7 +495,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
         ...game,
         fallingBlock: {
           ...game.fallingBlock,
-          groundTimer: CONFIG.BASE_SETTLE_TIME,
+          groundTimer: game.settleTime,
           self: nextBlock,
           dropLocation: hardDropEndOrigin(game.board, nextBlock),
         },

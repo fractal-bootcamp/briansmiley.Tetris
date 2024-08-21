@@ -15,7 +15,9 @@ export type Config = {
   WALLS: boolean;
   MAX_GRACE_COUNT: number;
   BASE_SETTLE_TIME: number; //how long an unmoved block takes to settle
+  MIN_SETTLE_TIME: number; //the shortest the settle time can get as levels progress
   BASE_MAX_GROUND_TIME: number; //how long a block can sit on the ground before it settles even if moved/rotated
+  MIN_MAX_GROUND_TIME: number; //the shortest the max ground time can get as levels progress
 };
 export type Color = [number, number, number];
 
@@ -97,5 +99,7 @@ export const CONFIG: Config = {
   WALLS: true,
   MAX_GRACE_COUNT: 5, //maximum number of gravity ticks you can skip settling from by moving
   BASE_SETTLE_TIME: 300,
+  MIN_SETTLE_TIME: 70,
   BASE_MAX_GROUND_TIME: 1500,
+  MIN_MAX_GROUND_TIME: 300,
 };
