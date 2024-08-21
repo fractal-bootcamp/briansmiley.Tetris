@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import BoardDisplay from './components/BoardDisplay';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import {
   Game,
@@ -54,7 +54,7 @@ function App() {
   const keysPressed = useKeysPressed(keyBindings.map((binding) => binding.key));
   const keysPressedRef = useRef(keysPressed);
   const currentlyShiftingRef = useRef(false);
-  //up to date ref to pass to our interval callbacks
+
   useEffect(() => {
     keysPressedRef.current = keysPressed;
   }, [keysPressed]);
@@ -64,32 +64,56 @@ function App() {
 
   //Set up intervals to ALLOW categories of input: inputs will set their category to disallowed,
   useEffect(() => {
-    const inputLoop = setInterval(
-      processInputs,
+    const shiftInputLoop = setInterval(
+      processShiftInputs,
       gameState.CONFIG.POLL_RATES.base
     );
+    const handleKeyDowns = (e: KeyboardEvent) => {
+      keyBindings.forEach((binding) => {
+        if (
+          binding.type === 'shift' ||
+          !gameStateRef.current.allowedInputs[binding.type]
+        )
+          return; //shift is hadnled by keyspressed
+        if (e.key === binding.key) {
+          setGameState((prev) =>
+            setAllowedInput(binding.callback(prev), binding.type, false)
+          );
+        }
+      });
+    };
+    const handleKeyUps = (e: KeyboardEvent) => {
+      keyBindings.forEach((binding) => {
+        if (binding.type === 'shift') return;
+        if (e.key === binding.key) {
+          setGameState((prev) => setAllowedInput(prev, binding.type, true));
+        }
+      });
+    };
+    document.addEventListener('keydown', handleKeyDowns);
+    document.addEventListener('keyup', handleKeyUps);
     return () => {
-      clearInterval(inputLoop);
+      document.removeEventListener('keydown', handleKeyDowns);
+      document.removeEventListener('keyup', handleKeyUps);
+      clearInterval(shiftInputLoop);
     };
   }, []);
-  //Check each possible input
-  const processInputs = () => {
+  const processShiftInputs = () => {
     let shifting = false;
     keyBindings.forEach((binding) => {
+      if (binding.type !== 'shift') return; //we are only polling keydown repeats for shifts
       let extraDelay = 0;
       const inputType = binding.type;
-      if (inputType === 'shift') {
-        if (keysPressedRef.current[binding.key]) {
-          shifting = true;
-          extraDelay = currentlyShiftingRef.current ? 0 : CONFIG.SHIFT_DEBOUNCE;
-        }
+      if (keysPressedRef.current[binding.key]) {
+        shifting = true;
+        extraDelay = currentlyShiftingRef.current ? 0 : CONFIG.SHIFT_DEBOUNCE;
+      }
+      //if that input type is disallowed, skip
+      if (!gameStateRef.current.allowedInputs[inputType]) {
+        return;
       }
 
-      //if that input type is disallowed, skip
-      if (!gameStateRef.current.allowedInputs[inputType]) return;
-      //otherwise, if the binding's key is currently pressed, process the input, disable that type and set a timeout to reenable it
       if (keysPressedRef.current[binding.key]) {
-        if (inputType === 'shift') shifting = true;
         setGameState((prev) =>
           setAllowedInput(binding.callback(prev), inputType, false)
         );

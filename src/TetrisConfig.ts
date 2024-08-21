@@ -85,11 +85,11 @@ export const CONFIG: Config = {
   POLL_RATES: {
     base: 10,
     drop: 250,
-    rotate: 250,
-    shift: 60,
+    rotate: 150,
+    shift: 70,
     hold: 1000000, //hold allowance is handled by the hold/spawn block functions
   },
-  SHIFT_DEBOUNCE: 160,
+  SHIFT_DEBOUNCE: 120,
   WALLS: true,
   MAX_GRACE_COUNT: 5, //maximum number of gravity ticks you can skip settling from by moving
 };
