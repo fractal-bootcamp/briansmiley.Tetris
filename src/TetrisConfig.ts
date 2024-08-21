@@ -5,14 +5,17 @@ export type Config = {
   WALL_COLOR: Color;
   BOARD_WIDTH: number;
   BOARD_HEIGHT: number;
-  STARTING_TICK_INTERVAL: number;
-  MIN_TICK_INTERVAL: number;
+  CLOCK_TICK_RATE: number;
+  STARTING_G_TICK_INTERVAL: number;
+  MIN_G_TICK_INTERVAL: number;
   SPEED_SCALING: number;
   LEVEL_LINES: number;
   POLL_RATES: Record<InputCategory | 'base', number>;
   SHIFT_DEBOUNCE: number;
   WALLS: boolean;
   MAX_GRACE_COUNT: number;
+  BASE_SETTLE_TIME: number; //how long an unmoved block takes to settle
+  BASE_MAX_GROUND_TIME: number; //how long a block can sit on the ground before it settles even if moved/rotated
 };
 export type Color = [number, number, number];
 
@@ -78,9 +81,10 @@ export const CONFIG: Config = {
   WALL_COLOR: [113, 113, 113],
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
-  STARTING_TICK_INTERVAL: 500,
-  MIN_TICK_INTERVAL: 50, //minimum tick interval
-  SPEED_SCALING: 30, //how many milliseconds to take off the tick time for each level
+  CLOCK_TICK_RATE: 10,
+  STARTING_G_TICK_INTERVAL: 500,
+  MIN_G_TICK_INTERVAL: 10, //minimum tick interval
+  SPEED_SCALING: 50, //how many milliseconds to take off the tick time for each level
   LEVEL_LINES: 10, //how many lines between speed scaling
   POLL_RATES: {
     base: 10,
@@ -92,4 +96,6 @@ export const CONFIG: Config = {
   SHIFT_DEBOUNCE: 120,
   WALLS: true,
   MAX_GRACE_COUNT: 5, //maximum number of gravity ticks you can skip settling from by moving
+  BASE_SETTLE_TIME: 300,
+  BASE_MAX_GROUND_TIME: 1500,
 };

@@ -8,9 +8,13 @@ import { SHAPE_NAMES } from './TetrisConfig';
 
 export type Game = {
   board: Board;
+  clock: number;
+  prevGravityTickTime: number;
   fallingBlock: {
     self: Block;
     dropLocation: Coordinate;
+    totalGroundTime: number; //counts total time sitting on the ground so that it settles eventually even if we keep resetting it
+    groundTimer: number; //counts down each tick the falling bacl is on the ground; settles when it hits 0; resets when moved
   } | null;
   shapeQueue: TetrisShape[];
   heldShape: TetrisShape | null;
@@ -18,7 +22,7 @@ export type Game = {
   linesCleared: number;
   level: number;
   blocksSpawned: number;
-  tickInterval: number;
+  gravityTickInterval: number;
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
   groundGracePeriod: {
@@ -53,14 +57,16 @@ type ConditionalNull<argType, nonNullArgType, returnType> =
 export const gameInit = (): Game => {
   return {
     board: newBlankBoard(),
-    fallingBlock: null,
-    shapeQueue: [...newShapeBag(), ...newShapeBag()],
+    clock: 0, //global timestamp
+    prevGravityTickTime: 0, //clock timestamp of the last gravity tick
+    fallingBlock: null, //current falling block
+    shapeQueue: [...newShapeBag(), ...newShapeBag()], //upcoming shapes to drop
     heldShape: null,
     score: 0,
     linesCleared: 0,
     level: 1,
     blocksSpawned: 0,
-    tickInterval: CONFIG.STARTING_TICK_INTERVAL,
+    gravityTickInterval: CONFIG.STARTING_G_TICK_INTERVAL,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     groundGracePeriod: {
@@ -85,9 +91,12 @@ const newBlankBoard = (): Board => {
     ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(newWallCell())])
     : newBoard;
 };
-export const setTickInterval = (game: Game, newInterval: number): Game => ({
+export const setGravityTickInterval = (
+  game: Game,
+  newInterval: number
+): Game => ({
   ...game,
-  tickInterval: newInterval,
+  gravityTickInterval: newInterval,
 });
 export const setAllowedInput = (
   game: Game,
@@ -97,6 +106,23 @@ export const setAllowedInput = (
   ...game,
   allowedInputs: { ...game.allowedInputs, [input]: state },
 });
+export const tickGameClock = (game: Game): Game => {
+  const newTime = game.clock + CONFIG.CLOCK_TICK_RATE;
+  //increment ground timer/settle block if necessary
+  const newFallingBlock = blockOnGround(game)
+    ? {
+        ...game.fallingBlock,
+        totalGroundTime:
+          game.fallingBlock.totalGroundTime + CONFIG.CLOCK_TICK_RATE,
+        groundTimer: game.fallingBlock.groundTimer - CONFIG.CLOCK_TICK_RATE,
+      }
+    : game.fallingBlock;
+
+  const newGame = { ...game, clock: newTime, fallingBlock: newFallingBlock };
+  return newTime - game.prevGravityTickTime >= game.gravityTickInterval
+    ? tickGravity(newGame)
+    : newGame;
+};
 //
 // const incrementGameSpeed = (game: Game): Game => ({
 //   ...game,
@@ -131,6 +157,8 @@ const spawnNewBlock = (game: Game): Game => {
     fallingBlock: {
       self: newBlock,
       dropLocation: hardDropEndOrigin(game.board, newBlock),
+      totalGroundTime: 0,
+      groundTimer: CONFIG.BASE_SETTLE_TIME,
     },
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
@@ -226,33 +254,40 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
 export const tickGravity = (game: Game): Game => {
-  const newGame = clearThenCollapseRows(game);
+  console.log('tickingGravity', game.clock);
+  const newGame = clearThenCollapseRows({
+    ...game,
+    prevGravityTickTime: game.clock,
+  });
+  //if there is no falling block, all we need to do is clear and collpase
   if (newGame.fallingBlock === null) return newGame;
-  const nextBlock = shiftedBlock(newGame.fallingBlock.self, 'D');
-  //if we are on the ground...)
-  if (blockOnGround(game))
-    //prevent settling if the grace period bool is true and hasnt been reset more than the MAX COUNT number of times
-    return game.groundGracePeriod.protected &&
-      game.groundGracePeriod.counter < CONFIG.MAX_GRACE_COUNT
-      ? {
-          ...game,
-          groundGracePeriod: {
-            protected: false,
-            counter: game.groundGracePeriod.counter + 1,
-          },
-        }
-      : //otherwise settle and spawn new
-        settleBlockAndSpawnNew(newGame);
-  return clearFullRowsAndScore(
-    collapseGapRows({
-      ...newGame,
-      fallingBlock: {
-        ...newGame.fallingBlock,
-        self: nextBlock,
-        dropLocation: hardDropEndOrigin(newGame.board, nextBlock),
-      },
-    }) //NOTE THINK ABOUT THE GAME FLOW HERE?
-  );
+  //if the falling block timer hits 0, settle and spawn
+
+  if (blockOnGround(game)) {
+    if (
+      newGame.fallingBlock.groundTimer <= 0 ||
+      newGame.fallingBlock.totalGroundTime > CONFIG.BASE_MAX_GROUND_TIME
+    ) {
+      return settleBlockAndSpawnNew(newGame);
+    }
+    //if timers havent run out, tick gravity does nothing but clear and collapse
+    else {
+      return newGame;
+    }
+  } else {
+    //otherwise, shift the block down
+    const nextBlock = shiftedBlock(newGame.fallingBlock.self, 'D');
+    return clearFullRowsAndScore(
+      collapseGapRows({
+        ...newGame,
+        fallingBlock: {
+          ...newGame.fallingBlock,
+          self: nextBlock,
+          dropLocation: hardDropEndOrigin(newGame.board, nextBlock),
+        },
+      })
+    );
+  }
 };
 
 /** SCORING/CLEAR  EVENTS */
@@ -285,9 +320,9 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     score: game.score + clearedLinesScore(rowsToClear.length),
     linesCleared: newLinesCleared,
     level: newLevel,
-    tickInterval: Math.max(
-      CONFIG.MIN_TICK_INTERVAL,
-      CONFIG.STARTING_TICK_INTERVAL - CONFIG.SPEED_SCALING * newLevel
+    gravityTickInterval: Math.max(
+      CONFIG.MIN_G_TICK_INTERVAL,
+      CONFIG.STARTING_G_TICK_INTERVAL - CONFIG.SPEED_SCALING * newLevel
     ), //tick interval is decreased for each level
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
@@ -345,7 +380,9 @@ const rotatedBlock = <T extends Block | null>(
       } as ConditionalNull<T, Block, Block>);
 
 // /**Tells us if a block is on the ground (i.e. one more gravity tick would settle it)*/
-const blockOnGround = (game: Game): boolean =>
+const blockOnGround = (
+  game: Game
+): game is Game & { fallingBlock: { groundTimer: number } } =>
   game.fallingBlock !== null &&
   blockIntersectsSettledOrWalls(
     game.board,
@@ -369,26 +406,30 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
         const shiftCandidate = shiftedBlock(newBlock, shiftDir, distance);
         //return as soon as we find a shift that makes the rotation work (and set grace to true)
         if (!blockIntersectsSettledOrWalls(game.board, shiftCandidate))
-          return grantGrace({
+          return {
             ...game,
             fallingBlock: {
+              ...game.fallingBlock,
+              groundTimer: CONFIG.BASE_SETTLE_TIME,
               self: shiftCandidate,
               dropLocation: hardDropEndOrigin(game.board, shiftCandidate),
             },
-          });
+          };
       }
     }
     //if no shifts worked, return game as is
     return game;
   }
   //if we dont intersect, return the game with a rotated block
-  return grantGrace({
+  return {
     ...game,
     fallingBlock: {
+      ...game.fallingBlock,
+      groundTimer: CONFIG.BASE_SETTLE_TIME,
       self: newBlock,
       dropLocation: hardDropEndOrigin(game.board, newBlock),
     },
-  });
+  };
 };
 
 /**Takes in a block and returns one shifted in the argument direction */
@@ -438,6 +479,8 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
     : grantGrace({
         ...game,
         fallingBlock: {
+          ...game.fallingBlock,
+          groundTimer: CONFIG.BASE_SETTLE_TIME,
           self: nextBlock,
           dropLocation: hardDropEndOrigin(game.board, nextBlock),
         },

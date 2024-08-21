@@ -13,6 +13,7 @@ import {
   setAllowedInput,
   shiftBlock,
   startGame,
+  tickGameClock,
   tickGravity,
 } from './Tetris';
 import ThemeSong from './assets/ThemeSong.mp3';
@@ -55,6 +56,7 @@ function App() {
   const keysPressedRef = useRef(keysPressed);
   const currentlyShiftingRef = useRef(false);
 
+  //Sync up gamestate and keyspressed refs
   useEffect(() => {
     keysPressedRef.current = keysPressed;
   }, [keysPressed]);
@@ -62,7 +64,7 @@ function App() {
     gameStateRef.current = gameState;
   }, [gameState]);
 
-  //Set up intervals to ALLOW categories of input: inputs will set their category to disallowed,
+  //set up input polling
   useEffect(() => {
     const shiftInputLoop = setInterval(
       processShiftInputs,
@@ -126,24 +128,21 @@ function App() {
     //if no shift inputs were hit setting shifting to true, we arent currently shifting and reset so that we get debounce when we do
     currentlyShiftingRef.current = shifting;
   };
-  const toggleCellBorderStyle = () => {
-    const newIndex = (cellBorderStyleIndex + 1) % cellBorderStyles.length;
-    setCellBorderStyle(newIndex);
-  };
+
   //Increment game clock every tickInterval ms
   useEffect(() => {
-    const tickTimeout = setTimeout(
-      () => setGameClock((prevTime) => prevTime + 1),
-      gameState.tickInterval
+    const tickInterval = setInterval(
+      () => setGameState((prevState) => tickGameClock(prevState)),
+      CONFIG.CLOCK_TICK_RATE
     );
-    return () => clearTimeout(tickTimeout);
-  }, [gameClock]);
-  //call tick gravity every tick of the game clock
-  useEffect(() => {
-    setGameState((gameState) =>
-      gameState.over ? gameState : tickGravity(gameState)
-    );
-  }, [gameClock, gameState.over]);
+    return () => clearInterval(tickInterval);
+  }, []);
+  // //call tick gravity every tick of the game clock
+  // useEffect(() => {
+  //   setGameState((gameState) =>
+  //     gameState.over ? gameState : tickGravity(gameState)
+  //   );
+  // }, [gameClock, gameState.over]);
 
   //tie mute state of music to muted state
   useEffect(() => {
@@ -153,6 +152,10 @@ function App() {
     () => miniPreviewBoard(gameState.shapeQueue),
     [JSON.stringify(gameState.shapeQueue)]
   );
+  const toggleCellBorderStyle = () => {
+    const newIndex = (cellBorderStyleIndex + 1) % cellBorderStyles.length;
+    setCellBorderStyle(newIndex);
+  };
   const handleSoundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (unMuted === null) startMusic();
