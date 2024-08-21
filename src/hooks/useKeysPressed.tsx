@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 /**
  * Creates a state object associating key codes to their pressed state
  * @param keys array of keys that this will track
@@ -8,37 +8,37 @@ const useKeysPressed = (keys: string[]) => {
   const [keyBools, setKeyBools] = useState<Record<string, boolean>>({});
   useEffect(() => {
     const listeners: {
-      type: "keydown" | "keyup";
+      type: 'keydown' | 'keyup';
       func: (e: KeyboardEvent) => void;
     }[] = [];
     const cleanup = () =>
-      listeners.forEach(listener =>
+      listeners.forEach((listener) =>
         document.removeEventListener(listener.type, listener.func)
       );
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const keyWasPressed = (event: KeyboardEvent) => event.key === key;
       const onKeyDown = (e: KeyboardEvent) => {
         if (keyWasPressed(e))
-          setKeyBools(prev => {
-            const newState = { ...prev };
-            newState[key] = true;
+          setKeyBools((prev) => {
+            const newState = { ...prev, [key]: true };
+            // newState[key] = true;
             return newState;
           });
       };
       const onKeyUp = (e: KeyboardEvent) => {
         if (keyWasPressed(e))
-          setKeyBools(prev => {
-            const newState = { ...prev };
-            newState[key] = false;
+          setKeyBools((prev) => {
+            const newState = { ...prev, [key]: false };
+            // newState[key] = false;
             return newState;
           });
       };
-      document.addEventListener("keydown", onKeyDown);
-      document.addEventListener("keyup", onKeyUp);
+      document.addEventListener('keydown', onKeyDown);
+      document.addEventListener('keyup', onKeyUp);
       listeners.push(
-        { type: "keydown", func: onKeyDown },
-        { type: "keyup", func: onKeyUp }
+        { type: 'keydown', func: onKeyDown },
+        { type: 'keyup', func: onKeyUp }
       );
     });
     return cleanup;

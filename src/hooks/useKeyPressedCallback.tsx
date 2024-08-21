@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 /**
  * Triggers a callback once on keypress then repeatedly until key is released. This seems to have major issues with never clearing the interval
  * when more than two keys get pressed so ¯\_(ツ)_/¯
@@ -24,33 +24,33 @@ const useKeyPressedCallback = (
     timeoutRef.current = null;
     intervalRef.current = null;
   };
+  const wasTriggerKeyPressed = (event: KeyboardEvent) =>
+    keys.some((key) => key === event.key);
   useEffect(() => {
     /** onKeydown checks if the event involves a trigger key and if so triggers callback then the repeat interval */
     const onKeyDown = (event: KeyboardEvent) => {
-      const wasTriggerKeyPressed = (event: KeyboardEvent) =>
-        keys.some(key => key === event.key);
       if (wasTriggerKeyPressed(event)) {
         event.preventDefault();
-        //only run subsequent code (i.e. do anything) if the timeout and interval refs have been cleaned up by keyup
         if (!keyIsAlreadyDown.current) {
-          keyIsAlreadyDown.current = true;
-          callback();
+          keyIsAlreadyDown.current = true; //set the key to now being down
+          callback(); //run the callback
+          //set a timeout to begin the regular interval callback after debounce delay
           timeoutRef.current = setTimeout(() => {
             intervalRef.current = setInterval(callback, interval);
           }, debounce);
+          document.addEventListener(
+            'keyup',
+            (event: KeyboardEvent) => {
+              wasTriggerKeyPressed(event) && reset();
+            },
+            { once: true }
+          );
         }
-        document.addEventListener(
-          "keyup",
-          (event: KeyboardEvent) => {
-            wasTriggerKeyPressed(event) && reset();
-          },
-          { once: true }
-        );
       }
     };
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
     //return a cleanup which removes our main listener and the listeners
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [callback, debounce, interval, keys]); //useeffect will remake everything if any of the parameters change
 };
 
