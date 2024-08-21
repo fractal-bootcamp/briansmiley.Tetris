@@ -452,14 +452,16 @@ const hardDropEndOrigin = (
   if (fallingBlock === null) return [0, 0];
   const coords = blockOccupiedCells(fallingBlock);
   //the highest row occupied by the falling block
-  const highestRowInBlock = coords.reduce(
-    (prev, curr) => Math.min(curr[0], prev),
-    board.length
-  );
+  const highestRowInBlock = (column: number) =>
+    coords.reduce(
+      (prev, curr) => (curr[1] === column ? Math.min(curr[0], prev) : prev),
+      board.length
+    );
   //for a given column, get the index of the row containing a column's highest occupied cell (that is below the top of the block)
   const colFloorIndex = (column: number) => {
     const floorIndex = board.findIndex(
-      (row, idx) => idx > highestRowInBlock && cellIsOccupied(row[column])
+      (row, idx) =>
+        idx > highestRowInBlock(column) && cellIsOccupied(row[column])
     );
 
     return floorIndex === -1 ? board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
