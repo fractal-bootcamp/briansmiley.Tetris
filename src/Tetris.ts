@@ -27,10 +27,6 @@ export type Game = {
   settleTime: number;
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
-  groundGracePeriod: {
-    protected: boolean;
-    counter: number;
-  };
   CONFIG: Config;
 };
 export type Cell = {
@@ -73,10 +69,7 @@ export const gameInit = (): Game => {
     settleTime: CONFIG.BASE_SETTLE_TIME,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
-    groundGracePeriod: {
-      protected: false,
-      counter: 0,
-    },
+
     CONFIG: CONFIG,
   };
 };
@@ -167,10 +160,6 @@ const spawnNewBlock = (game: Game): Game => {
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
     allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
-    groundGracePeriod: {
-      protected: false,
-      counter: 0,
-    },
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
@@ -403,11 +392,7 @@ const blockOnGround = (
     game.board,
     shiftedBlock(game.fallingBlock.self, 'D')
   );
-/**Grants the falling block protection against being settled by gravity because it was just moved (gets removed by one gravity tick)*/
-const grantGrace = (game: Game): Game => ({
-  ...game,
-  groundGracePeriod: { ...game.groundGracePeriod, protected: true },
-});
+
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   if (game.fallingBlock === null || game.fallingBlock.self.shape === 'O')
@@ -491,7 +476,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
   const nextBlock = shiftedBlock(game.fallingBlock.self, direction, 1);
   return blockIntersectsSettledOrWalls(game.board, nextBlock)
     ? game
-    : grantGrace({
+    : {
         ...game,
         fallingBlock: {
           ...game.fallingBlock,
@@ -499,7 +484,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
           self: nextBlock,
           dropLocation: hardDropEndOrigin(game.board, nextBlock),
         },
-      });
+      };
 };
 
 /**Returns the block that would result from a hypothetical hard drop */
