@@ -10,6 +10,7 @@ export type Config = {
   SPEED_SCALING: number;
   LEVEL_LINES: number;
   POLL_RATES: Record<InputCategory | 'base', number>;
+  SHIFT_DEBOUNCE: number;
   WALLS: boolean;
   MAX_GRACE_COUNT: number;
 };
@@ -85,9 +86,10 @@ export const CONFIG: Config = {
     base: 10,
     drop: 250,
     rotate: 250,
-    shift: 70,
+    shift: 60,
     hold: 1000000, //hold allowance is handled by the hold/spawn block functions
   },
+  SHIFT_DEBOUNCE: 200,
   WALLS: true,
   MAX_GRACE_COUNT: 5, //maximum number of gravity ticks you can skip settling from by moving
 };

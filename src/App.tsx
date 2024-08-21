@@ -53,6 +53,7 @@ function App() {
   const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
   const keysPressed = useKeysPressed(keyBindings.map((binding) => binding.key));
   const keysPressedRef = useRef(keysPressed);
+  const currentlyShiftingRef = useRef(false);
   //up to date ref to pass to our interval callbacks
   useEffect(() => {
     keysPressedRef.current = keysPressed;
@@ -73,21 +74,33 @@ function App() {
   }, []);
   //Check each possible input
   const processInputs = () => {
+    let shifting = false;
     keyBindings.forEach((binding) => {
+      let extraDelay = 0;
       const inputType = binding.type;
+      if (inputType === 'shift') {
+        if (keysPressedRef.current[binding.key]) {
+          shifting = true;
+          extraDelay = currentlyShiftingRef.current ? 0 : CONFIG.SHIFT_DEBOUNCE;
+        }
+      }
+
       //if that input type is disallowed, skip
       if (!gameStateRef.current.allowedInputs[inputType]) return;
       //otherwise, if the binding's key is currently pressed, process the input, disable that type and set a timeout to reenable it
       if (keysPressedRef.current[binding.key]) {
+        if (inputType === 'shift') shifting = true;
         setGameState((prev) =>
           setAllowedInput(binding.callback(prev), inputType, false)
         );
         setTimeout(
           () => setGameState((prev) => setAllowedInput(prev, inputType, true)),
-          CONFIG.POLL_RATES[inputType]
+          CONFIG.POLL_RATES[inputType] + extraDelay
         );
       }
     });
+    //if no shift inputs were hit setting shifting to true, we arent currently shifting and reset so that we get debounce when we do
+    currentlyShiftingRef.current = shifting;
   };
   const toggleCellBorderStyle = () => {
     const newIndex = (cellBorderStyleIndex + 1) % cellBorderStyles.length;
