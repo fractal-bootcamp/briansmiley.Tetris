@@ -247,7 +247,6 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
 export const tickGravity = (game: Game): Game => {
-  console.log('tickingGravity', game.clock);
   const newGame = clearThenCollapseRows({
     ...game,
     prevGravityTickTime: game.clock,
