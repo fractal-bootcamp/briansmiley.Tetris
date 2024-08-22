@@ -9,6 +9,7 @@ export type Config = {
   STARTING_G_TICK_INTERVAL: number;
   MIN_G_TICK_INTERVAL: number;
   SPEED_SCALING: number;
+  GRAVITY_LEVELS: Record<number, number>;
   LEVEL_LINES: number;
   POLL_RATES: Record<InputCategory | 'base', number>;
   SHIFT_DEBOUNCE: number;
@@ -83,9 +84,44 @@ export const CONFIG: Config = {
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
   CLOCK_TICK_RATE: 10,
-  STARTING_G_TICK_INTERVAL: 500,
-  MIN_G_TICK_INTERVAL: 0, //minimum tick interval
+  STARTING_G_TICK_INTERVAL: 900,
+  MIN_G_TICK_INTERVAL: 10, //minimum tick interval
+  GRAVITY_LEVELS: {
+    0: 1000,
+    1: 900,
+    2: 810,
+    3: 730,
+    4: 660,
+    5: 600,
+    6: 550,
+    7: 510,
+    8: 480,
+    9: 450,
+    10: 420,
+    11: 390,
+    12: 340,
+    13: 290,
+    14: 255,
+    15: 225,
+    16: 197,
+    17: 171,
+    18: 155,
+    19: 140,
+    20: 128,
+    21: 110,
+    22: 95,
+    23: 79,
+    24: 65,
+    25: 50,
+    26: 33,
+    27: 25,
+    28: 18,
+    29: 13,
+    30: 8,
+    31: 5,
+  },
   SPEED_SCALING: 50, //how many milliseconds to take off the tick time for each level
+
   LEVEL_LINES: 10, //how many lines between speed scaling
   POLL_RATES: {
     base: 10,
@@ -97,7 +133,7 @@ export const CONFIG: Config = {
   SHIFT_DEBOUNCE: 120,
   WALLS: true,
   BASE_SETTLE_TIME: 700,
-  MIN_SETTLE_TIME: 500,
+  MIN_SETTLE_TIME: 350,
   BASE_MAX_GROUND_TIME: 1500,
-  MIN_MAX_GROUND_TIME: 1000,
+  MIN_MAX_GROUND_TIME: 700,
 };

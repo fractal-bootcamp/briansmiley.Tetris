@@ -104,7 +104,7 @@ export const setAllowedInput = (
   allowedInputs: { ...game.allowedInputs, [input]: state },
 });
 export const tickGameClock = (game: Game): Game => {
-  const newTime = game.clock + CONFIG.CLOCK_TICK_RATE;
+  const newTime = new Date().getTime();
   //increment ground timer/settle block if necessary
   const newFallingBlock = blockOnGround(game)
     ? {
@@ -116,9 +116,10 @@ export const tickGameClock = (game: Game): Game => {
     : game.fallingBlock;
 
   const newGame = { ...game, clock: newTime, fallingBlock: newFallingBlock };
-  return newTime - game.prevGravityTickTime >= game.gravityTickInterval
-    ? tickGravity(newGame)
-    : newGame;
+  const gravityTicks = Math.floor(
+    (newTime - game.prevGravityTickTime) / game.gravityTickInterval
+  );
+  return gravityTicks > 0 ? tickGravity(newGame, gravityTicks) : newGame;
 };
 //
 // const incrementGameSpeed = (game: Game): Game => ({
@@ -246,7 +247,7 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
 /**
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
-export const tickGravity = (game: Game): Game => {
+export const tickGravity = (game: Game, ticks: number = 1): Game => {
   const newGame = clearThenCollapseRows({
     ...game,
     prevGravityTickTime: game.clock,
@@ -268,7 +269,16 @@ export const tickGravity = (game: Game): Game => {
     }
   } else {
     //otherwise, shift the block down
-    const nextBlock = shiftedBlock(newGame.fallingBlock.self, 'D');
+    //make sure we dont shift farther than a hard drop would go (handy, that)
+    const maxShiftDistance =
+      hardDropEndOrigin(newGame.board, newGame.fallingBlock.self)[0] -
+      newGame.fallingBlock.self.origin[0];
+    const nextBlock = shiftedBlock(
+      newGame.fallingBlock.self,
+      'D',
+      Math.min(maxShiftDistance, ticks)
+    );
+    console.log(maxShiftDistance, ticks);
     return clearFullRowsAndScore(
       collapseGapRows({
         ...newGame,
@@ -304,18 +314,17 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   const rowsToClear = fullRows(board);
   const newLinesCleared = game.linesCleared + rowsToClear.length;
   const newLevel = Math.max(
-    1,
+    0,
     Math.floor(newLinesCleared / CONFIG.LEVEL_LINES)
   );
+  //calculate the new falling speed
+  const newGravityTickInterval = CONFIG.GRAVITY_LEVELS[newLevel] || 0;
   return {
     ...game,
     score: game.score + clearedLinesScore(rowsToClear.length),
     linesCleared: newLinesCleared,
     level: newLevel,
-    gravityTickInterval: Math.max(
-      CONFIG.MIN_G_TICK_INTERVAL,
-      CONFIG.STARTING_G_TICK_INTERVAL - CONFIG.SPEED_SCALING * newLevel
-    ), //tick interval is decreased for each level
+    gravityTickInterval: newGravityTickInterval,
     // Linearly interpolate settle times and max ground times based on level
     maxGroundTime:
       CONFIG.MIN_MAX_GROUND_TIME +
