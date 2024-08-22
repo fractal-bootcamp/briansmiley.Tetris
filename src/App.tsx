@@ -14,7 +14,6 @@ import {
   shiftBlock,
   startGame,
   tickGameClock,
-  tickGravity,
 } from './Tetris';
 import ThemeSong from './assets/ThemeSong.mp3';
 import useKeysPressed from './hooks/useKeysPressed';
@@ -47,7 +46,6 @@ const keyBindings: KeyBinding[] = [
 const cellBorderStyles = ['outset', 'none'];
 
 function App() {
-  const [gameClock, setGameClock] = useState(0);
   const [gameState, setGameState] = useState(gameInit());
   const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
