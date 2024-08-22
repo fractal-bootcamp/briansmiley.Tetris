@@ -84,7 +84,7 @@ export const CONFIG: Config = {
   BOARD_HEIGHT: 20,
   CLOCK_TICK_RATE: 10,
   STARTING_G_TICK_INTERVAL: 500,
-  MIN_G_TICK_INTERVAL: 10, //minimum tick interval
+  MIN_G_TICK_INTERVAL: 0, //minimum tick interval
   SPEED_SCALING: 50, //how many milliseconds to take off the tick time for each level
   LEVEL_LINES: 10, //how many lines between speed scaling
   POLL_RATES: {
@@ -96,8 +96,8 @@ export const CONFIG: Config = {
   },
   SHIFT_DEBOUNCE: 120,
   WALLS: true,
-  BASE_SETTLE_TIME: 300,
-  MIN_SETTLE_TIME: 70,
+  BASE_SETTLE_TIME: 700,
+  MIN_SETTLE_TIME: 500,
   BASE_MAX_GROUND_TIME: 1500,
-  MIN_MAX_GROUND_TIME: 300,
+  MIN_MAX_GROUND_TIME: 1000,
 };
