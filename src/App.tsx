@@ -197,8 +197,11 @@ function App() {
               classNames="h-[90vh]"
             />
             {gameState.over && (
-              <div className="text-default absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-slate-900 bg-opacity-80 px-8 py-4 text-5xl">
-                <span className="animate-flash">GAME OVER</span>
+              <div className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 bg-slate-900 bg-opacity-80">
+                <div className="text-default flex h-full w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
+                  <span className="">GAME OVER</span>
+                  <span>Score: {gameState.score}</span>
+                </div>
               </div>
             )}
           </div>
