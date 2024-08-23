@@ -131,7 +131,7 @@ export const CONFIG: Config = {
     hold: 1000000, //hold allowance is handled by the hold/spawn block functions
   },
   SHIFT_DEBOUNCE: 120,
-  WALLS: true,
+  WALLS: false,
   BASE_SETTLE_TIME: 700,
   MIN_SETTLE_TIME: 350,
   BASE_MAX_GROUND_TIME: 1500,
