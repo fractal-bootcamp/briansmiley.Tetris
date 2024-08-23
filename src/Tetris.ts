@@ -139,7 +139,7 @@ const newBlockFromShape = (shape: TetrisShape): Block => ({
   shape: shape,
   body: CONFIG.BLOCK_SHAPES[shape],
 });
-/**Does nothing more less than pop a shape off the next queue and start it falling */
+/**Does nothing more less than pop a shape off the next queue and start it falling (except also enable hold swap again) */
 const spawnNewBlock = (game: Game): Game => {
   // pop the next shape off the queue
   const newBlockShape = game.shapeQueue[0];

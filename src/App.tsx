@@ -84,7 +84,7 @@ function App() {
     };
     const handleKeyUps = (e: KeyboardEvent) => {
       keyBindings.forEach((binding) => {
-        if (binding.type === 'shift') return;
+        if (binding.type === 'shift' || binding.type === 'hold') return;
         if (e.key === binding.key) {
           setGameState((prev) => setAllowedInput(prev, binding.type, true));
         }
