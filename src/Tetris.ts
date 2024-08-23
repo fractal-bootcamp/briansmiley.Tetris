@@ -279,7 +279,6 @@ export const tickGravity = (game: Game, ticks: number = 1): Game => {
       'D',
       Math.min(maxShiftDistance, ticks)
     );
-    console.log(maxShiftDistance, ticks);
     return clearFullRowsAndScore(
       collapseGapRows({
         ...newGame,
