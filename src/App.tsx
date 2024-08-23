@@ -84,7 +84,7 @@ function App() {
     };
     const handleKeyUps = (e: KeyboardEvent) => {
       keyBindings.forEach((binding) => {
-        if (binding.type === 'shift') return;
+        if (binding.type === 'shift' || binding.type === 'hold') return;
         if (e.key === binding.key) {
           setGameState((prev) => setAllowedInput(prev, binding.type, true));
         }
@@ -135,13 +135,6 @@ function App() {
     );
     return () => clearInterval(tickInterval);
   }, []);
-  // //call tick gravity every tick of the game clock
-  // useEffect(() => {
-  //   setGameState((gameState) =>
-  //     gameState.over ? gameState : tickGravity(gameState)
-  //   );
-  // }, [gameClock, gameState.over]);
-
   //tie mute state of music to muted state
   useEffect(() => {
     music.muted = !unMuted;
