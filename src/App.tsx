@@ -135,13 +135,6 @@ function App() {
     );
     return () => clearInterval(tickInterval);
   }, []);
-  // //call tick gravity every tick of the game clock
-  // useEffect(() => {
-  //   setGameState((gameState) =>
-  //     gameState.over ? gameState : tickGravity(gameState)
-  //   );
-  // }, [gameClock, gameState.over]);
-
   //tie mute state of music to muted state
   useEffect(() => {
     music.muted = !unMuted;
