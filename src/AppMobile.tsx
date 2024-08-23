@@ -98,34 +98,34 @@ export default function MobileApp() {
       clearInterval(shiftInputLoop);
     };
   }, []);
-  const processShiftInputs = () => {
-    let shifting = false;
-    keyBindings.forEach((binding) => {
-      if (binding.type !== 'shift') return; //we are only polling keydown repeats for shifts
-      let extraDelay = 0;
-      const inputType = binding.type;
-      if (keysPressedRef.current[binding.key]) {
-        shifting = true;
-        extraDelay = currentlyShiftingRef.current ? 0 : CONFIG.SHIFT_DEBOUNCE;
-      }
-      //if that input type is disallowed, skip
-      if (!gameStateRef.current.allowedInputs[inputType]) {
-        return;
-      }
+  //   const processShiftInputs = () => {
+  //     let shifting = false;
+  //     keyBindings.forEach((binding) => {
+  //       if (binding.type !== 'shift') return; //we are only polling keydown repeats for shifts
+  //       let extraDelay = 0;
+  //       const inputType = binding.type;
+  //       if (keysPressedRef.current[binding.key]) {
+  //         shifting = true;
+  //         extraDelay = currentlyShiftingRef.current ? 0 : CONFIG.SHIFT_DEBOUNCE;
+  //       }
+  //       //if that input type is disallowed, skip
+  //       if (!gameStateRef.current.allowedInputs[inputType]) {
+  //         return;
+  //       }
 
-      if (keysPressedRef.current[binding.key]) {
-        setGameState((prev) =>
-          setAllowedInput(binding.callback(prev), inputType, false)
-        );
-        setTimeout(
-          () => setGameState((prev) => setAllowedInput(prev, inputType, true)),
-          CONFIG.POLL_RATES[inputType] + extraDelay
-        );
-      }
-    });
-    //if no shift inputs were hit setting shifting to true, we arent currently shifting and reset so that we get debounce when we do
-    currentlyShiftingRef.current = shifting;
-  };
+  //       if (keysPressedRef.current[binding.key]) {
+  //         setGameState((prev) =>
+  //           setAllowedInput(binding.callback(prev), inputType, false)
+  //         );
+  //         setTimeout(
+  //           () => setGameState((prev) => setAllowedInput(prev, inputType, true)),
+  //           CONFIG.POLL_RATES[inputType] + extraDelay
+  //         );
+  //       }
+  //     });
+  //     //if no shift inputs were hit setting shifting to true, we arent currently shifting and reset so that we get debounce when we do
+  //     currentlyShiftingRef.current = shifting;
+  //   };
 
   //Increment game clock every tickInterval ms
   useEffect(() => {
@@ -136,13 +136,16 @@ export default function MobileApp() {
     return () => clearInterval(tickInterval);
   }, []);
 
-  const previewBoard = useMemo(
-    () => miniPreviewBoard(gameState.shapeQueue),
-    [JSON.stringify(gameState.shapeQueue)]
-  );
-
+  //disable scrolling
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'scroll';
+    };
+  }, []);
   return (
     <div className="relative flex flex-col items-center overflow-hidden">
+      {/* Top bar */}
       <div className="flex w-full items-center justify-between">
         <div className="aspect-square w-1/4 shrink-0 border-r">
           <PieceDisplay piece={gameState.heldShape} text="Held" />
@@ -163,11 +166,13 @@ export default function MobileApp() {
           <PieceDisplay piece={gameState.shapeQueue[0]} text="Next" />
         </div>
       </div>
+      {/* Main game board */}
       <BoardDisplay
         board={boardWithFallingBlock(gameState)}
         cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
         classNames="w-[80%]"
       />
+      {/* Game over modal */}
       {gameState.over && (
         <div className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 bg-slate-900 bg-opacity-80">
           <div className="text-default flex h-full w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
