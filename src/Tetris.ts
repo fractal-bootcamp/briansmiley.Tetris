@@ -190,7 +190,8 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
 };
 //check whether a board location is occupied by a block or wall
 const boardCoordIsOccupied = (board: Board, coord: Coordinate): boolean =>
-  cellIsOccupied(board[coord[0]][coord[1]]);
+  cellIsOccupied(board[coord[0]][coord[1]]) ||
+  (CONFIG.WALLS && (coord[1] === 0 || coord[1] === board[0].length - 1)); //if walls enabled, anything in col 1 or last col is considered occupied
 const cellIsOccupied = (cell: Cell) => ['block', 'wall'].includes(cell.type);
 //checks whether a proposed block position will be a collision
 const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
