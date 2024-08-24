@@ -23,6 +23,8 @@ export default function MobileApp() {
   const [cellBorderStyleIndex] = useState(0);
   const [softDropping, setSoftDropping] = useState(false);
   const softDroppingRef = useRef(softDropping);
+  const [lastShiftSteps, setLastShiftSteps] = useState(0); //how many steps from swipe origin we have shifted the current block
+  const [swipeStart, setSwipeStart] = useState(0);
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
@@ -56,9 +58,8 @@ export default function MobileApp() {
     }, CONFIG.POLL_RATES.shift);
     return () => clearInterval(softDropInterval);
   }, []);
-  const [lastShiftSteps, setLastShiftSteps] = useState(0); //how many steps from swipe origin we have shifted the current block
-  const [swipeStart, setSwipeStart] = useState(0);
   const PIXELS_PER_SHIFT_STEP = 32; //how many pixels of swiping corresponds to a side shift step
+  const Y_SHIFT_WINDOW = 50; //how far down a swipe can go before it stops shifting side to side (prevents accidental sideswiping while dropping )
   const handleSwipeStart = () => {
     setLastShiftSteps(0);
     setSwipeStart(Date.now());
@@ -69,8 +70,10 @@ export default function MobileApp() {
   };
   const handleSwiping = (e: SwipeEventData) => {
     const dx = e.deltaX;
+    const dy = e.deltaY;
+    console.log(dx, dy);
     const shiftSteps = Math.floor(dx / PIXELS_PER_SHIFT_STEP);
-    if (shiftSteps !== lastShiftSteps) {
+    if (shiftSteps !== lastShiftSteps && Math.abs(dy) < Y_SHIFT_WINDOW) {
       const direction: Direction = shiftSteps > lastShiftSteps ? 'R' : 'L';
       setGameState((prevState) => shiftBlock(prevState, direction));
       setLastShiftSteps(shiftSteps);
@@ -97,7 +100,7 @@ export default function MobileApp() {
     onTap: handleTap,
     onSwipedDown: handleSwipeDown,
     onSwipedUp: handleSwipeUp,
-    preventScrollOnSwipe: true,
+    preventScrollOnSwipe: false,
     delta: 50,
   });
 
