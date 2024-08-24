@@ -6,6 +6,9 @@
   html {
     @apply bg-slate-600;
   }
+  div {
+    @apply select-none;
+  }
 }
 @layer components {
   .btn {
