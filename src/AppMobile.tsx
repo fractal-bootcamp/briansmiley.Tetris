@@ -128,7 +128,7 @@ export default function MobileApp() {
         </div>
       </div>
       {/* Main game board */}
-      <div {...handlers} className="w-[80%]">
+      <div {...handlers} className="w-[300px]">
         <BoardDisplay
           board={boardWithFallingBlock(gameState)}
           cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
