@@ -7,7 +7,6 @@ import {
   hardDropBlock,
   holdAndPopHeld,
   rotateBlock,
-  setAllowedInput,
   shiftBlock,
   startGame,
   tickGameClock,
@@ -21,7 +20,7 @@ const cellBorderStyles = ['outset', 'none'];
 export default function MobileApp() {
   const [gameState, setGameState] = useState(gameInit());
   const gameStateRef = useRef(gameState);
-  const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
+  const [cellBorderStyleIndex] = useState(0);
   const [softDropping, setSoftDropping] = useState(false);
   const softDroppingRef = useRef(softDropping);
   useEffect(() => {
