@@ -22,10 +22,14 @@ export default function MobileApp() {
   const [gameState, setGameState] = useState(gameInit());
   const gameStateRef = useRef(gameState);
   const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
-
+  const [softDropping, setSoftDropping] = useState(false);
+  const softDroppingRef = useRef(softDropping);
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
+  useEffect(() => {
+    softDroppingRef.current = softDropping;
+  }, [softDropping]);
 
   //Increment game clock every tickInterval ms
   useEffect(() => {
@@ -43,17 +47,16 @@ export default function MobileApp() {
       document.body.style.overflow = 'scroll';
     };
   }, []);
-  const softDrop = () => {
-    setGameState((prevState) =>
-      setAllowedInput(shiftBlock(prevState, 'D'), 'shift', false)
-    );
-    setTimeout(
-      () =>
-        setGameState((prevState) => setAllowedInput(prevState, 'shift', true)),
-      CONFIG.POLL_RATES.shift
-    );
-  };
 
+  //setup polling for softdrop
+  useEffect(() => {
+    const softDropInterval = setInterval(() => {
+      if (softDroppingRef.current) {
+        setGameState((prevState) => shiftBlock(prevState, 'D'));
+      }
+    }, CONFIG.POLL_RATES.shift);
+    return () => clearInterval(softDropInterval);
+  }, []);
   const [lastShiftSteps, setLastShiftSteps] = useState(0); //how many steps from swipe origin we have shifted the current block
   const [swipeStart, setSwipeStart] = useState(0);
   const PIXELS_PER_SHIFT_STEP = 32; //how many pixels of swiping corresponds to a side shift step
@@ -67,16 +70,11 @@ export default function MobileApp() {
   };
   const handleSwiping = (e: SwipeEventData) => {
     const dx = e.deltaX;
-    const dy = e.deltaY;
     const shiftSteps = Math.floor(dx / PIXELS_PER_SHIFT_STEP);
     if (shiftSteps !== lastShiftSteps) {
       const direction: Direction = shiftSteps > lastShiftSteps ? 'R' : 'L';
       setGameState((prevState) => shiftBlock(prevState, direction));
       setLastShiftSteps(shiftSteps);
-    }
-    //todo: soft drop when swiping down?
-    if (e.absY > 100) {
-      softDrop();
     }
   };
   const handleTap = () => {
@@ -101,10 +99,14 @@ export default function MobileApp() {
     onSwipedDown: handleSwipeDown,
     onSwipedUp: handleSwipeUp,
     preventScrollOnSwipe: true,
-    delta: { down: 50, up: 50 },
+    delta: 50,
   });
+
   return (
-    <div className="relative flex flex-col items-center overflow-hidden">
+    <div
+      className="relative flex flex-col items-center overflow-hidden"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       {/* Top bar */}
       <div className="flex w-full items-center justify-between">
         <div className="aspect-square w-1/4 shrink-0 border-r">
@@ -160,6 +162,12 @@ export default function MobileApp() {
           Start
         </button>
       )}
+      <div
+        className="absolute bottom-0 h-1/5 w-full bg-transparent"
+        // soft drop while touching this div
+        onTouchStart={() => setSoftDropping(true)}
+        onTouchEnd={() => setSoftDropping(false)}
+      ></div>
     </div>
   );
 }
