@@ -89,6 +89,7 @@ export default function MobileApp() {
   const handleSwipeUp = () => {
     const swipeDuration = Date.now() - swipeStart;
     if (swipeDuration > 500) return;
+    if (!gameState.allowedInputs.hold) return;
     setGameState((prevState) => holdAndPopHeld(prevState));
   };
 
