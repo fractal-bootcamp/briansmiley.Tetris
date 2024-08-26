@@ -71,7 +71,6 @@ export default function MobileApp() {
   const handleSwiping = (e: SwipeEventData) => {
     const dx = e.deltaX;
     const dy = e.deltaY;
-    console.log(dx, dy);
     const shiftSteps = Math.floor(dx / PIXELS_PER_SHIFT_STEP);
     if (shiftSteps !== lastShiftSteps && Math.abs(dy) < Y_SHIFT_WINDOW) {
       const direction: Direction = shiftSteps > lastShiftSteps ? 'R' : 'L';
