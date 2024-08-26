@@ -44,9 +44,9 @@ const keyBindings: KeyBinding[] = [
   { key: "c", type:"hold", callback: (prevGameState) => holdAndPopHeld(prevGameState)},
 ];
 const cellBorderStyles = ['outset', 'none'];
-
+const config = { ...CONFIG, WALLS: true };
 function DesktopApp() {
-  const [gameState, setGameState] = useState(gameInit());
+  const [gameState, setGameState] = useState(gameInit(config));
   const gameStateRef = useRef(gameState);
   const [unMuted, setMuted] = useState<boolean | null>(null);
   const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
@@ -140,7 +140,7 @@ function DesktopApp() {
     music.muted = !unMuted;
   }, [unMuted]);
   const previewBoard = useMemo(
-    () => miniPreviewBoard(gameState.shapeQueue),
+    () => miniPreviewBoard(gameState.shapeQueue, config),
     [JSON.stringify(gameState.shapeQueue)]
   );
   const toggleCellBorderStyle = () => {
@@ -161,7 +161,7 @@ function DesktopApp() {
             Held <br />
             (c)
             <BoardDisplay
-              board={miniHeldBoard(gameState.heldShape)}
+              board={miniHeldBoard(gameState.heldShape, config)}
               classNames="h-[20vh] aspect-square"
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
             />

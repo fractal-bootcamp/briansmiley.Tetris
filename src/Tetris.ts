@@ -52,9 +52,9 @@ type ConditionalNull<argType, nonNullArgType, returnType> =
  */
 
 /**creates a new blank slate game object; requires a call to spawnNewBlock() to create first falling block */
-export const gameInit = (): Game => {
+export const gameInit = (config: Config): Game => {
   return {
-    board: newBlankBoard(),
+    board: newBlankBoard(config),
     clock: 0, //global timestamp
     prevGravityTickTime: 0, //clock timestamp of the last gravity tick
     fallingBlock: null, //current falling block
@@ -64,28 +64,32 @@ export const gameInit = (): Game => {
     linesCleared: 0,
     level: 1,
     blocksSpawned: 0,
-    gravityTickInterval: CONFIG.STARTING_G_TICK_INTERVAL,
-    maxGroundTime: CONFIG.BASE_MAX_GROUND_TIME,
-    settleTime: CONFIG.BASE_SETTLE_TIME,
+    gravityTickInterval: config.STARTING_G_TICK_INTERVAL,
+    maxGroundTime: config.BASE_MAX_GROUND_TIME,
+    settleTime: config.BASE_SETTLE_TIME,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
 
-    CONFIG: CONFIG,
+    CONFIG: config,
   };
 };
 const newEmptyCell = (): Cell => ({ color: [0, 0, 0], type: 'empty' });
-const newWallCell = (): Cell => ({
-  color: [...CONFIG.WALL_COLOR],
+const newWallCell = (config: Config): Cell => ({
+  color: [...config.WALL_COLOR],
   type: 'wall',
 });
-const newEmptyRow = (): Cell[] => {
-  const row = Array(CONFIG.BOARD_WIDTH).fill(newEmptyCell());
-  return CONFIG.WALLS ? [newWallCell()].concat(row).concat(newWallCell()) : row;
+const newEmptyRow = (config: Config): Cell[] => {
+  const row = Array(config.BOARD_WIDTH).fill(newEmptyCell());
+  return config.WALLS
+    ? [newWallCell(config)].concat(row).concat(newWallCell(config))
+    : row;
 };
-const newBlankBoard = (): Board => {
-  const newBoard = [...Array(CONFIG.BOARD_HEIGHT)].map(() => newEmptyRow());
-  return CONFIG.WALLS
-    ? newBoard.concat([Array(CONFIG.BOARD_WIDTH + 2).fill(newWallCell())])
+const newBlankBoard = (config: Config): Board => {
+  const newBoard = [...Array(config.BOARD_HEIGHT)].map(() =>
+    newEmptyRow(config)
+  );
+  return config.WALLS
+    ? newBoard.concat([Array(config.BOARD_WIDTH + 2).fill(newWallCell(config))])
     : newBoard;
 };
 export const setGravityTickInterval = (
@@ -110,8 +114,9 @@ export const tickGameClock = (game: Game): Game => {
     ? {
         ...game.fallingBlock,
         totalGroundTime:
-          game.fallingBlock.totalGroundTime + CONFIG.CLOCK_TICK_RATE,
-        groundTimer: game.fallingBlock.groundTimer - CONFIG.CLOCK_TICK_RATE,
+          game.fallingBlock.totalGroundTime + game.CONFIG.CLOCK_TICK_RATE,
+        groundTimer:
+          game.fallingBlock.groundTimer - game.CONFIG.CLOCK_TICK_RATE,
       }
     : game.fallingBlock;
 
@@ -121,34 +126,32 @@ export const tickGameClock = (game: Game): Game => {
   );
   return gravityTicks > 0 ? tickGravity(newGame, gravityTicks) : newGame;
 };
-//
-// const incrementGameSpeed = (game: Game): Game => ({
-//   ...game,
-//   tickInterval: game.tickInterval * (1 / 1 + CONFIG.SPEED_SCALING)
-// });
 
 const endGame = (game: Game): Game => ({ ...game, over: true });
 export const startGame = (game: Game): Game =>
   game.blocksSpawned === 0
     ? spawnNewBlock(game)
     : game.over
-      ? spawnNewBlock(gameInit())
+      ? spawnNewBlock(gameInit(game.CONFIG))
       : game;
-const newBlockFromShape = (shape: TetrisShape): Block => ({
-  origin: CONFIG.SPAWN_POINT,
+const newBlockFromShape = (game: Game, shape: TetrisShape): Block => ({
+  origin: game.CONFIG.SPAWN_POINT,
   shape: shape,
-  body: CONFIG.BLOCK_SHAPES[shape],
+  body: game.CONFIG.BLOCK_SHAPES[shape],
 });
 /**Does nothing more less than pop a shape off the next queue and start it falling (except also enable hold swap again) */
 const spawnNewBlock = (game: Game): Game => {
   // pop the next shape off the queue
   const newBlockShape = game.shapeQueue[0];
-  const newBlock = newBlockFromShape(newBlockShape);
+  const newBlock = newBlockFromShape(game, newBlockShape);
   const newQueue = game.shapeQueue
     .slice(1)
     .concat(game.shapeQueue.length < 8 ? newShapeBag() : []); //
-  if (blockIntersectsSettledOrWalls(game.board, newBlock)) return endGame(game);
-  if (boardCoordIsOccupied(game.board, CONFIG.SPAWN_POINT))
+  if (blockIntersectsSettledOrWalls(game.board, newBlock, game.CONFIG.WALLS))
+    return endGame(game);
+  if (
+    boardCoordIsOccupied(game.board, game.CONFIG.SPAWN_POINT, game.CONFIG.WALLS)
+  )
     return endGame(game);
   return {
     ...game,
@@ -164,8 +167,7 @@ const spawnNewBlock = (game: Game): Game => {
   };
 };
 const isNotNull = <T>(arg: T | null): arg is T => arg !== null;
-// const isPartOfShape = (cell: Cell) =>
-//   cell === null ? false : Object.values(CONFIG.SHAPE_COLORS).includes(cell);
+
 const coordinateSum = (c1: Coordinate, c2: Coordinate): Coordinate => {
   return [c1[0] + c2[0], c1[1] + c2[1]];
 };
@@ -189,31 +191,30 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   );
 };
 //check whether a board location is occupied by a block or wall
-const boardCoordIsOccupied = (board: Board, coord: Coordinate): boolean =>
+const boardCoordIsOccupied = (
+  board: Board,
+  coord: Coordinate,
+  walls: boolean
+): boolean =>
   cellIsOccupied(board[coord[0]][coord[1]]) ||
-  (CONFIG.WALLS && (coord[1] === 0 || coord[1] === board[0].length - 1)); //if walls enabled, anything in col 1 or last col is considered occupied
+  (walls && (coord[1] === 0 || coord[1] === board[0].length - 1)); //if walls enabled, anything in col 1 or last col is considered occupied
 const cellIsOccupied = (cell: Cell) => ['block', 'wall'].includes(cell.type);
 //checks whether a proposed block position will be a collision
-const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
+const blockIntersectsSettledOrWalls = (
+  board: Board,
+  block: Block | null,
+  walls: boolean
+) => {
   const occupiedCells = blockOccupiedCells(block);
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     (boardLocation) =>
       //check if we are offscreen first; prevents out of bounds errors for checking board location
       isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
-      (boardLocation[0] >= 0 && boardCoordIsOccupied(board, boardLocation)) //check if any cells inside the visible board are occupier
+      (boardLocation[0] >= 0 &&
+        boardCoordIsOccupied(board, boardLocation, walls)) //check if any cells inside the visible board are occupier
   );
 };
-//get the next spawnable block, currently at random
-
-/**Deprecated fully random enxt shape algorithm*/
-// const getRandomNewBlockShape = (): TetrisShape => {
-//   //just a random block every
-//   const keys = Object.keys(CONFIG.BLOCK_SHAPES) as Array<
-//     keyof typeof CONFIG.BLOCK_SHAPES
-//   >;
-//   return keys[(keys.length * Math.random()) << 0];
-// };
 
 /**Create/replace the bag of shapes abvailable to pick the next block in the queue from */
 const newShapeBag = (): TetrisShape[] => {
@@ -235,7 +236,7 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
   const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
   if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock.self);
-  const newColor = CONFIG.SHAPE_COLORS[fallenBlock.self.shape];
+  const newColor = game.CONFIG.SHAPE_COLORS[fallenBlock.self.shape];
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
     (coord) =>
@@ -315,10 +316,10 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   const newLinesCleared = game.linesCleared + rowsToClear.length;
   const newLevel = Math.max(
     0,
-    Math.floor(newLinesCleared / CONFIG.LEVEL_LINES)
+    Math.floor(newLinesCleared / game.CONFIG.LEVEL_LINES)
   );
   //calculate the new falling speed
-  const newGravityTickInterval = CONFIG.GRAVITY_LEVELS[newLevel] || 0;
+  const newGravityTickInterval = game.CONFIG.GRAVITY_LEVELS[newLevel] || 0;
   return {
     ...game,
     score: game.score + clearedLinesScore(rowsToClear.length),
@@ -327,17 +328,17 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     gravityTickInterval: newGravityTickInterval,
     // Linearly interpolate settle times and max ground times based on level
     maxGroundTime:
-      CONFIG.MIN_MAX_GROUND_TIME +
-      ((CONFIG.BASE_MAX_GROUND_TIME - CONFIG.MIN_MAX_GROUND_TIME) *
+      game.CONFIG.MIN_MAX_GROUND_TIME +
+      ((game.CONFIG.BASE_MAX_GROUND_TIME - game.CONFIG.MIN_MAX_GROUND_TIME) *
         Math.max(20 - newLevel, 0)) /
         19,
     settleTime:
-      CONFIG.MIN_SETTLE_TIME +
-      ((CONFIG.BASE_SETTLE_TIME - CONFIG.MIN_SETTLE_TIME) *
+      game.CONFIG.MIN_SETTLE_TIME +
+      ((game.CONFIG.BASE_SETTLE_TIME - game.CONFIG.MIN_SETTLE_TIME) *
         Math.max(20 - newLevel, 0)) /
         19,
     board: board.map((row, r) =>
-      rowsToClear.includes(r) ? newEmptyRow() : structuredClone(row)
+      rowsToClear.includes(r) ? newEmptyRow(game.CONFIG) : structuredClone(row)
     ),
   };
 };
@@ -361,7 +362,7 @@ export const collapseGapRows = (game: Game): Game => {
   //for each empty row index, splice out that row in newBoard and then put a new empty row on top; this should let the rest of the indices keep working as expected
   emptyRowIndices.forEach((rowIndex) => {
     newBoard.splice(rowIndex, 1);
-    newBoard = [newEmptyRow()].concat(newBoard);
+    newBoard = [newEmptyRow(game.CONFIG)].concat(newBoard);
   });
   const newFallingBlock = game.fallingBlock
     ? {
@@ -398,7 +399,8 @@ const blockOnGround = (
   game.fallingBlock !== null &&
   blockIntersectsSettledOrWalls(
     game.board,
-    shiftedBlock(game.fallingBlock.self, 'D')
+    shiftedBlock(game.fallingBlock.self, 'D'),
+    game.CONFIG.WALLS
   );
 
 /** Rotates a block 90° CW | CCW about its origin */
@@ -407,13 +409,19 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
     return game;
   const newBlock = rotatedBlock(game.fallingBlock.self, direction);
   //if the rotated block intersects the board or walls, try shifting it one or two spaces in every direction and pick the first that works. Otherwise return with no rotation
-  if (blockIntersectsSettledOrWalls(game.board, newBlock)) {
+  if (blockIntersectsSettledOrWalls(game.board, newBlock, game.CONFIG.WALLS)) {
     const directions: Direction[] = ['R', 'L', 'U', 'D'];
     for (const shiftDir of directions) {
       for (const distance of [1, 2]) {
         const shiftCandidate = shiftedBlock(newBlock, shiftDir, distance);
         //return as soon as we find a shift that makes the rotation work (and set grace to true)
-        if (!blockIntersectsSettledOrWalls(game.board, shiftCandidate))
+        if (
+          !blockIntersectsSettledOrWalls(
+            game.board,
+            shiftCandidate,
+            game.CONFIG.WALLS
+          )
+        )
           return {
             ...game,
             fallingBlock: {
@@ -482,7 +490,7 @@ export const holdAndPopHeld = (game: Game): Game => {
 export const shiftBlock = (game: Game, direction: Direction): Game => {
   if (game.fallingBlock === null) return game;
   const nextBlock = shiftedBlock(game.fallingBlock.self, direction, 1);
-  return blockIntersectsSettledOrWalls(game.board, nextBlock)
+  return blockIntersectsSettledOrWalls(game.board, nextBlock, game.CONFIG.WALLS)
     ? game
     : {
         ...game,
@@ -554,7 +562,7 @@ export const boardWithFallingBlock = (game: Game): Board => {
         ? { color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape], type: 'block' }
         : shadowOccupiedCells.some((coord) => coord[0] === r && coord[1] === c)
           ? {
-              color: CONFIG.SHAPE_COLORS[fallingBlock.self.shape],
+              color: game.CONFIG.SHAPE_COLORS[fallingBlock.self.shape],
               type: 'shadow',
             }
           : cell
@@ -563,14 +571,17 @@ export const boardWithFallingBlock = (game: Game): Board => {
 };
 
 /**Returns a board for displaying upcoming shape(s) */
-export const miniPreviewBoard = (shapeQueue: Game['shapeQueue']): Board => {
+export const miniPreviewBoard = (
+  shapeQueue: Game['shapeQueue'],
+  config: Config
+): Board => {
   const upcomingShape = shapeQueue[0];
 
   // Create a small box with walls
   const boxSize = 8; // 6x6 inner area + 1 cell padding on each side
   const miniBoard: Board = Array(boxSize)
     .fill(null)
-    .map(() => Array(boxSize).fill({ color: CONFIG.WALL_COLOR, type: 'wall' }));
+    .map(() => Array(boxSize).fill({ color: config.WALL_COLOR, type: 'wall' }));
 
   // Fill the inner area with empty cells
   for (let r = 1; r < boxSize - 1; r++) {
@@ -581,12 +592,12 @@ export const miniPreviewBoard = (shapeQueue: Game['shapeQueue']): Board => {
   if (upcomingShape === undefined) return miniBoard; //if there is no upcoming shape, return the blank board
   // Place the upcoming shape in the center of the box
   const origin: Coordinate = [4, 4];
-  const shapeCoords = CONFIG.BLOCK_SHAPES[upcomingShape].map((coord) =>
+  const shapeCoords = config.BLOCK_SHAPES[upcomingShape].map((coord) =>
     coordinateSum(coord, origin)
   );
   shapeCoords.forEach(([r, c]) => {
     miniBoard[r][c] = {
-      color: CONFIG.SHAPE_COLORS[upcomingShape],
+      color: config.SHAPE_COLORS[upcomingShape],
       type: 'block',
     };
   });
@@ -595,5 +606,7 @@ export const miniPreviewBoard = (shapeQueue: Game['shapeQueue']): Board => {
 };
 
 /**Literally does the same thing as miniPreviewBoard but for the held shape for now */
-export const miniHeldBoard = (heldShape: TetrisShape | null) =>
-  heldShape ? miniPreviewBoard([heldShape]) : miniPreviewBoard([]);
+export const miniHeldBoard = (heldShape: TetrisShape | null, config: Config) =>
+  heldShape
+    ? miniPreviewBoard([heldShape], config)
+    : miniPreviewBoard([], config);

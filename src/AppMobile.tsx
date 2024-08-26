@@ -16,9 +16,9 @@ import PieceDisplay from './components/PieceDisplay';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
 
 const cellBorderStyles = ['outset', 'none'];
-
+const config = { ...CONFIG, WALLS: false };
 export default function MobileApp() {
-  const [gameState, setGameState] = useState(gameInit());
+  const [gameState, setGameState] = useState(gameInit(config));
   const gameStateRef = useRef(gameState);
   const [cellBorderStyleIndex] = useState(0);
   const [softDropping, setSoftDropping] = useState(false);
