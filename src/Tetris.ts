@@ -411,7 +411,7 @@ export const rotateBlock = (game: Game, direction: RotDirection): Game => {
   const newBlock = rotatedBlock(game.fallingBlock.self, direction);
   //if the rotated block intersects the board or walls, try shifting it one or two spaces in every direction and pick the first that works. Otherwise return with no rotation
   if (blockIntersectsSettledOrWalls(game.board, newBlock, game.CONFIG.WALLS)) {
-    const directions: Direction[] = ['R', 'L', 'U', 'D'];
+    const directions: Direction[] = ['R', 'L', 'D', 'U'];
     for (const shiftDir of directions) {
       for (const distance of [1, 2]) {
         const shiftCandidate = shiftedBlock(newBlock, shiftDir, distance);
