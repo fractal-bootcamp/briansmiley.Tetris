@@ -182,7 +182,7 @@ const blockOccupiedCells = <T extends Block | null>(
 /**Checks if a coordinate is off the screen; to allow poking over top of board, check that separately */
 const isOffScreen = (coord: Coordinate, board: Board): boolean => {
   return (
-    coord[0] < 0 ||
+    // coord[0] < 0 || allowing row<0 because we consider the board infinitely tall
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
@@ -199,9 +199,9 @@ const blockIntersectsSettledOrWalls = (board: Board, block: Block | null) => {
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     (boardLocation) =>
-      boardLocation[0] >= 0 && //if we are above the board we arent checking anything
-      (isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
-        boardCoordIsOccupied(board, boardLocation)) //interaction if board is occupied
+      //check if we are offscreen first; prevents out of bounds errors for checking board location
+      isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen)
+      (boardLocation[0] >= 0 && boardCoordIsOccupied(board, boardLocation)) //check if any cells inside the visible board are occupier
   );
 };
 //get the next spawnable block, currently at random
