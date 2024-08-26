@@ -6,8 +6,12 @@ type HighScore = {
 };
 type HighScoreEntryProps = {
   score: number;
+  displayCount?: number;
 };
-export default function HighScoreEntry({ score }: HighScoreEntryProps) {
+export default function HighScoreEntry({
+  score,
+  displayCount = 10,
+}: HighScoreEntryProps) {
   const [entering, setEntering] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [initials, setInitials] = useState('');
@@ -38,10 +42,10 @@ export default function HighScoreEntry({ score }: HighScoreEntryProps) {
     setEntering(false);
   };
   return (
-    <div className="border-inset relative bg-slate-700 text-xl">
+    <div className="border-inset text-default relative w-[80%] bg-slate-700 text-xl">
       {/* New Score Entry */}
       {entering ? (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 p-2">
           <span className="self-center">New High Score!</span>
           <input
             type="text"
@@ -63,7 +67,7 @@ export default function HighScoreEntry({ score }: HighScoreEntryProps) {
         <div className="flex flex-col gap-1">
           <span className="self-center p-2">High Scores</span>
           <div className="flex flex-col">
-            {sortedHighscores.map((highscore, index) => (
+            {sortedHighscores.slice(0, displayCount).map((highscore, index) => (
               <div
                 key={index}
                 className={`flex justify-between px-3 py-1 ${index % 2 ? 'bg-slate-800' : 'bg-slate-900'}`}

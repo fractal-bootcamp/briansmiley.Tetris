@@ -14,6 +14,7 @@ import {
 import { CONFIG } from './TetrisConfig';
 import PieceDisplay from './components/PieceDisplay';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
+import HighScoreEntry from './components/HighScoreEntry';
 
 const cellBorderStyles = ['outset', 'none'];
 const config = { ...CONFIG, WALLS: false };
@@ -151,11 +152,12 @@ export default function MobileApp() {
         </div>
         {/* Game over modal */}
         {gameState.over && (
-          <div className="absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center bg-slate-900 bg-opacity-80">
+          <div className="absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 bg-slate-900 bg-opacity-80">
             <div className="text-default flex w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
               <span className="">GAME OVER</span>
               <span>Score: {gameState.score}</span>
             </div>
+            <HighScoreEntry score={gameState.score} displayCount={5} />
             <button
               onClick={() => setGameState(startGame(gameState))}
               style={{ borderStyle: 'inset' }}

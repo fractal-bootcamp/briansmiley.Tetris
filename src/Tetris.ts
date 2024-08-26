@@ -209,8 +209,8 @@ const blockIntersectsSettledOrWalls = (
   if (occupiedCells === null) return false;
   return occupiedCells.some(
     (boardLocation) =>
-      (walls && boardLocation[1] === 0) ||
-      boardLocation[1] === board[0].length - 1 || //if walls enabled, anything in col 1 or last col is considered occupied
+      (walls &&
+        (boardLocation[1] === 0 || boardLocation[1] === board[0].length - 1)) || //if walls enabled, anything in col 1 or last col is considered occupied
       (boardLocation[0] >= 0 && isOffScreen(boardLocation, board)) || //(should only happen in walless mode; disallow if goes offscreen); only check offscreen below top of board so that we dont consider poking over to be intersecting
       (boardLocation[0] >= 0 &&
         boardCoordIsOccupied(board, boardLocation, walls)) //check if any cells inside the visible board are occupier
