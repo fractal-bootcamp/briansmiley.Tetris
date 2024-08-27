@@ -13,7 +13,7 @@ export default function SettingsModal({ closeModal }: SettingsModalProps) {
   const resetHighScores = () => setHighscores(defaultHighscores);
 
   return (
-    <div className="text-default border-inset relative flex w-[60%] flex-col items-center justify-center gap-1 bg-slate-900 p-2">
+    <div className="text-default border-outset relative flex w-[60%] flex-col items-center justify-center gap-1 bg-slate-900 p-2">
       <button
         onClick={closeModal}
         className="absolute inset-0 h-5 w-5 rounded-full p-0.5"
