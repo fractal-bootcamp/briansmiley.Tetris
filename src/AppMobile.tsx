@@ -150,8 +150,7 @@ export default function MobileApp() {
           {/* Startgame modal */}
           {gameState.blocksSpawned === 0 && (
             <button
-              className="text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
-              style={{ borderStyle: 'inset' }}
+              className="border-inset text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
               onClick={() => setGameState(startGame(gameState))}
             >
               Start
@@ -160,7 +159,7 @@ export default function MobileApp() {
         </div>
         {/* Game over modal */}
         {gameState.over && !showSettingsModal && (
-          <div className="absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 bg-slate-900 bg-opacity-80">
+          <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-2 bg-slate-900 bg-opacity-80 backdrop-blur-sm">
             <div className="text-default flex w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
               <span className="">GAME OVER</span>
               <span>Score: {gameState.score}</span>
@@ -168,8 +167,7 @@ export default function MobileApp() {
             <HighScoreEntry score={gameState.score} displayCount={5} />
             <button
               onClick={() => setGameState(startGame(gameState))}
-              style={{ borderStyle: 'inset' }}
-              className="text-default mt-4 border-[8px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
+              className="text-default border-inset mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
             >
               Restart
             </button>
