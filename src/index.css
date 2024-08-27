@@ -24,6 +24,8 @@
   .border-inset {
     border-style: inset;
     @apply border-8 border-slate-500;
+  }
+  .active-outset {
     &:active {
       border-style: outset;
     }
