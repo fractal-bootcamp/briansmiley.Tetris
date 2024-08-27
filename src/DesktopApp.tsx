@@ -208,7 +208,7 @@ function DesktopApp() {
               classNames="h-[90vh]"
             />
             {gameState.over && !showSettingsModal && (
-              <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-80 backdrop-blur-sm">
+              <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-50 backdrop-blur-sm">
                 <div className="text-default flex h-full w-full flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
                   <span className="animate-flash">GAME OVER</span>
                   <span className="animate-flash">
@@ -219,7 +219,7 @@ function DesktopApp() {
               </div>
             )}
             {showSettingsModal && (
-              <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+              <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-slate-900 bg-opacity-50 backdrop-blur-sm">
                 <SettingsModal closeModal={closeSettings} />
               </div>
             )}
@@ -233,7 +233,7 @@ function DesktopApp() {
             </div>
             <div className="flex basis-full justify-center">
               <button
-                className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold [border-style:outset] active:[border-style:inset]"
+                className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold"
                 onClick={(e) => {
                   e.currentTarget.blur();
                   setGameState(startGame(gameState));

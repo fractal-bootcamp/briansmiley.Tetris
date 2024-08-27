@@ -1,21 +1,7 @@
 import { useEffect, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-const defaultHighscores: HighScore[] = [
-  { score: 2000, initials: 'DEF' },
-  { score: 4000, initials: 'DEF' },
-  { score: 6000, initials: 'DEF' },
-  { score: 8000, initials: 'DEF' },
-  { score: 10000, initials: 'DEF' },
-  { score: 12000, initials: 'DEF' },
-  { score: 14000, initials: 'DEF' },
-  { score: 16000, initials: 'DEF' },
-  { score: 18000, initials: 'DEF' },
-  { score: 20000, initials: 'DEF' },
-];
-type HighScore = {
-  score: number;
-  initials: string;
-};
+import { defaultHighscores, HIGHSCORES_LOCALSTORAGE_KEY } from '../data';
+
 type HighScoreEntryProps = {
   score: number;
   displayCount?: number;
@@ -27,12 +13,13 @@ export default function HighScoreEntry({
   const [entering, setEntering] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [initials, setInitials] = useState('');
-  const [highscores, setHighscores] = useLocalStorage<HighScore[]>(
-    'tetris-highscores',
+  const [highscores, setHighscores] = useLocalStorage(
+    HIGHSCORES_LOCALSTORAGE_KEY,
     defaultHighscores
   );
   const sortedHighscores = highscores.sort((a, b) => b.score - a.score);
   //on load initialize entering state
+  //TODO: make sure this literal game session hasnt been added? maybe add a startTime to a game as a signature
   useEffect(
     () =>
       setEntering(
@@ -75,7 +62,10 @@ export default function HighScoreEntry({
             }}
           />
           <span className="text-lg text-red-500">{errorMessage}</span>
-          <button className="btn self-center" onClick={submitScoreOnClick}>
+          <button
+            className="btn active-outset self-center"
+            onClick={submitScoreOnClick}
+          >
             Submit
           </button>
         </div>

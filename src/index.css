@@ -17,18 +17,8 @@
 }
 @layer components {
   .btn {
-    @apply w-fit select-none border-slate-500 bg-slate-200 px-3 py-2 text-xl font-semibold text-black outline-none hover:bg-slate-300;
-    border-style: inset;
+    @apply w-fit select-none border-slate-500 bg-slate-200 px-3 py-2 text-xl font-semibold text-black outline-none [border-style:outset] hover:bg-slate-300 active:[border-style:inset];
     border-width: 8px;
-  }
-  .border-inset {
-    border-style: inset;
-    @apply border-8 border-slate-500;
-  }
-  .active-outset {
-    &:active {
-      border-style: outset;
-    }
   }
 }
 @layer utilities {
