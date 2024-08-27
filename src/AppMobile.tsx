@@ -15,12 +15,15 @@ import { CONFIG } from './TetrisConfig';
 import PieceDisplay from './components/PieceDisplay';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
 import HighScoreEntry from './components/HighScoreEntry';
+import SettingsModal from './components/SettingsModal';
+import { Settings } from 'lucide-react';
 
 const cellBorderStyles = ['outset', 'none'];
 const config = { ...CONFIG, WALLS: false };
 export default function MobileApp() {
   const [gameState, setGameState] = useState(gameInit(config));
   const gameStateRef = useRef(gameState);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [cellBorderStyleIndex] = useState(0);
   const [softDropping, setSoftDropping] = useState(false);
   const softDroppingRef = useRef(softDropping);
@@ -117,9 +120,14 @@ export default function MobileApp() {
             <PieceDisplay piece={gameState.heldShape} text="Held" />
           </div>
           <div className="text-default flex w-full flex-col justify-between self-stretch bg-black px-2 py-2">
-            <span>
-              Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
-            </span>
+            <div className="flex w-full justify-between">
+              <span>
+                Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
+              </span>
+              <button onClick={() => setShowSettingsModal(true)}>
+                <Settings color="#00ff00" className="h-5 w-5" />
+              </button>
+            </div>
             <span>
               Lines:{' '}
               {gameState.blocksSpawned === 0 ? '-' : gameState.linesCleared}
@@ -151,7 +159,7 @@ export default function MobileApp() {
           )}
         </div>
         {/* Game over modal */}
-        {gameState.over && (
+        {gameState.over && !showSettingsModal && (
           <div className="absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 bg-slate-900 bg-opacity-80">
             <div className="text-default flex w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
               <span className="">GAME OVER</span>
@@ -165,6 +173,11 @@ export default function MobileApp() {
             >
               Restart
             </button>
+          </div>
+        )}
+        {showSettingsModal && (
+          <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            <SettingsModal closeModal={() => setShowSettingsModal(false)} />
           </div>
         )}
       </div>

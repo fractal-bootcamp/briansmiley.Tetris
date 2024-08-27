@@ -1,6 +1,6 @@
 import BoardDisplay from './components/BoardDisplay';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Settings, Volume2, VolumeX } from 'lucide-react';
 import {
   Game,
   boardWithFallingBlock,
@@ -20,6 +20,7 @@ import useKeysPressed from './hooks/useKeysPressed';
 import { CONFIG, InputCategory } from './TetrisConfig';
 import BoardCell from './components/BoardCell';
 import HighScoreEntry from './components/HighScoreEntry';
+import SettingsModal from './components/SettingsModal';
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -54,6 +55,7 @@ function DesktopApp() {
   const keysPressed = useKeysPressed(keyBindings.map((binding) => binding.key));
   const keysPressedRef = useRef(keysPressed);
   const currentlyShiftingRef = useRef(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   //Sync up gamestate and keyspressed refs
   useEffect(() => {
@@ -190,8 +192,8 @@ function DesktopApp() {
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
               classNames="h-[90vh]"
             />
-            {gameState.over && (
-              <div className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 bg-slate-900 bg-opacity-80">
+            {gameState.over && !showSettingsModal && (
+              <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-80 backdrop-blur-sm">
                 <div className="text-default flex h-full w-full flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
                   <span className="animate-flash">GAME OVER</span>
                   <span className="animate-flash">
@@ -201,10 +203,19 @@ function DesktopApp() {
                 </div>
               </div>
             )}
+            {showSettingsModal && (
+              <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <SettingsModal closeModal={() => setShowSettingsModal(false)} />
+              </div>
+            )}
           </div>
 
           <div className="flex w-full justify-between">
-            <div className="flex basis-full justify-start"></div>
+            <div className="basis-full justify-start">
+              <button onClick={() => setShowSettingsModal(true)}>
+                <Settings color="#ffffff" className="h-10 w-10" />
+              </button>
+            </div>
             <div className="flex basis-full justify-center">
               <button
                 className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold [border-style:outset] active:[border-style:inset]"
@@ -225,13 +236,13 @@ function DesktopApp() {
                     position={[0, 0]}
                   />
                 </div>
-                <div onClick={(e) => handleSoundClick(e)}>
+                <button onClick={(e) => handleSoundClick(e)}>
                   {unMuted ? (
                     <Volume2 className="h-10 w-10" color="#ffffff" />
                   ) : (
                     <VolumeX className="h-10 w-10" color="#ffffff" />
                   )}
-                </div>
+                </button>
               </div>
             </div>
           </div>
