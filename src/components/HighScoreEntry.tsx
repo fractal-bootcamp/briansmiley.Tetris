@@ -65,7 +65,7 @@ export default function HighScoreEntry({
             maxLength={3}
             placeholder="Enter Initials"
             value={initials}
-            className="border bg-slate-900 p-2 text-white"
+            className="border bg-slate-900 p-2 text-center text-white"
             onChange={(e) => {
               setErrorMessage('');
               setInitials(e.target.value.toUpperCase());
