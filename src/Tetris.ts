@@ -27,6 +27,7 @@ export type Game = {
   settleTime: number;
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
+  paused: boolean;
   CONFIG: Config;
 };
 export type Cell = {
@@ -56,7 +57,7 @@ export const gameInit = (config: Config): Game => {
   return {
     board: newBlankBoard(config),
     clock: 0, //global timestamp
-    prevGravityTickTime: 0, //clock timestamp of the last gravity tick
+    prevGravityTickTime: new Date().getTime(), //clock timestamp of the last gravity tick
     fallingBlock: null, //current falling block
     shapeQueue: [...newShapeBag(), ...newShapeBag()], //upcoming shapes to drop
     heldShape: null,
@@ -69,10 +70,16 @@ export const gameInit = (config: Config): Game => {
     settleTime: config.BASE_SETTLE_TIME,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
-
+    paused: false,
     CONFIG: config,
   };
 };
+export const pauseGame = (game: Game): Game => ({ ...game, paused: true });
+export const unpauseGame = (game: Game): Game => ({
+  ...game,
+  paused: false,
+  prevGravityTickTime: new Date().getTime(), //resets gravity tick time so that the falling block doesnt jump down immediately
+});
 const newEmptyCell = (): Cell => ({ color: [0, 0, 0], type: 'empty' });
 const newWallCell = (config: Config): Cell => ({
   color: [...config.WALL_COLOR],
@@ -108,6 +115,7 @@ export const setAllowedInput = (
   allowedInputs: { ...game.allowedInputs, [input]: state },
 });
 export const tickGameClock = (game: Game): Game => {
+  if (game.paused) return game;
   const newTime = new Date().getTime();
   //increment ground timer/settle block if necessary
   const newFallingBlock = blockOnGround(game)

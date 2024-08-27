@@ -9,11 +9,13 @@ import {
   holdAndPopHeld,
   miniHeldBoard,
   miniPreviewBoard,
+  pauseGame,
   rotateBlock,
   setAllowedInput,
   shiftBlock,
   startGame,
   tickGameClock,
+  unpauseGame,
 } from './Tetris';
 import ThemeSong from './assets/ThemeSong.mp3';
 import useKeysPressed from './hooks/useKeysPressed';
@@ -155,7 +157,20 @@ function DesktopApp() {
     if (unMuted === null) startMusic();
     setMuted(!unMuted);
   };
-
+  const pause = () => {
+    setGameState((prev) => pauseGame(prev));
+  };
+  const unpause = () => {
+    setGameState((prev) => unpauseGame(prev));
+  };
+  const openSettings = () => {
+    setShowSettingsModal(true);
+    pause();
+  };
+  const closeSettings = () => {
+    setShowSettingsModal(false);
+    unpause();
+  };
   return (
     <>
       <div className="m-2 flex justify-center gap-2">
@@ -205,14 +220,14 @@ function DesktopApp() {
             )}
             {showSettingsModal && (
               <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                <SettingsModal closeModal={() => setShowSettingsModal(false)} />
+                <SettingsModal closeModal={closeSettings} />
               </div>
             )}
           </div>
 
           <div className="flex w-full justify-between">
             <div className="basis-full justify-start">
-              <button onClick={() => setShowSettingsModal(true)}>
+              <button onClick={openSettings}>
                 <Settings color="#ffffff" className="h-10 w-10" />
               </button>
             </div>

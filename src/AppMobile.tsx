@@ -6,10 +6,12 @@ import {
   gameInit,
   hardDropBlock,
   holdAndPopHeld,
+  pauseGame,
   rotateBlock,
   shiftBlock,
   startGame,
   tickGameClock,
+  unpauseGame,
 } from './Tetris';
 import { CONFIG } from './TetrisConfig';
 import PieceDisplay from './components/PieceDisplay';
@@ -107,7 +109,20 @@ export default function MobileApp() {
     preventScrollOnSwipe: false,
     delta: 50,
   });
-
+  const pause = () => {
+    setGameState((prev) => pauseGame(prev));
+  };
+  const unpause = () => {
+    setGameState((prev) => unpauseGame(prev));
+  };
+  const openSettings = () => {
+    setShowSettingsModal(true);
+    pause();
+  };
+  const closeSettings = () => {
+    setShowSettingsModal(false);
+    unpause();
+  };
   return (
     <>
       <div
@@ -124,7 +139,7 @@ export default function MobileApp() {
               <span>
                 Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
               </span>
-              <button onClick={() => setShowSettingsModal(true)}>
+              <button onClick={openSettings}>
                 <Settings color="#00ff00" className="h-5 w-5" />
               </button>
             </div>
@@ -175,7 +190,7 @@ export default function MobileApp() {
         )}
         {showSettingsModal && (
           <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-            <SettingsModal closeModal={() => setShowSettingsModal(false)} />
+            <SettingsModal closeModal={closeSettings} />
           </div>
         )}
       </div>
