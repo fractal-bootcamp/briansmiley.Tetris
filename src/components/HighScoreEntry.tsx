@@ -4,10 +4,12 @@ import { defaultHighscores, HIGHSCORES_LOCALSTORAGE_KEY } from '../data';
 
 type HighScoreEntryProps = {
   score: number;
+  gameStartTime: number;
   displayCount?: number;
 };
 export default function HighScoreEntry({
   score,
+  gameStartTime,
   displayCount: scoreCount = 10,
 }: HighScoreEntryProps) {
   const [entering, setEntering] = useState(false);
@@ -19,11 +21,19 @@ export default function HighScoreEntry({
   );
   const sortedHighscores = highscores.sort((a, b) => b.score - a.score);
   //on load initialize entering state
-  //TODO: make sure this literal game session hasnt been added? maybe add a startTime to a game as a signature
   useEffect(
+    /**Entering a new score if:
+     * - the score is greater than 0
+     * - the game hasnt been entered before (based on timestamp)
+     * -the high score is bigger than the lowest one in the list
+     * - the high score list is not yet the specified length (shouldnt happens ince I added defaults)
+     */
     () =>
       setEntering(
         score > 0 &&
+          !sortedHighscores.find(
+            (score) => score.gameStartTime === gameStartTime
+          ) &&
           (sortedHighscores.length < 6 ||
             sortedHighscores[sortedHighscores.length - 1].score < score)
       ),
@@ -36,7 +46,7 @@ export default function HighScoreEntry({
       return;
     }
     setHighscores((prev) => {
-      const newHighscores = [...prev, { score, initials }];
+      const newHighscores = [...prev, { score, initials, gameStartTime }];
       return newHighscores
         .sort((a, b) => b.score - a.score)
         .slice(0, scoreCount);

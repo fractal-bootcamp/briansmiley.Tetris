@@ -214,7 +214,10 @@ function DesktopApp() {
                   <span className="animate-flash">
                     Score: {gameState.score}
                   </span>
-                  <HighScoreEntry score={gameState.score} />
+                  <HighScoreEntry
+                    score={gameState.score}
+                    gameStartTime={gameState.startTime}
+                  />
                 </div>
               </div>
             )}

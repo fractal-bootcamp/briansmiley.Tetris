@@ -28,6 +28,7 @@ export type Game = {
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
   paused: boolean;
+  startTime: number;
   CONFIG: Config;
 };
 export type Cell = {
@@ -71,6 +72,7 @@ export const gameInit = (config: Config): Game => {
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     paused: false,
+    startTime: new Date().getTime(),
     CONFIG: config,
   };
 };

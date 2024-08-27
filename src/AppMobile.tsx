@@ -179,7 +179,11 @@ export default function MobileApp() {
               <span className="">GAME OVER</span>
               <span>Score: {gameState.score}</span>
             </div>
-            <HighScoreEntry score={gameState.score} displayCount={5} />
+            <HighScoreEntry
+              score={gameState.score}
+              displayCount={5}
+              gameStartTime={gameState.startTime}
+            />
             <button
               onClick={() => setGameState(startGame(gameState))}
               className="text-default border-inset active-outset mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
