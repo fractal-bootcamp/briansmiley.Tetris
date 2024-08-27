@@ -19,7 +19,10 @@ export default function HighScoreEntry({
     HIGHSCORES_LOCALSTORAGE_KEY,
     defaultHighscores
   );
-  const sortedHighscores = highscores.sort((a, b) => b.score - a.score);
+  //if scores are tied, earlier game wins
+  const sortedHighscores = highscores.sort((a, b) =>
+    a.score === b.score ? a.gameStartTime - b.gameStartTime : b.score - a.score
+  );
   //on load initialize entering state
   useEffect(
     /**Entering a new score if:
