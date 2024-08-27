@@ -200,6 +200,9 @@ const isOffScreen = (coord: Coordinate, board: Board): boolean => {
     coord[1] > board[0].length - 1
   );
 };
+const isOffSides = (coord: Coordinate, board: Board): boolean => {
+  return coord[1] < 0 || coord[1] > board[0].length - 1;
+};
 //check whether a board location is occupied by a block or wall
 const boardCoordIsOccupied = (
   board: Board,
@@ -221,7 +224,7 @@ const blockIntersectsSettledOrWalls = (
     (boardLocation) =>
       (walls &&
         (boardLocation[1] === 0 || boardLocation[1] === board[0].length - 1)) || //if walls enabled, anything in col 1 or last col is considered occupied
-      (boardLocation[0] >= 0 && isOffScreen(boardLocation, board)) || //(should only happen in walless mode; disallow if goes offscreen); only check offscreen below top of board so that we dont consider poking over to be intersecting
+      isOffSides(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen); only check offscreen below top of board so that we dont consider poking over to be intersecting
       (boardLocation[0] >= 0 &&
         boardCoordIsOccupied(board, boardLocation, walls)) //check if any cells inside the visible board are occupier
   );
@@ -537,12 +540,18 @@ const hardDropEndOrigin = (
     return floorIndex === -1 ? board.length : floorIndex; //if floorIndex is -1 we didnt find a non-null row so the floor is the board end
   };
   //map the current falling block's cells to their distances from (1 cell above) the floor in their column
-  const heights = coords.map(
-    ([row, column]) => colFloorIndex(column) - row - 1
-  );
-  //drop distance is the minimum of these heights
-  const distanceToDrop = Math.min(...heights);
-  return [fallingBlock.origin[0] + distanceToDrop, fallingBlock.origin[1]];
+  try {
+    const heights = coords.map(
+      ([row, column]) => colFloorIndex(column) - row - 1
+    );
+    //drop distance is the minimum of these heights
+    const distanceToDrop = Math.min(...heights);
+    return [fallingBlock.origin[0] + distanceToDrop, fallingBlock.origin[1]];
+  } catch (error) {
+    console.error('Error calculating drop distance:', error);
+    console.log('Coordinates:', coords);
+    throw error;
+  }
 };
 
 /**Drops a block all the way to the settled pile settles it into the board*/
