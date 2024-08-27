@@ -20,6 +20,11 @@
     @apply w-fit select-none border-slate-500 bg-slate-200 px-3 py-2 text-xl font-semibold text-black outline-none [border-style:outset] hover:bg-slate-300 active:[border-style:inset];
     border-width: 8px;
   }
+  .border-outset {
+    @apply border-slate-500;
+    border-style: outset;
+    border-width: 8px;
+  }
 }
 @layer utilities {
   .text-default {
