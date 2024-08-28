@@ -419,7 +419,11 @@ const blockOnGround = (
 
 /** Rotates a block 90° CW | CCW about its origin */
 export const rotateBlock = (game: Game, direction: RotDirection): Game => {
-  if (game.fallingBlock === null || game.fallingBlock.self.shape === 'O')
+  if (
+    game.fallingBlock === null ||
+    game.fallingBlock.self.shape === 'O' ||
+    game.paused
+  )
     return game;
   const newBlock = rotatedBlock(game.fallingBlock.self, direction);
   //if the rotated block intersects the board or walls, try shifting it one or two spaces in every direction and pick the first that works. Otherwise return with no rotation
@@ -482,7 +486,7 @@ const shiftedBlock = (
 /**Add current falling piece to the heldShape slot; spawns next block popped either from held slot or the queue if it's the first held piece*/
 export const holdAndPopHeld = (game: Game): Game => {
   //if there is no falling block, do nothing
-  if (game.fallingBlock === null) return game;
+  if (game.fallingBlock === null || game.paused) return game;
   //If there is no held shape, we hold the current falling block then spawn a new block as usual
   let newGame: Game;
   if (game.heldShape === null)
@@ -502,7 +506,7 @@ export const holdAndPopHeld = (game: Game): Game => {
 };
 /**Shifts the game's falling block one unit L | R | D */
 export const shiftBlock = (game: Game, direction: Direction): Game => {
-  if (game.fallingBlock === null) return game;
+  if (game.fallingBlock === null || game.paused) return game;
   const nextBlock = shiftedBlock(game.fallingBlock.self, direction, 1);
   return blockIntersectsSettledOrWalls(game.board, nextBlock, game.CONFIG.WALLS)
     ? game
