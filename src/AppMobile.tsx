@@ -186,7 +186,7 @@ export default function MobileApp() {
             />
             <button
               onClick={() => setGameState(startGame(gameState))}
-              className="text-default border-inset active-outset mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
+              className="text-default btn mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
             >
               Restart
             </button>

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { defaultHighscores, HIGHSCORES_LOCALSTORAGE_KEY } from '../data';
+import {
+  defaultHighscores,
+  HIGHSCORES_LOCALSTORAGE_KEY,
+  sortHighScores,
+} from '../data';
+import HighScoreList from './HighScoreList';
 
 type HighScoreEntryProps = {
   score: number;
@@ -19,10 +24,7 @@ export default function HighScoreEntry({
     HIGHSCORES_LOCALSTORAGE_KEY,
     defaultHighscores
   );
-  //if scores are tied, earlier game wins
-  const sortedHighscores = highscores.sort((a, b) =>
-    a.score === b.score ? a.gameStartTime - b.gameStartTime : b.score - a.score
-  );
+  const sortedHighscores = sortHighScores(highscores);
   //on load initialize entering state
   useEffect(
     /**Entering a new score if:
@@ -58,7 +60,7 @@ export default function HighScoreEntry({
   };
 
   return (
-    <div className="border-inset text-default relative w-[80%] bg-slate-700 text-xl">
+    <div className="text-default relative w-[80%] bg-slate-700 text-xl">
       {/* New Score Entry */}
       {entering ? (
         <div className="flex flex-col gap-1 p-2">
@@ -83,20 +85,7 @@ export default function HighScoreEntry({
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-1">
-          <span className="self-center p-2">High Scores</span>
-          <div className="flex flex-col">
-            {sortedHighscores.slice(0, scoreCount).map((highscore, index) => (
-              <div
-                key={index}
-                className={`flex justify-between px-3 py-1 ${index % 2 ? 'bg-slate-800' : 'bg-slate-900'}`}
-              >
-                <span className="text-white">{highscore.initials}</span>
-                <span className="text-white">{highscore.score}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <HighScoreList scoreCount={scoreCount} />
       )}
     </div>
   );
