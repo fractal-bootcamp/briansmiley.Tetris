@@ -2,7 +2,7 @@ import { useBreakpoint } from 'use-breakpoint';
 import MobileApp from './AppMobile';
 import DesktopApp from './DesktopApp';
 
-const BREAKPOINTS = { mobile: 0, desktop: 440 };
+export const BREAKPOINTS = { mobile: 0, desktop: 440 };
 const component = (breakpoint: string | null) => {
   switch (breakpoint) {
     case 'mobile':

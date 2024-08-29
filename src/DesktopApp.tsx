@@ -229,7 +229,9 @@ function DesktopApp() {
 
           <div className="flex w-full justify-between">
             <div className="basis-full justify-start">
-              <button onClick={openSettings}>
+              <button
+                onClick={showSettingsModal ? closeSettings : openSettings}
+              >
                 <Settings color="#ffffff" className="h-10 w-10" />
               </button>
             </div>
