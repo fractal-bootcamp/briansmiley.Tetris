@@ -57,7 +57,6 @@ function DesktopApp() {
   const keysPressedRef = useRef(keysPressed);
   const currentlyShiftingRef = useRef(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const showSettingsModalRef = useRef(showSettingsModal);
   //Sync up gamestate and keyspressed refs
   useEffect(() => {
     keysPressedRef.current = keysPressed;
@@ -65,9 +64,6 @@ function DesktopApp() {
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
-  useEffect(() => {
-    showSettingsModalRef.current = showSettingsModal;
-  }, [showSettingsModal]);
   //set up input polling
   useEffect(() => {
     const shiftInputLoop = setInterval(
@@ -75,6 +71,7 @@ function DesktopApp() {
       gameState.CONFIG.POLL_RATES.base
     );
     const handleKeyDowns = (e: KeyboardEvent) => {
+      if (gameStateRef.current.paused) return;
       keyBindings.forEach((binding) => {
         if (
           binding.type === 'shift' ||
@@ -88,6 +85,7 @@ function DesktopApp() {
         }
       });
     };
+    //this re-enables inputs when a key is released to prevent key repeat (except shifts which should repeat and hold which reenables on next spawn)
     const handleKeyUps = (e: KeyboardEvent) => {
       keyBindings.forEach((binding) => {
         if (binding.type === 'shift' || binding.type === 'hold') return;
@@ -169,15 +167,20 @@ function DesktopApp() {
     pause();
   };
   const closeSettings = () => {
-    setShowSettingsModal(false);
-    gameStateRef.current.blocksSpawned > 0 && unpause();
+    setShowSettingsModal((prev) => {
+      if (prev && gameStateRef.current.blocksSpawned > 0) unpause(); //if the modal was open and the game has started, unpause
+      return false; //no matter what, set modal to closed
+    });
+    // Blur the active element so we dont get trapped hitting the settings icon
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ') e.preventDefault(); //prevent space from clicking bc it does weird stuff
       if (e.key === 'Escape') {
-        if (showSettingsModalRef.current) {
-          closeSettings();
-        }
+        closeSettings();
       }
     };
 
@@ -256,6 +259,7 @@ function DesktopApp() {
             <div className="basis-full justify-start">
               <button
                 onClick={showSettingsModal ? closeSettings : openSettings}
+                aria-label="Settings"
               >
                 <Settings color="#ffffff" className="h-10 w-10" />
               </button>
