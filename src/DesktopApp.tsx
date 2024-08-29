@@ -168,7 +168,7 @@ function DesktopApp() {
   };
   const closeSettings = () => {
     setShowSettingsModal(false);
-    unpause();
+    gameState.blocksSpawned > 0 && unpause();
   };
   return (
     <>

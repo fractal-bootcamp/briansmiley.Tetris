@@ -120,7 +120,7 @@ export default function MobileApp() {
   };
   const closeSettings = () => {
     setShowSettingsModal(false);
-    unpause();
+    gameState.blocksSpawned > 0 && unpause();
   };
   return (
     <>
