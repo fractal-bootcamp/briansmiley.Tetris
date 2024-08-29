@@ -34,11 +34,11 @@ export default function DesktopControls({}: DesktopControlsProps) {
       className={`text-default border-outset flex w-[90%] flex-col items-center justify-center gap-2 bg-slate-900 p-3`}
     >
       <div className="mb-2 text-2xl font-bold underline">Controls</div>
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-3 text-xl">
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="←" />
-            or
+            <span className="text-md">or</span>
             <KeyDisplay keyString="A" />
           </div>
           Shift left
@@ -46,7 +46,7 @@ export default function DesktopControls({}: DesktopControlsProps) {
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="→" />
-            or
+            <span className="text-md">or</span>
             <KeyDisplay keyString="D" />
           </div>
           Shift right
@@ -54,16 +54,16 @@ export default function DesktopControls({}: DesktopControlsProps) {
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="↑" textSize={24} />
-            or
+            <span className="text-md">or</span>
             <KeyDisplay keyString="W" />
           </div>
           <RotateCw />
         </div>
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
-            <KeyDisplay keyString="E" />
+            <KeyDisplay keyString="C" />
           </div>
-          <RotateCcw />
+          Hold / Swap
         </div>
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
@@ -74,10 +74,16 @@ export default function DesktopControls({}: DesktopControlsProps) {
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="↓" />
-            or
+            <span className="text-md">or</span>
             <KeyDisplay keyString="S" />
           </div>
           Soft drop
+        </div>
+        <div className="flex flex-row items-center justify-between gap-1">
+          <div className="flex min-w-24 flex-row items-center justify-center gap-2">
+            <KeyDisplay keyString="E" />
+          </div>
+          <RotateCcw />
         </div>
       </div>
     </div>
