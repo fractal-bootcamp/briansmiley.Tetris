@@ -237,7 +237,8 @@ function DesktopApp() {
             </div>
             <div className="flex basis-full justify-center">
               <button
-                className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold"
+                className={`btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold`}
+                disabled={gameState.blocksSpawned > 0 && !gameState.over}
                 onClick={(e) => {
                   e.currentTarget.blur();
                   setGameState(unpauseGame(gameInit(config)));
@@ -248,13 +249,13 @@ function DesktopApp() {
             </div>
             <div className="flex basis-full items-start justify-end">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8" onClick={toggleCellBorderStyle}>
+                <button className="h-8 w-8" onClick={toggleCellBorderStyle}>
                   <BoardCell
                     cellValue={{ color: [0, 255, 255], type: 'block' }}
                     cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
                     position={[0, 0]}
                   />
-                </div>
+                </button>
                 <button onClick={(e) => handleSoundClick(e)}>
                   {unMuted ? (
                     <Volume2 className="h-10 w-10" color="#ffffff" />
