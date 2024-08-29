@@ -53,7 +53,7 @@ export default function SettingsModal({ closeModal }: SettingsModalProps) {
       <div
         className={`flex w-full origin-top items-center justify-center ${subDisplay === 'controls' ? '' : 'hidden'}`}
       >
-        <ControlsInfo classNames="text-default bg-slate-900 p-3 border-outset w-[75%]" />
+        <ControlsInfo classNames="text-default bg-slate-900 p-3 border-outset w-[90%]" />
       </div>
       <div
         className={`w-full origin-top ${subDisplay === 'highscores' ? '' : 'hidden'}`}

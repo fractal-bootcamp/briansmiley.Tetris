@@ -36,8 +36,8 @@ export default function ControlsInfo({ classNames }: ControlsInfoProps) {
       className={`flex flex-col items-center justify-center gap-2 ${classNames}`}
     >
       <div className="mb-2 text-2xl font-bold underline">Controls</div>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row justify-between gap-1">
+      <div className="flex w-full flex-col gap-2">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="←" />
             or
@@ -45,7 +45,7 @@ export default function ControlsInfo({ classNames }: ControlsInfoProps) {
           </div>
           Shift left
         </div>
-        <div className="flex flex-row justify-between gap-1">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="→" />
             or
@@ -53,7 +53,7 @@ export default function ControlsInfo({ classNames }: ControlsInfoProps) {
           </div>
           Shift right
         </div>
-        <div className="flex flex-row justify-between gap-1">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="↑" textSize={24} />
             or
@@ -61,19 +61,19 @@ export default function ControlsInfo({ classNames }: ControlsInfoProps) {
           </div>
           <RotateCw />
         </div>
-        <div className="flex flex-row justify-between gap-1">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="E" />
           </div>
           <RotateCcw />
         </div>
-        <div className="flex flex-row justify-between gap-1">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="Space" width={72} />
           </div>
           Hard drop
         </div>
-        <div className="flex flex-row justify-between gap-1">
+        <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
             <KeyDisplay keyString="↓" />
             or
