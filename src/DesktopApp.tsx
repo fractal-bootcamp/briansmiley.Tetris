@@ -222,7 +222,7 @@ function DesktopApp() {
             )}
             {showSettingsModal && (
               <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-slate-900 bg-opacity-50 backdrop-blur-sm">
-                <SettingsModal closeModal={closeSettings} />
+                <SettingsModal />
               </div>
             )}
           </div>

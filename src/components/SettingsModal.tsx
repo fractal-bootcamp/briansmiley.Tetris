@@ -6,20 +6,16 @@ import { useState } from 'react';
 import ControlsInfo from './ControlsInfo';
 
 type SubDisplay = 'highscores' | 'controls' | 'none';
-type SettingsModalProps = {
-  closeModal: () => void;
-};
-export default function SettingsModal({ closeModal }: SettingsModalProps) {
+type SettingsModalProps = {};
+export default function SettingsModal({}: SettingsModalProps) {
   const [_, setHighscores] = useLocalStorage(
     'tetris-highscores',
     defaultHighscores
   );
   const [subDisplay, setSubDisplay] = useState<SubDisplay>('none');
-  const [showHighScores, setShowHighScores] = useState(false);
-  const [showControls, setShowControls] = useState(false);
   const resetHighScores = () => {
     setHighscores(defaultHighscores);
-    setShowHighScores(false);
+    setSubDisplay('none');
   };
   const toggleSubDisplay = (newSubDisplay: SubDisplay) => () => {
     if (newSubDisplay === subDisplay) {
@@ -30,8 +26,11 @@ export default function SettingsModal({ closeModal }: SettingsModalProps) {
   };
 
   return (
-    <div className="flex w-[80%] flex-col items-center gap-2 p-2">
-      <div className="text-default border-outset relative flex w-[60%] flex-col items-center justify-center gap-1 bg-slate-900 p-2">
+    <div className="flex w-full flex-col items-center gap-3 p-2 text-xl">
+      <div
+        className="text-default border-outset relative flex w-[60%] flex-col items-center justify-center gap-3 bg-slate-900 p-3"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-2 text-2xl font-bold underline">Settings</div>
         <button onClick={toggleSubDisplay('controls')}>
           {' '}

@@ -192,8 +192,11 @@ export default function MobileApp() {
           </div>
         )}
         {showSettingsModal && (
-          <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-            <SettingsModal closeModal={closeSettings} />
+          <div
+            onClick={closeSettings}
+            className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+          >
+            <SettingsModal />
           </div>
         )}
       </div>

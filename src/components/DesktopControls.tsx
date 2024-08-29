@@ -31,6 +31,7 @@ type DesktopControlsProps = {};
 export default function DesktopControls({}: DesktopControlsProps) {
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       className={`text-default border-outset flex w-[90%] flex-col items-center justify-center gap-2 bg-slate-900 p-3`}
     >
       <div className="mb-2 text-2xl font-bold underline">Controls</div>

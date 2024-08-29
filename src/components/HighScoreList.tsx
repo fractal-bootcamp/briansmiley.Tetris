@@ -10,7 +10,10 @@ export default function HighScoreList({ scoreCount }: HighScoreListProps) {
     defaultHighscores
   );
   return (
-    <div className="border-outset text-default flex w-full flex-col gap-1 bg-slate-700">
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="border-outset text-default flex w-full flex-col gap-1 bg-slate-700"
+    >
       <span className="text-default self-center p-2 text-2xl font-semibold underline">
         High Scores
       </span>
