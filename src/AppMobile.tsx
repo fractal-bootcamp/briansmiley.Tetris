@@ -9,7 +9,6 @@ import {
   pauseGame,
   rotateBlock,
   shiftBlock,
-  startGame,
   tickGameClock,
   unpauseGame,
 } from './Tetris';
@@ -166,7 +165,7 @@ export default function MobileApp() {
           {gameState.blocksSpawned === 0 && (
             <button
               className="border-inset active-outset text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
-              onClick={() => setGameState(startGame(gameState))}
+              onClick={() => setGameState(unpauseGame(gameInit(config)))}
             >
               Start
             </button>
@@ -185,7 +184,7 @@ export default function MobileApp() {
               gameStartTime={gameState.startTime}
             />
             <button
-              onClick={() => setGameState(startGame(gameState))}
+              onClick={() => setGameState(unpauseGame(gameInit(config)))}
               className="text-default btn mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
             >
               Restart

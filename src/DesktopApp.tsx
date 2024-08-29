@@ -13,7 +13,6 @@ import {
   rotateBlock,
   setAllowedInput,
   shiftBlock,
-  startGame,
   tickGameClock,
   unpauseGame,
 } from './Tetris';
@@ -239,7 +238,7 @@ function DesktopApp() {
                 className="btn rounded-none border-8 border-[#7f7f7f] text-xl font-semibold"
                 onClick={(e) => {
                   e.currentTarget.blur();
-                  setGameState(startGame(gameState));
+                  setGameState(unpauseGame(gameInit(config)));
                 }}
               >
                 Start

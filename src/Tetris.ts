@@ -73,7 +73,7 @@ export const gameInit = (config: Config): Game => {
     settleTime: config.BASE_SETTLE_TIME,
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
-    paused: false,
+    paused: true,
     clearingStart: null,
     collapseStart: null,
     startTime: new Date().getTime(),
@@ -170,12 +170,7 @@ export const tickGameClock = (game: Game): Game => {
 };
 
 const endGame = (game: Game): Game => ({ ...game, over: true });
-export const startGame = (game: Game): Game =>
-  game.blocksSpawned === 0
-    ? spawnNewBlock(game)
-    : game.over
-      ? spawnNewBlock(gameInit(game.CONFIG))
-      : game;
+
 const newBlockFromShape = (game: Game, shape: TetrisShape): Block => ({
   origin: game.CONFIG.SPAWN_POINT,
   shape: shape,
