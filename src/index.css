@@ -21,7 +21,7 @@
     border-width: 8px;
   }
   .border-outset {
-    @apply border-slate-500;
+    @apply border-slate-400;
     border-style: outset;
     border-width: 8px;
   }
