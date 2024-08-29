@@ -619,7 +619,7 @@ const hardDropEndOrigin = (
 
 /**Drops a block all the way to the settled pile settles it into the board*/
 export const hardDropBlock = (game: Game): Game => {
-  if (game.fallingBlock === null || game.over) return game;
+  if (game.fallingBlock === null || game.over || game.paused) return game;
   const newBlockOrigin = hardDropEndOrigin(game.board, game.fallingBlock.self); //get the position of a hard drop
   const newBlock = {
     ...game.fallingBlock,
