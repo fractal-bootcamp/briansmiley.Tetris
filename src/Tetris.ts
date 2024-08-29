@@ -319,31 +319,32 @@ export const tickGravity = (game: Game, ticks: number = 1): Game => {
     ) {
       return settleBlock(newGame);
     }
-    //if timers havent run out, tick gravity does nothing but clear and collapse
+    //if timers havent run out, tick gravity does nothing yet
     else {
       return newGame;
     }
   } else {
-    //otherwise, shift the block down
+    //if the block is not on the ground
+    //shift the block down
     //make sure we dont shift farther than a hard drop would go (handy, that)
     const maxShiftDistance =
       hardDropEndOrigin(newGame.board, newGame.fallingBlock.self)[0] -
       newGame.fallingBlock.self.origin[0];
+    //get the location of the block after this gravity tick
     const nextBlock = shiftedBlock(
       newGame.fallingBlock.self,
       'D',
       Math.min(maxShiftDistance, ticks)
     );
-    return clearFullRowsAndScore(
-      collapseGapRows({
-        ...newGame,
-        fallingBlock: {
-          ...newGame.fallingBlock,
-          self: nextBlock,
-          dropLocation: hardDropEndOrigin(newGame.board, nextBlock),
-        },
-      })
-    );
+
+    return {
+      ...newGame,
+      fallingBlock: {
+        ...newGame.fallingBlock,
+        self: nextBlock,
+        dropLocation: hardDropEndOrigin(newGame.board, nextBlock),
+      },
+    };
   }
 };
 
