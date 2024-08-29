@@ -391,8 +391,8 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     settleTime:
       game.CONFIG.MIN_SETTLE_TIME +
       ((game.CONFIG.BASE_SETTLE_TIME - game.CONFIG.MIN_SETTLE_TIME) *
-        Math.max(20 - newLevel, 0)) /
-        19,
+        Math.max(35 - newLevel, 0)) /
+        34,
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow(game.CONFIG) : structuredClone(row)
     ),
