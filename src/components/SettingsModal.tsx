@@ -3,15 +3,18 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import HighScoreList from './HighScoreList';
 import { useState } from 'react';
 import ControlsInfo from './ControlsInfo';
+import { Game } from '../Tetris';
 
 type SubDisplay = 'highscores' | 'controls' | 'none';
 type SettingsModalProps = {
   closeSettings: () => void;
   restartGame: () => void;
+  gameState: Game;
 };
 export default function SettingsModal({
   closeSettings,
   restartGame,
+  gameState,
 }: SettingsModalProps) {
   const [_, setHighscores] = useLocalStorage(
     'tetris-highscores',
@@ -48,14 +51,16 @@ export default function SettingsModal({
             {' '}
             {subDisplay === 'controls' ? 'Hide' : 'Show'} Controls
           </button>
-          <button
-            onClick={() => {
-              closeSettings();
-              restartGame();
-            }}
-          >
-            Restart Game
-          </button>
+          {gameState.blocksSpawned > 0 && (
+            <button
+              onClick={() => {
+                closeSettings();
+                restartGame();
+              }}
+            >
+              Restart Game
+            </button>
+          )}
           <button onClick={toggleSubDisplay('highscores')}>
             {subDisplay === 'highscores' ? 'Hide' : 'Show'} High Scores
           </button>

@@ -202,6 +202,7 @@ export default function MobileApp() {
             <SettingsModal
               closeSettings={closeSettings}
               restartGame={startNewGame}
+              gameState={gameState}
             />
           </div>
         )}

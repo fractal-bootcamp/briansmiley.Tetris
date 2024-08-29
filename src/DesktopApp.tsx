@@ -255,6 +255,7 @@ function DesktopApp() {
                   <SettingsModal
                     closeSettings={closeSettings}
                     restartGame={startNewGame}
+                    gameState={gameState}
                   />
                 </div>
               </>
