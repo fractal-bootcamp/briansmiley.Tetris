@@ -29,6 +29,7 @@ export type Game = {
   allowedInputs: Record<InputCategory, boolean>;
   paused: boolean;
   clearingStart: number | null; //timestamp of when row filled up; we clear rows after delay
+  clearingRows: number[]; //indices of rows that are pending being cleared once clearingStart time has elapsed
   collapseStart: number | null; //timestamp of when rows cleared; we collapse rows after delay
   startTime: number;
   CONFIG: Config;
@@ -76,6 +77,7 @@ export const gameInit = (config: Config): Game => {
     paused: true,
     clearingStart: null,
     collapseStart: null,
+    clearingRows: [],
     startTime: new Date().getTime(),
     CONFIG: config,
   };
@@ -285,11 +287,12 @@ const settleBlock = (game: Game): Game => {
       !isOffScreen(coord, newBoard) &&
       (newBoard[coord[0]][coord[1]] = { color: newColor, type: 'block' })
   );
-  const clearingStart =
-    fullRows(newBoard).length > 0 ? new Date().getTime() : null;
+  const filledRows = fullRows(newBoard);
+  const clearingStart = filledRows.length > 0 ? new Date().getTime() : null;
   return {
     ...game,
     clearingStart,
+    clearingRows: filledRows,
     board: newBoard,
     fallingBlock: null,
   };
