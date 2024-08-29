@@ -14,6 +14,8 @@ export type Config = {
   POLL_RATES: Record<InputCategory | 'base', number>;
   SHIFT_DEBOUNCE: number;
   WALLS: boolean;
+  ROW_CLEAR_DELAY: number; //how much time the game ~pauses before clearing any full rows after a settle
+  ROW_COLLAPSE_DELAY: number; //how much time the game ~pauses before collapsing empty rows after a clear
   BASE_SETTLE_TIME: number; //how long an unmoved block takes to settle
   MIN_SETTLE_TIME: number; //the shortest the settle time can get as levels progress
   BASE_MAX_GROUND_TIME: number; //how long a block can sit on the ground before it settles even if moved/rotated
@@ -132,6 +134,8 @@ export const CONFIG: Config = {
   },
   SHIFT_DEBOUNCE: 120,
   WALLS: false,
+  ROW_CLEAR_DELAY: 150,
+  ROW_COLLAPSE_DELAY: 150,
   BASE_SETTLE_TIME: 700,
   MIN_SETTLE_TIME: 350,
   BASE_MAX_GROUND_TIME: 1500,

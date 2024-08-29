@@ -28,6 +28,8 @@ export type Game = {
   over: boolean;
   allowedInputs: Record<InputCategory, boolean>;
   paused: boolean;
+  clearingStart: number | null; //timestamp of when row filled up; we clear rows after delay
+  collapseStart: number | null; //timestamp of when rows cleared; we collapse rows after delay
   startTime: number;
   CONFIG: Config;
 };
@@ -72,6 +74,8 @@ export const gameInit = (config: Config): Game => {
     over: false,
     allowedInputs: { rotate: true, shift: true, drop: true, hold: true },
     paused: false,
+    clearingStart: null,
+    collapseStart: null,
     startTime: new Date().getTime(),
     CONFIG: config,
   };
@@ -117,24 +121,52 @@ export const setAllowedInput = (
   allowedInputs: { ...game.allowedInputs, [input]: state },
 });
 export const tickGameClock = (game: Game): Game => {
-  if (game.paused) return game;
-  const newTime = new Date().getTime();
-  //increment ground timer/settle block if necessary
+  //if the game is paused, do nothing
+  if (game.paused || game.over) return game;
+  const now = new Date().getTime();
+  const newGame = { ...game, clock: now };
+  //if we are clearing, wait until clearing interval has passed then clear, score, etc
+  if (game.clearingStart !== null) {
+    const clearingElapsed = now - game.clearingStart;
+    if (clearingElapsed > game.CONFIG.ROW_CLEAR_DELAY) {
+      return clearFullRowsAndScore(newGame);
+    }
+    return newGame;
+  }
+  //if we are waiting to collapse, wait until collapse interval has passed then clllapse rows
+  if (game.collapseStart !== null) {
+    const clearingElapsed = now - game.collapseStart;
+    if (clearingElapsed > game.CONFIG.ROW_COLLAPSE_DELAY) {
+      console.log('clearingElapsed', clearingElapsed);
+      return collapseGapRows(newGame);
+    }
+    return newGame;
+  }
+  //if there is no falling block, spawn one
+  if (game.fallingBlock === null) return spawnNewBlock(newGame);
+  //otherwise, increment ground timer/settle block if necessary
   const newFallingBlock = blockOnGround(game)
     ? {
+        //if the falling block is on the ground, increment its ground timer
         ...game.fallingBlock,
         totalGroundTime:
           game.fallingBlock.totalGroundTime + game.CONFIG.CLOCK_TICK_RATE,
         groundTimer:
           game.fallingBlock.groundTimer - game.CONFIG.CLOCK_TICK_RATE,
       }
-    : game.fallingBlock;
-
-  const newGame = { ...game, clock: newTime, fallingBlock: newFallingBlock };
+    : //otherwise, keep the falling block as is
+      game.fallingBlock;
+  const newGameNewBlock = {
+    ...game,
+    clock: now,
+    fallingBlock: newFallingBlock,
+  };
   const gravityTicks = Math.floor(
-    (newTime - game.prevGravityTickTime) / game.gravityTickInterval
+    (now - game.prevGravityTickTime) / game.gravityTickInterval
   );
-  return gravityTicks > 0 ? tickGravity(newGame, gravityTicks) : newGame;
+  return gravityTicks > 0
+    ? tickGravity(newGameNewBlock, gravityTicks)
+    : newGameNewBlock;
 };
 
 const endGame = (game: Game): Game => ({ ...game, over: true });
@@ -171,6 +203,7 @@ const spawnNewBlock = (game: Game): Game => {
       totalGroundTime: 0,
       groundTimer: game.settleTime,
     },
+    prevGravityTickTime: game.clock,
     shapeQueue: newQueue,
     blocksSpawned: game.blocksSpawned + 1,
     allowedInputs: { ...game.allowedInputs, hold: true }, //turn on holding once we spawn a new block (hold function manually turns this off after a swap)
@@ -246,7 +279,7 @@ const newShapeBag = (): TetrisShape[] => {
 };
 
 /** Locks the game's fallingBlock into place as part of the board*/
-const settleBlockAndSpawnNew = (game: Game): Game => {
+const settleBlock = (game: Game): Game => {
   const [oldBoard, fallenBlock] = [game.board, game.fallingBlock];
   if (fallenBlock === null) return game;
   const fallenBlockEndCoords = blockOccupiedCells(fallenBlock.self);
@@ -257,17 +290,24 @@ const settleBlockAndSpawnNew = (game: Game): Game => {
       !isOffScreen(coord, newBoard) &&
       (newBoard[coord[0]][coord[1]] = { color: newColor, type: 'block' })
   );
-  return spawnNewBlock({ ...game, board: newBoard });
+  const clearingStart =
+    fullRows(newBoard).length > 0 ? new Date().getTime() : null;
+  return {
+    ...game,
+    clearingStart,
+    board: newBoard,
+    fallingBlock: null,
+  };
 };
 
 /**
  * moves the game's falling block down on square, or settles it if doing so would intersect
  */
 export const tickGravity = (game: Game, ticks: number = 1): Game => {
-  const newGame = clearThenCollapseRows({
+  const newGame = {
     ...game,
     prevGravityTickTime: game.clock,
-  });
+  };
   //if there is no falling block, all we need to do is clear and collpase
   if (newGame.fallingBlock === null) return newGame;
   //if the falling block timer hits 0, settle and spawn
@@ -277,7 +317,7 @@ export const tickGravity = (game: Game, ticks: number = 1): Game => {
       newGame.fallingBlock.groundTimer <= 0 ||
       newGame.fallingBlock.totalGroundTime > game.maxGroundTime
     ) {
-      return settleBlockAndSpawnNew(newGame);
+      return settleBlock(newGame);
     }
     //if timers havent run out, tick gravity does nothing but clear and collapse
     else {
@@ -327,16 +367,19 @@ const fullRows = (board: Board): number[] => {
 export const clearFullRowsAndScore = (game: Game): Game => {
   const { board } = game;
   const rowsToClear = fullRows(board);
+  if (rowsToClear.length === 0) return game;
   const newLinesCleared = game.linesCleared + rowsToClear.length;
   const newLevel = Math.max(
     0,
     Math.floor(newLinesCleared / game.CONFIG.LEVEL_LINES)
   );
+  const newScore = game.score + clearedLinesScore(rowsToClear.length);
   //calculate the new falling speed
   const newGravityTickInterval = game.CONFIG.GRAVITY_LEVELS[newLevel] || 0;
   return {
     ...game,
-    score: game.score + clearedLinesScore(rowsToClear.length),
+    clearingStart: null, // clearing is over
+    score: newScore,
     linesCleared: newLinesCleared,
     level: newLevel,
     gravityTickInterval: newGravityTickInterval,
@@ -354,6 +397,7 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     board: board.map((row, r) =>
       rowsToClear.includes(r) ? newEmptyRow(game.CONFIG) : structuredClone(row)
     ),
+    collapseStart: new Date().getTime(),
   };
 };
 
@@ -384,7 +428,12 @@ export const collapseGapRows = (game: Game): Game => {
         dropLocation: hardDropEndOrigin(newBoard, game.fallingBlock.self),
       }
     : null;
-  return { ...game, board: newBoard, fallingBlock: newFallingBlock };
+  return {
+    ...game,
+    board: newBoard,
+    fallingBlock: newFallingBlock,
+    collapseStart: null,
+  };
 };
 /** Clears any full rows and simultaneously collapses them */
 export const clearThenCollapseRows = (game: Game): Game =>
@@ -566,7 +615,7 @@ export const hardDropBlock = (game: Game): Game => {
     ...game.fallingBlock,
     self: { ...game.fallingBlock.self, origin: newBlockOrigin },
   };
-  return settleBlockAndSpawnNew({ ...game, fallingBlock: newBlock }); //move the falling block to that end position, settle, and spawn new
+  return settleBlock({ ...game, fallingBlock: newBlock }); //move the falling block to that end position, settle, and spawn new
 };
 
 /** Returns a board containing the fallingBlock cells filled in for rendering purposes */
