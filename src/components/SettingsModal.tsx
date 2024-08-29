@@ -1,4 +1,3 @@
-import { X } from 'lucide-react';
 import { defaultHighscores } from '../data';
 import useLocalStorage from '../hooks/useLocalStorage';
 import HighScoreList from './HighScoreList';

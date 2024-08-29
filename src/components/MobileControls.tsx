@@ -1,5 +1,4 @@
 import {
-  RotateCcw,
   RotateCw,
   Fingerprint,
   ArrowRight,
