@@ -30,8 +30,7 @@ export default function HighScoreEntry({
     /**Entering a new score if:
      * - the score is greater than 0
      * - the game hasnt been entered before (based on timestamp)
-     * -the high score is bigger than the lowest one in the list
-     * - the high score list is not yet the specified length (shouldnt happens ince I added defaults)
+     * - the high score is bigger than the lowest one in the list
      */
     () =>
       setEntering(
@@ -39,8 +38,7 @@ export default function HighScoreEntry({
           !sortedHighscores.find(
             (score) => score.gameStartTime === gameStartTime
           ) &&
-          (sortedHighscores.length < 6 ||
-            sortedHighscores[sortedHighscores.length - 1].score < score)
+          sortedHighscores[sortedHighscores.length - 1].score < score
       ),
     []
   );
