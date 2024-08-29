@@ -139,7 +139,6 @@ export const tickGameClock = (game: Game): Game => {
   if (game.collapseStart !== null) {
     const clearingElapsed = now - game.collapseStart;
     if (clearingElapsed > game.CONFIG.ROW_COLLAPSE_DELAY) {
-      console.log('clearingElapsed', clearingElapsed);
       return collapseGapRows(newGame);
     }
     return newGame;
@@ -222,17 +221,21 @@ const blockOccupiedCells = <T extends Block | null>(
       ) as ConditionalNull<T, Block, Coordinate[]>);
 };
 /**Checks if a coordinate is off the screen; to allow poking over top of board, check that separately */
-const isOffScreen = (coord: Coordinate, board: Board): boolean => {
+const isOffScreen = (
+  coord: Coordinate,
+  board: Board,
+  includeTop: boolean = false
+): boolean => {
   return (
-    coord[0] < 0 ||
+    (includeTop && coord[0] < 0) || //only count poking over the top of the board as offscreen if explcitly asked to
     coord[0] > board.length - 1 ||
     coord[1] < 0 ||
     coord[1] > board[0].length - 1
   );
 };
-const isOffSides = (coord: Coordinate, board: Board): boolean => {
-  return coord[1] < 0 || coord[1] > board[0].length - 1;
-};
+// const isOffSides = (coord: Coordinate, board: Board): boolean => {
+//   return coord[1] < 0 || coord[1] > board[0].length - 1;
+// };
 //check whether a board location is occupied by a block or wall
 const boardCoordIsOccupied = (
   board: Board,
@@ -249,15 +252,22 @@ const blockIntersectsSettledOrWalls = (
   walls: boolean
 ) => {
   const occupiedCells = blockOccupiedCells(block);
-  if (occupiedCells === null) return false;
-  return occupiedCells.some(
-    (boardLocation) =>
-      (walls &&
-        (boardLocation[1] === 0 || boardLocation[1] === board[0].length - 1)) || //if walls enabled, anything in col 1 or last col is considered occupied
-      isOffSides(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen); only check offscreen below top of board so that we dont consider poking over to be intersecting
-      (boardLocation[0] >= 0 &&
-        boardCoordIsOccupied(board, boardLocation, walls)) //check if any cells inside the visible board are occupier
-  );
+  try {
+    if (occupiedCells === null) return false;
+    return occupiedCells.some(
+      (boardLocation) =>
+        (walls &&
+          (boardLocation[1] === 0 ||
+            boardLocation[1] === board[0].length - 1)) || //if walls enabled, anything in col 1 or last col is considered occupied
+        isOffScreen(boardLocation, board) || //(should only happen in walless mode; disallow if goes offscreen); only check offscreen below top of board so that we dont consider poking over to be intersecting
+        (boardLocation[0] >= 0 &&
+          boardCoordIsOccupied(board, boardLocation, walls)) //check if any cells inside the visible board are occupier
+    );
+  } catch (error) {
+    throw new Error(
+      `Error checking block intersections; block cells were: ${JSON.stringify(occupiedCells)}\nError was: ${error}`
+    );
+  }
 };
 
 /**Create/replace the bag of shapes abvailable to pick the next block in the queue from */
@@ -284,7 +294,7 @@ const settleBlock = (game: Game): Game => {
   const newBoard = structuredClone(oldBoard);
   fallenBlockEndCoords.forEach(
     (coord) =>
-      !isOffScreen(coord, newBoard) &&
+      !isOffScreen(coord, newBoard, true) && //include top of board as off so we dont try to add offscreen blocks to board
       (newBoard[coord[0]][coord[1]] = { color: newColor, type: 'block' })
   );
   const filledRows = fullRows(newBoard);
@@ -334,7 +344,6 @@ export const tickGravity = (game: Game, ticks: number = 1): Game => {
       'D',
       Math.min(maxShiftDistance, ticks)
     );
-
     return {
       ...newGame,
       fallingBlock: {
@@ -454,7 +463,7 @@ const rotatedBlock = <T extends Block | null>(
         ),
       } as ConditionalNull<T, Block, Block>);
 
-// /**Tells us if a block is on the ground (i.e. one more gravity tick would settle it)*/
+// /**Tells us if a block is on the ground and cant be shifted down*/
 const blockOnGround = (
   game: Game
 ): game is Game & { fallingBlock: { groundTimer: number } } =>
@@ -600,9 +609,11 @@ const hardDropEndOrigin = (
     const distanceToDrop = Math.min(...heights);
     return [fallingBlock.origin[0] + distanceToDrop, fallingBlock.origin[1]];
   } catch (error) {
-    console.error('Error calculating drop distance:', error);
-    console.log('Coordinates:', coords);
-    throw error;
+    throw new Error(
+      `Error calculating drop distance:
+      ${error}\nCoords: 
+      ${JSON.stringify(coords)}`
+    );
   }
 };
 
