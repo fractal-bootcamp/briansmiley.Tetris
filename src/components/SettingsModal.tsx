@@ -31,28 +31,36 @@ export default function SettingsModal({
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-3 p-2 text-xl">
+    <div className="flex w-full flex-col items-center gap-5 p-2">
       <div
         className="text-default border-outset relative flex w-[60%] flex-col items-center justify-center gap-3 bg-slate-900 p-3"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-2 text-2xl font-bold underline">Settings</div>
-        <button onClick={toggleSubDisplay('controls')}>
-          {' '}
-          {subDisplay === 'controls' ? 'Hide' : 'Show'} Controls
-        </button>
-        <button
-          onClick={() => {
-            closeSettings();
-            restartGame();
-          }}
+        <div
+          className={` ${subDisplay === 'none' ? 'text-2xl' : 'text-lg'} font-bold underline`}
         >
-          Restart Game
-        </button>
-        <button onClick={toggleSubDisplay('highscores')}>
-          {subDisplay === 'highscores' ? 'Hide' : 'Show'} High Scores
-        </button>
-        <button onClick={resetHighScores}>Reset High Scores</button>
+          Settings
+        </div>
+        <div
+          className={`flex flex-col gap-3 ${subDisplay === 'none' ? 'text-lg' : 'text-md'} `}
+        >
+          <button onClick={toggleSubDisplay('controls')}>
+            {' '}
+            {subDisplay === 'controls' ? 'Hide' : 'Show'} Controls
+          </button>
+          <button
+            onClick={() => {
+              closeSettings();
+              restartGame();
+            }}
+          >
+            Restart Game
+          </button>
+          <button onClick={toggleSubDisplay('highscores')}>
+            {subDisplay === 'highscores' ? 'Hide' : 'Show'} High Scores
+          </button>
+          <button onClick={resetHighScores}>Reset High Scores</button>
+        </div>
       </div>
       <div
         className={`flex w-full origin-top items-center justify-center ${subDisplay === 'controls' ? '' : 'hidden'}`}
