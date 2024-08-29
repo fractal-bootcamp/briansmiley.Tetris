@@ -1,14 +1,32 @@
-import { defaultHighscores, HIGHSCORES_LOCALSTORAGE_KEY } from '../data';
+import {
+  defaultHighscores,
+  HighScore,
+  HIGHSCORES_LOCALSTORAGE_KEY,
+} from '../data';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 type HighScoreListProps = {
   scoreCount: number;
+  highlightScore?: number;
 };
-export default function HighScoreList({ scoreCount }: HighScoreListProps) {
+export default function HighScoreList({
+  scoreCount,
+  highlightScore,
+}: HighScoreListProps) {
   const [highscores, _] = useLocalStorage(
     HIGHSCORES_LOCALSTORAGE_KEY,
     defaultHighscores
   );
+
+  const bgClass = (index: number, highscore: HighScore) => {
+    if (highlightScore && highscore.gameStartTime === highlightScore) {
+      return 'bg-blue-600';
+    }
+    if (index % 2 === 0) {
+      return 'bg-slate-800';
+    }
+    return 'bg-slate-900';
+  };
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -21,10 +39,13 @@ export default function HighScoreList({ scoreCount }: HighScoreListProps) {
         {highscores.slice(0, scoreCount).map((highscore, index) => (
           <div
             key={index}
-            className={`flex justify-between px-3 py-1 ${index % 2 ? 'bg-slate-800' : 'bg-slate-900'}`}
+            className={`relative flex justify-between px-3 py-1 ${bgClass(index, highscore)}`}
           >
-            <span className="text-white">{highscore.initials}</span>
-            <span className="text-white">{highscore.score}</span>
+            <div
+              className={`animate-fastFlash absolute inset-0 z-10 h-full w-full bg-blue-500 ${highscore.gameStartTime === highlightScore ? '' : 'hidden'}`}
+            />
+            <span className="z-20 text-white">{highscore.initials}</span>
+            <span className="z-20 text-white">{highscore.score}</span>
           </div>
         ))}
       </div>

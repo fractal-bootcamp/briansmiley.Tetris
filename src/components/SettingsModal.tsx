@@ -75,7 +75,7 @@ export default function SettingsModal({
       <div
         className={`w-full origin-top ${subDisplay === 'highscores' ? '' : 'hidden'}`}
       >
-        <HighScoreList scoreCount={5} />
+        <HighScoreList scoreCount={5} highlightScore={gameState.startTime} />
       </div>
     </div>
   );

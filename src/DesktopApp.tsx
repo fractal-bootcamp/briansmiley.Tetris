@@ -231,8 +231,8 @@ function DesktopApp() {
             {gameState.over && !showSettingsModal && (
               <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-50 backdrop-blur-sm">
                 <div className="text-default flex h-full w-full flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
-                  <span className="animate-flash">GAME OVER</span>
-                  <span className="animate-flash">
+                  <span className="animate-fadedFlash">GAME OVER</span>
+                  <span className="animate-fadedFlash">
                     Score: {gameState.score}
                   </span>
                   <HighScoreEntry

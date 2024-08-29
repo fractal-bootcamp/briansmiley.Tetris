@@ -83,7 +83,7 @@ export default function HighScoreEntry({
           </button>
         </div>
       ) : (
-        <HighScoreList scoreCount={scoreCount} />
+        <HighScoreList scoreCount={scoreCount} highlightScore={gameStartTime} />
       )}
     </div>
   );
