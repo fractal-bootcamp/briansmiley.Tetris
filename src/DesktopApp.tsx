@@ -189,6 +189,9 @@ function DesktopApp() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+  const startNewGame = () => {
+    setGameState(unpauseGame(gameInit(config)));
+  };
   return (
     <>
       <div className="m-2 flex justify-center gap-2">
@@ -249,7 +252,10 @@ function DesktopApp() {
                   onClick={closeSettings}
                   className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-slate-900 bg-opacity-50 backdrop-blur-sm"
                 >
-                  <SettingsModal />
+                  <SettingsModal
+                    closeSettings={closeSettings}
+                    restartGame={startNewGame}
+                  />
                 </div>
               </>
             )}
@@ -270,7 +276,7 @@ function DesktopApp() {
                 disabled={gameState.blocksSpawned > 0 && !gameState.over}
                 onClick={(e) => {
                   e.currentTarget.blur();
-                  setGameState(unpauseGame(gameInit(config)));
+                  startNewGame();
                 }}
               >
                 Start

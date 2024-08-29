@@ -122,6 +122,9 @@ export default function MobileApp() {
     setShowSettingsModal(false);
     gameState.blocksSpawned > 0 && unpause();
   };
+  const startNewGame = () => {
+    setGameState(unpauseGame(gameInit(config)));
+  };
   return (
     <>
       <div
@@ -165,7 +168,7 @@ export default function MobileApp() {
           {gameState.blocksSpawned === 0 && (
             <button
               className="border-inset active-outset text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
-              onClick={() => setGameState(unpauseGame(gameInit(config)))}
+              onClick={startNewGame}
             >
               Start
             </button>
@@ -184,7 +187,7 @@ export default function MobileApp() {
               gameStartTime={gameState.startTime}
             />
             <button
-              onClick={() => setGameState(unpauseGame(gameInit(config)))}
+              onClick={startNewGame}
               className="text-default btn mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
             >
               Restart
@@ -196,7 +199,10 @@ export default function MobileApp() {
             onClick={closeSettings}
             className="absolute inset-0 flex h-full w-full flex-col items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
           >
-            <SettingsModal />
+            <SettingsModal
+              closeSettings={closeSettings}
+              restartGame={startNewGame}
+            />
           </div>
         )}
       </div>

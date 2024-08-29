@@ -5,8 +5,14 @@ import { useState } from 'react';
 import ControlsInfo from './ControlsInfo';
 
 type SubDisplay = 'highscores' | 'controls' | 'none';
-type SettingsModalProps = {};
-export default function SettingsModal({}: SettingsModalProps) {
+type SettingsModalProps = {
+  closeSettings: () => void;
+  restartGame: () => void;
+};
+export default function SettingsModal({
+  closeSettings,
+  restartGame,
+}: SettingsModalProps) {
   const [_, setHighscores] = useLocalStorage(
     'tetris-highscores',
     defaultHighscores
@@ -34,6 +40,14 @@ export default function SettingsModal({}: SettingsModalProps) {
         <button onClick={toggleSubDisplay('controls')}>
           {' '}
           {subDisplay === 'controls' ? 'Hide' : 'Show'} Controls
+        </button>
+        <button
+          onClick={() => {
+            closeSettings();
+            restartGame();
+          }}
+        >
+          Restart Game
         </button>
         <button onClick={toggleSubDisplay('highscores')}>
           {subDisplay === 'highscores' ? 'Hide' : 'Show'} High Scores
