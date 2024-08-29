@@ -37,7 +37,7 @@ export default function DesktopControls({}: DesktopControlsProps) {
       <div className="flex w-full flex-col gap-3 text-xl">
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
-            <KeyDisplay keyString="←" />
+            <KeyDisplay keyString="←" textSize={28} />
             <span className="text-md">or</span>
             <KeyDisplay keyString="A" />
           </div>
@@ -45,7 +45,7 @@ export default function DesktopControls({}: DesktopControlsProps) {
         </div>
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
-            <KeyDisplay keyString="→" />
+            <KeyDisplay keyString="→" textSize={28} />
             <span className="text-md">or</span>
             <KeyDisplay keyString="D" />
           </div>
@@ -53,7 +53,7 @@ export default function DesktopControls({}: DesktopControlsProps) {
         </div>
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
-            <KeyDisplay keyString="↑" textSize={24} />
+            <KeyDisplay keyString="↑" textSize={28} />
             <span className="text-md">or</span>
             <KeyDisplay keyString="W" />
           </div>
@@ -73,7 +73,7 @@ export default function DesktopControls({}: DesktopControlsProps) {
         </div>
         <div className="flex flex-row items-center justify-between gap-1">
           <div className="flex min-w-24 flex-row items-center justify-center gap-2">
-            <KeyDisplay keyString="↓" />
+            <KeyDisplay keyString="↓" textSize={28} />
             <span className="text-md">or</span>
             <KeyDisplay keyString="S" />
           </div>
