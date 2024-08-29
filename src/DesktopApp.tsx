@@ -57,7 +57,7 @@ function DesktopApp() {
   const keysPressedRef = useRef(keysPressed);
   const currentlyShiftingRef = useRef(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-
+  const showSettingsModalRef = useRef(showSettingsModal);
   //Sync up gamestate and keyspressed refs
   useEffect(() => {
     keysPressedRef.current = keysPressed;
@@ -65,7 +65,9 @@ function DesktopApp() {
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
-
+  useEffect(() => {
+    showSettingsModalRef.current = showSettingsModal;
+  }, [showSettingsModal]);
   //set up input polling
   useEffect(() => {
     const shiftInputLoop = setInterval(
@@ -168,8 +170,22 @@ function DesktopApp() {
   };
   const closeSettings = () => {
     setShowSettingsModal(false);
-    gameState.blocksSpawned > 0 && unpause();
+    gameStateRef.current.blocksSpawned > 0 && unpause();
   };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showSettingsModalRef.current) {
+          closeSettings();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
   return (
     <>
       <div className="m-2 flex justify-center gap-2">
