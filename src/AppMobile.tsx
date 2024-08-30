@@ -23,19 +23,11 @@ const cellBorderStyles = ['outset', 'none'];
 const config = { ...CONFIG, WALLS: false };
 export default function MobileApp() {
   const [gameState, setGameState] = useState(gameInit(config));
-  const gameStateRef = useRef(gameState);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [cellBorderStyleIndex] = useState(0);
-  const [softDropping, setSoftDropping] = useState(false);
-  const softDroppingRef = useRef(softDropping);
+  const softDroppingRef = useRef(false);
   const [lastShiftSteps, setLastShiftSteps] = useState(0); //how many steps from swipe origin we have shifted the current block
   const [swipeStart, setSwipeStart] = useState(0);
-  useEffect(() => {
-    gameStateRef.current = gameState;
-  }, [gameState]);
-  useEffect(() => {
-    softDroppingRef.current = softDropping;
-  }, [softDropping]);
 
   //Increment game clock every tickInterval ms
   useEffect(() => {
@@ -181,11 +173,7 @@ export default function MobileApp() {
               <span className="">GAME OVER</span>
               <span>Score: {gameState.score}</span>
             </div>
-            <HighScoreEntry
-              score={gameState.score}
-              displayCount={5}
-              gameStartTime={gameState.startTime}
-            />
+            <HighScoreEntry game={gameState} displayCount={5} />
             <button
               onClick={startNewGame}
               className="text-default btn mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
@@ -210,8 +198,8 @@ export default function MobileApp() {
       <div
         className="absolute bottom-0 z-30 h-1/5 w-full bg-transparent"
         // soft drop while touching this div
-        onTouchStart={() => setSoftDropping(true)}
-        onTouchEnd={() => setSoftDropping(false)}
+        onTouchStart={() => (softDroppingRef.current = true)}
+        onTouchEnd={() => (softDroppingRef.current = false)}
         onContextMenu={(e) => e.preventDefault()}
       />
       <div className="absolute bottom-0 z-0 h-1/5 w-full bg-slate-500 bg-opacity-80" />

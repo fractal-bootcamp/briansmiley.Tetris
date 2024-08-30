@@ -22,6 +22,7 @@ import { CONFIG, InputCategory } from './TetrisConfig';
 import BoardCell from './components/BoardCell';
 import HighScoreEntry from './components/HighScoreEntry';
 import SettingsModal from './components/SettingsModal';
+import useStateWithRef from './hooks/useStateWithRef';
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -49,8 +50,9 @@ const keyBindings: KeyBinding[] = [
 const cellBorderStyles = ['outset', 'none'];
 const config = { ...CONFIG, WALLS: true };
 function DesktopApp() {
-  const [gameState, setGameState] = useState(gameInit(config));
-  const gameStateRef = useRef(gameState);
+  const [gameState, setGameState, gameStateRef] = useStateWithRef(
+    gameInit(config)
+  );
   const [unMuted, setMuted] = useState<boolean | null>(null);
   const [cellBorderStyleIndex, setCellBorderStyle] = useState(0);
   const keysPressed = useKeysPressed(keyBindings.map((binding) => binding.key));
@@ -61,9 +63,6 @@ function DesktopApp() {
   useEffect(() => {
     keysPressedRef.current = keysPressed;
   }, [keysPressed]);
-  useEffect(() => {
-    gameStateRef.current = gameState;
-  }, [gameState]);
   //set up input polling
   useEffect(() => {
     const shiftInputLoop = setInterval(
@@ -235,10 +234,7 @@ function DesktopApp() {
                   <span className="animate-fadedFlash">
                     Score: {gameState.score}
                   </span>
-                  <HighScoreEntry
-                    score={gameState.score}
-                    gameStartTime={gameState.startTime}
-                  />
+                  <HighScoreEntry game={gameState} />
                 </div>
               </div>
             )}

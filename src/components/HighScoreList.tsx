@@ -1,9 +1,5 @@
-import {
-  defaultHighscores,
-  HighScore,
-  HIGHSCORES_LOCALSTORAGE_KEY,
-} from '../data';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { HighScore } from '../data';
+import useLocalHighZcores from '../hooks/useHighScoreZtorage';
 
 type HighScoreListProps = {
   scoreCount: number;
@@ -13,10 +9,7 @@ export default function HighScoreList({
   scoreCount,
   highlightScore,
 }: HighScoreListProps) {
-  const [highscores, _] = useLocalStorage(
-    HIGHSCORES_LOCALSTORAGE_KEY,
-    defaultHighscores
-  );
+  const [highscores, _] = useLocalHighZcores();
 
   const bgClass = (index: number, highscore: HighScore) => {
     if (highlightScore && highscore.gameStartTime === highlightScore) {
@@ -30,12 +23,19 @@ export default function HighScoreList({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="border-outset text-default flex w-full flex-col gap-1 bg-slate-700"
+      className="border-outset text-default flex w-[85%] flex-col gap-1 bg-slate-700"
     >
       <span className="text-default self-center p-2 text-2xl font-semibold underline">
         High Scores
       </span>
       <div className="flex flex-col">
+        <div
+          className={`relative flex justify-between bg-slate-900 px-3 py-1 font-semibold underline`}
+        >
+          <span className="z-20 basis-1/3 text-white">Initials </span>
+          <span className="z-20 basis-1/3 text-center text-white">Lines</span>
+          <span className="z-20 basis-1/3 text-end text-white">Score</span>
+        </div>
         {highscores.slice(0, scoreCount).map((highscore, index) => (
           <div
             key={index}
@@ -44,8 +44,15 @@ export default function HighScoreList({
             <div
               className={`animate-fastFlash absolute inset-0 z-10 h-full w-full bg-blue-500 ${highscore.gameStartTime === highlightScore ? '' : 'hidden'}`}
             />
-            <span className="z-20 text-white">{highscore.initials}</span>
-            <span className="z-20 text-white">{highscore.score}</span>
+            <span className="z-20 basis-1/3 text-white">
+              {highscore.initials}
+            </span>
+            <span className="z-20 basis-1/3 text-center text-white">
+              {highscore.linesCleared}
+            </span>
+            <span className="z-20 basis-1/3 text-end text-white">
+              {highscore.score}
+            </span>
           </div>
         ))}
       </div>

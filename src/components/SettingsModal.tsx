@@ -73,7 +73,7 @@ export default function SettingsModal({
         <ControlsInfo />
       </div>
       <div
-        className={`w-full origin-top ${subDisplay === 'highscores' ? '' : 'hidden'}`}
+        className={`flex w-full origin-top flex-col items-center ${subDisplay === 'highscores' ? '' : 'hidden'}`}
       >
         <HighScoreList scoreCount={5} highlightScore={gameState.startTime} />
       </div>
