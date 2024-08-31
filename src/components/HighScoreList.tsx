@@ -30,7 +30,7 @@ export default function HighScoreList({
       </span>
       <div className="flex flex-col">
         <div
-          className={`relative flex justify-between bg-slate-900 px-3 py-1 font-semibold text-white underline`}
+          className={`relative flex justify-between bg-slate-900 px-3 py-1 text-lg font-semibold text-white underline`}
         >
           <span className="basis-1/3">Initials </span>
           <span className="basis-1/3 text-center">Lines</span>
@@ -42,13 +42,13 @@ export default function HighScoreList({
             className={`relative flex justify-between px-3 py-1 ${bgClass(index, highscore)}`}
           >
             <div
-              className={`animate-fastFlash absolute inset-0 z-10 h-full w-full bg-blue-500 ${highscore.gameStartTime === highlightScore ? '' : 'hidden'}`}
+              className={`absolute inset-0 z-10 h-full w-full animate-fastFlash bg-blue-500 ${highscore.gameStartTime === highlightScore ? '' : 'hidden'}`}
             />
             <span className="z-20 basis-1/3 text-white">
               {highscore.initials}
             </span>
             <span className="z-20 basis-1/3 text-center text-white">
-              {highscore.linesCleared}
+              {highscore.linesCleared === 0 ? '-' : highscore.linesCleared}
             </span>
             <span className="z-20 basis-1/3 text-end text-white">
               {highscore.score}
