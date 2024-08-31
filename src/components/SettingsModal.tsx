@@ -34,9 +34,9 @@ export default function SettingsModal({
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-5 p-2">
+    <div className="flex w-[70%] flex-col items-center gap-5 p-2">
       <div
-        className="text-default border-outset relative flex w-[60%] flex-col items-center justify-center gap-3 bg-slate-900 p-3"
+        className="text-default border-outset relative flex w-[90%] flex-col items-center justify-center gap-3 bg-slate-900 p-3"
         onClick={(e) => e.stopPropagation()}
       >
         <div

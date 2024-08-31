@@ -56,7 +56,7 @@ export default function HighScoreEntry({
   };
 
   return (
-    <div className="text-default relative w-[80%] bg-slate-700 text-xl">
+    <div className="text-default relative flex w-[80%] flex-col items-center bg-slate-700 text-xl">
       {/* New Score Entry */}
       {entering ? (
         <div className="flex flex-col gap-1 p-2">
