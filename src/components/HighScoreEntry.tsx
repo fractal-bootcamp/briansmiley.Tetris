@@ -1,29 +1,21 @@
 import { useEffect, useState } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
-import {
-  defaultHighscores,
-  HIGHSCORES_LOCALSTORAGE_KEY,
-  sortHighScores,
-} from '../data';
+import { HighScore, sortHighScores } from '../data';
 import HighScoreList from './HighScoreList';
+import useLocalHighZcores from '../hooks/useHighScoreZtorage';
+import { Game } from '../Tetris';
 
 type HighScoreEntryProps = {
-  score: number;
-  gameStartTime: number;
+  game: Game;
   displayCount?: number;
 };
 export default function HighScoreEntry({
-  score,
-  gameStartTime,
+  game,
   displayCount: scoreCount = 10,
 }: HighScoreEntryProps) {
   const [entering, setEntering] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [initials, setInitials] = useState('');
-  const [highscores, setHighscores] = useLocalStorage(
-    HIGHSCORES_LOCALSTORAGE_KEY,
-    defaultHighscores
-  );
+  const [highscores, setHighscores] = useLocalHighZcores();
   const sortedHighscores = sortHighScores(highscores);
   //on load initialize entering state
   useEffect(
@@ -34,11 +26,11 @@ export default function HighScoreEntry({
      */
     () =>
       setEntering(
-        score > 0 &&
+        game.score > 0 &&
           !sortedHighscores.find(
-            (score) => score.gameStartTime === gameStartTime
+            (score) => score.gameStartTime === game.startTime
           ) &&
-          sortedHighscores[sortedHighscores.length - 1].score < score
+          sortedHighscores[sortedHighscores.length - 1].score < game.score
       ),
     []
   );
@@ -48,8 +40,14 @@ export default function HighScoreEntry({
       setErrorMessage('Enter initials');
       return;
     }
+    const newHighScore: HighScore = {
+      score: game.score,
+      initials,
+      gameStartTime: game.startTime,
+      linesCleared: game.linesCleared,
+    };
     setHighscores((prev) => {
-      const newHighscores = [...prev, { score, initials, gameStartTime }];
+      const newHighscores = [...prev, newHighScore];
       return newHighscores
         .sort((a, b) => b.score - a.score)
         .slice(0, scoreCount);
@@ -83,7 +81,10 @@ export default function HighScoreEntry({
           </button>
         </div>
       ) : (
-        <HighScoreList scoreCount={scoreCount} highlightScore={gameStartTime} />
+        <HighScoreList
+          scoreCount={scoreCount}
+          highlightScore={game.startTime}
+        />
       )}
     </div>
   );
