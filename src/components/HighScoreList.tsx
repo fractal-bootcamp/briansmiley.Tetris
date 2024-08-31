@@ -30,11 +30,11 @@ export default function HighScoreList({
       </span>
       <div className="flex flex-col">
         <div
-          className={`relative flex justify-between bg-slate-900 px-3 py-1 font-semibold underline`}
+          className={`relative flex justify-between bg-slate-900 px-3 py-1 font-semibold text-white underline`}
         >
-          <span className="z-20 basis-1/3 text-white">Initials </span>
-          <span className="z-20 basis-1/3 text-center text-white">Lines</span>
-          <span className="z-20 basis-1/3 text-end text-white">Score</span>
+          <span className="basis-1/3">Initials </span>
+          <span className="basis-1/3 text-center">Lines</span>
+          <span className="basis-1/3 text-end">Score</span>
         </div>
         {highscores.slice(0, scoreCount).map((highscore, index) => (
           <div
