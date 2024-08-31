@@ -177,7 +177,8 @@ function DesktopApp() {
   };
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ') e.preventDefault(); //prevent space from clicking bc it does weird stuff
+      const prevents = [' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (prevents.includes(e.key)) e.preventDefault(); //prevent space from clicking bc it does weird stuff
       if (e.key === 'Escape') {
         closeSettings();
       }
