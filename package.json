@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.0",
     "lucide-react": "^0.395.0",
     "prettier": "^3.3.3",
+    "prisma": "^5.19.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-swipeable": "^7.0.1",

@@ -18,6 +18,9 @@ export const HighScoreSchema = z.object({
 
 export type HighScore = z.infer<typeof HighScoreSchema>;
 
+export const PlatformSchema = z.literal('MOBILE').or(z.literal('DESKTOP'));
+export type Platform = z.infer<typeof PlatformSchema>;
+
 export const createHighScore = (
   partialHighScore: Partial<HighScore>
 ): HighScore => {

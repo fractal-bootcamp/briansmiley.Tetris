@@ -1,4 +1,4 @@
-import { defaultHighscores } from '../data';
+import { defaultHighscores } from '../lib/highscores';
 import useLocalStorage from '../hooks/useLocalStorage';
 import HighScoreList from './HighScoreList';
 import { useState } from 'react';

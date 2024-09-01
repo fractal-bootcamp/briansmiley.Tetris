@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { HighScore, sortHighScores } from '../data';
+import { HighScore, sortHighScores } from '../lib/highscores';
 import HighScoreList from './HighScoreList';
 import useLocalHighZcores from '../hooks/useHighScoreZtorage';
 import { Game } from '../Tetris';

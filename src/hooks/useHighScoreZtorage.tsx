@@ -5,7 +5,7 @@ import {
   HighScore,
   HIGHSCORES_LOCALSTORAGE_KEY,
   HighScoreSchema,
-} from '../data';
+} from '../lib/highscores';
 
 type HighScoreState = [
   HighScore[],

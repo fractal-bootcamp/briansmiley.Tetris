@@ -1,4 +1,4 @@
-import { HighScore } from '../data';
+import { HighScore } from '../lib/highscores';
 import useLocalHighZcores from '../hooks/useHighScoreZtorage';
 
 type HighScoreListProps = {
@@ -9,8 +9,8 @@ export default function HighScoreList({
   scoreCount,
   highlightScore,
 }: HighScoreListProps) {
-  const [highscores, _] = useLocalHighZcores();
-
+  const [localHighScores, _] = useLocalHighZcores();
+  // const [globalHighScores];
   const bgClass = (index: number, highscore: HighScore) => {
     if (highlightScore && highscore.gameStartTime === highlightScore) {
       return 'bg-blue-600';
@@ -36,7 +36,7 @@ export default function HighScoreList({
           <span className="basis-1/3 text-center">Lines</span>
           <span className="basis-1/3 text-end">Score</span>
         </div>
-        {highscores.slice(0, scoreCount).map((highscore, index) => (
+        {localHighScores.slice(0, scoreCount).map((highscore, index) => (
           <div
             key={index}
             className={`relative flex justify-between px-3 py-1 ${bgClass(index, highscore)}`}
