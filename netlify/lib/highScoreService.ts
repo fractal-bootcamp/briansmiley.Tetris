@@ -9,13 +9,16 @@ const mutations = {
       take: 100,
     });
     console.log(`Retrieved ${topScores.length} top scores`);
-
+    //if we already have 100 scores and the new one isnt bigger than any of them, return null
+    if (topScores.length === 100 && topScores[99].score > newHighScore.score)
+      return null;
+    //otherwise, establish the ranking of the new score
     const rank =
-      topScores.findIndex((highscore) => highscore.score < newHighScore.score) +
-      1;
-
-    console.log(`New score Rank: ${rank}`);
-    if (rank === 0) return null;
+      topScores.length === 0
+        ? 1
+        : topScores.findIndex(
+            (highscore) => highscore.score < newHighScore.score
+          ) + 1;
     const dbRes = await prisma.highScore.create({
       data: {
         score: newHighScore.score,
