@@ -48,13 +48,16 @@ export default function HighScoreEntry({
         highScore: newHighScore,
         platform,
       };
-      return fetch(``, {
-        method: 'POST',
-        body: JSON.stringify(highScorePostBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      return fetch(
+        `https://tetris-highscores.netlify.app/.netlify/functions/postHighScore`,
+        {
+          method: 'POST',
+          body: JSON.stringify(highScorePostBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     },
     onSuccess: (res) => {
       console.log('Successfully sent highscore to database', res.body);

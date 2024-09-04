@@ -7,6 +7,7 @@ import { useBreakpoint } from 'use-breakpoint';
 import { useState } from 'react';
 import LocalGlobalToggle from './LocalGlobalToggle';
 import { Globe } from 'lucide-react';
+import { GetHighScoresReqBody } from '../../../netlify/lib/interface';
 type HighScoreListProps = {
   scoreCount: number;
   highlightScore?: number;
@@ -24,8 +25,17 @@ export default function HighScoreList({
   //Database global highscores query
   // const queryClient = useQueryClient();
   const query = useQuery({
-    queryKey: ['highscores'],
-    queryFn: () => controller.getHighScoresByPlatform(platform),
+    queryKey: ['highscores', platform],
+    queryFn: async () => {
+      const response = await fetch(
+        `https://bs-tetris.netlify.app/.netlify/functions/getHighScores?platform=${platform}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch high scores');
+      }
+      const data: HighScore[] = await response.json();
+      return data;
+    },
   });
   const scoreList = displayGlobal ? query.data || [] : localHighScores;
   //Toggles row background in highscore list
