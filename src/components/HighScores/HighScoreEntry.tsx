@@ -94,17 +94,19 @@ export default function HighScoreEntry({
   };
 
   return (
-    <div className="text-default relative flex w-[90%] flex-col items-center bg-slate-700">
+    <div className="text-default border-outset relative flex w-[90%] flex-col items-center bg-slate-700">
       {/* New Score Entry */}
       {entering ? (
         <div className="flex flex-col gap-1 p-2">
-          <span className="self-center">New High Score!</span>
+          <span className="w-full self-center text-center text-2xl">
+            New High Score!
+          </span>
           <input
             type="text"
             maxLength={3}
             placeholder="Enter Initials"
             value={initials}
-            className="border bg-slate-900 p-2 text-center text-white"
+            className="border bg-slate-900 p-2 text-center text-lg text-white"
             onChange={(e) => {
               setErrorMessage('');
               setInitials(e.target.value.toUpperCase());
