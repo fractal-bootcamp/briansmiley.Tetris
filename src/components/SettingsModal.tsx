@@ -1,6 +1,6 @@
 import { defaultHighscores } from '../lib/highscores';
 import useLocalStorage from '../hooks/useLocalStorage';
-import HighScoreList from './HighScoreList';
+import HighScoreList from './HighScores/HighScoreList';
 import { useState } from 'react';
 import ControlsInfo from './ControlsInfo';
 import { Game } from '../Tetris';
