@@ -205,16 +205,16 @@ function DesktopApp() {
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
             />
           </div>
-          <div className="min-w-[13ch] font-mono text-3xl text-green-500">
+          <div className="min-w-[13ch] font-mono text-2xl text-green-500">
             <div className="flex flex-col">
-              <div className="border border-green-500">
+              <div className="">
                 Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
               </div>
-              <div className="border border-green-500">
+              <div className="">
                 Lines:{' '}
                 {gameState.blocksSpawned === 0 ? '-' : gameState.linesCleared}
               </div>
-              <div className="border border-green-500">
+              <div className="">
                 Level: {gameState.blocksSpawned === 0 ? '-' : gameState.level}
               </div>
             </div>
