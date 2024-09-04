@@ -20,7 +20,7 @@ import ThemeSong from './assets/ThemeSong.mp3';
 import useKeysPressed from './hooks/useKeysPressed';
 import { CONFIG, InputCategory } from './TetrisConfig';
 import BoardCell from './components/BoardCell';
-import HighScoreEntry from './components/HighScoreEntry';
+import HighScoreEntry from './components/HighScores/HighScoreEntry';
 import SettingsModal from './components/SettingsModal';
 import useStateWithRef from './hooks/useStateWithRef';
 const music = new Audio(ThemeSong);

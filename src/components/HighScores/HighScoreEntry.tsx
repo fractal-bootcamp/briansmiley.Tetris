@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { HighScore, sortHighScores } from '../data';
+import { HighScore, Platform, sortHighScores } from '../../lib/highscores';
 import HighScoreList from './HighScoreList';
-import useLocalHighZcores from '../hooks/useHighScoreZtorage';
-import { Game } from '../Tetris';
-
+import useLocalHighZcores from '../../hooks/useHighScoreZtorage';
+import { Game } from '../../Tetris';
+import { BREAKPOINTS } from '../../App';
+import { useBreakpoint } from 'use-breakpoint';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PostHighScoreReqBody } from '../../../netlify/lib/interface';
 type HighScoreEntryProps = {
   game: Game;
   displayCount?: number;
@@ -17,6 +20,8 @@ export default function HighScoreEntry({
   const [initials, setInitials] = useState('');
   const [highscores, setHighscores] = useLocalHighZcores();
   const sortedHighscores = sortHighScores(highscores);
+  const { breakpoint } = useBreakpoint(BREAKPOINTS);
+  const platform: Platform = breakpoint === 'mobile' ? 'MOBILE' : 'DESKTOP';
   //on load initialize entering state
   useEffect(
     /**Entering a new score if:
@@ -34,6 +39,35 @@ export default function HighScoreEntry({
       ),
     []
   );
+  //Database global highscores query
+  const queryClient = useQueryClient();
+  const dbMutation = useMutation({
+    mutationFn: (newHighScore: HighScore) => {
+      console.log(`Sending ${newHighScore} to database`);
+      const highScorePostBody: PostHighScoreReqBody = {
+        highScore: newHighScore,
+        platform,
+      };
+      return fetch(
+        `https://tetris-highscores.netlify.app/.netlify/functions/postHighScore`,
+        {
+          method: 'POST',
+          body: JSON.stringify(highScorePostBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    },
+    onSuccess: (res) => {
+      console.log('Successfully sent highscore to database', res.body);
+      queryClient.invalidateQueries({ queryKey: ['highscores'] });
+    },
+    onError: (error) => {
+      console.log('Error sending highscore to database');
+      console.error(error);
+    },
+  });
 
   const submitScoreOnClick = () => {
     if (initials.length === 0) {
@@ -52,6 +86,7 @@ export default function HighScoreEntry({
         .sort((a, b) => b.score - a.score)
         .slice(0, scoreCount);
     });
+    dbMutation.mutate(newHighScore);
     setEntering(false);
   };
 

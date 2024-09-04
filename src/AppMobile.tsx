@@ -15,7 +15,7 @@ import {
 import { CONFIG } from './TetrisConfig';
 import PieceDisplay from './components/PieceDisplay';
 import { SwipeEventData, useSwipeable } from 'react-swipeable';
-import HighScoreEntry from './components/HighScoreEntry';
+import HighScoreEntry from './components/HighScores/HighScoreEntry';
 import SettingsModal from './components/SettingsModal';
 import { Settings } from 'lucide-react';
 
