@@ -150,12 +150,17 @@ export default function MobileApp() {
           </div>
         </div>
         {/* Main game board */}
-        <div {...handlers} className="w-[70%]">
-          <BoardDisplay
-            board={boardWithFallingBlock(gameState)}
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="w-full"
-          />
+        <div
+          {...handlers}
+          className="flex w-full flex-col items-center justify-start"
+        >
+          <div className="w-[70%]">
+            <BoardDisplay
+              board={boardWithFallingBlock(gameState)}
+              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
+              classNames="w-full"
+            />
+          </div>
           {/* Startgame modal */}
           {gameState.blocksSpawned === 0 && (
             <button
