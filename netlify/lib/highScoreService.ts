@@ -23,7 +23,7 @@ const mutations = {
       data: {
         score: newHighScore.score,
         initials: newHighScore.initials,
-        gameStartTime: new Date(newHighScore.gameStartTime).toISOString(),
+        gameStartTime: newHighScore.gameStartTime.toString(),
         linesCleared: newHighScore.linesCleared,
         platform: platform,
       },
@@ -57,7 +57,7 @@ const queries = {
 const transformHighScore = (highScore: DbHighScore): HighScore => ({
   score: highScore.score,
   initials: highScore.initials,
-  gameStartTime: highScore.gameStartTime.getTime(),
+  gameStartTime: parseInt(highScore.gameStartTime),
   linesCleared: highScore.linesCleared,
 });
 type IHighScoreService = {
