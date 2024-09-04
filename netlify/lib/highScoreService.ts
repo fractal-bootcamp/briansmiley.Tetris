@@ -23,7 +23,7 @@ const mutations = {
       data: {
         score: newHighScore.score,
         initials: newHighScore.initials,
-        gameStartTime: new Date(newHighScore.gameStartTime),
+        gameStartTime: new Date(newHighScore.gameStartTime).toISOString(),
         linesCleared: newHighScore.linesCleared,
         platform: platform,
       },
