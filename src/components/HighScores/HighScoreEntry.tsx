@@ -3,7 +3,6 @@ import { HighScore, Platform, sortHighScores } from '../../lib/highscores';
 import HighScoreList from './HighScoreList';
 import useLocalHighZcores from '../../hooks/useHighScoreZtorage';
 import { Game } from '../../Tetris';
-import controller from '../../../netlify/lib/controller';
 import { BREAKPOINTS } from '../../App';
 import { useBreakpoint } from 'use-breakpoint';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -49,7 +48,7 @@ export default function HighScoreEntry({
         highScore: newHighScore,
         platform,
       };
-      return fetch('bs-tetris.netlify.app/.netlify/functions/postHighScore', {
+      return fetch(``, {
         method: 'POST',
         body: JSON.stringify(highScorePostBody),
         headers: {

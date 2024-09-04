@@ -1,6 +1,6 @@
 import { HighScore, Platform } from '../../lib/highscores';
 import useLocalHighZcores from '../../hooks/useHighScoreZtorage';
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import controller from '../../../netlify/lib/controller';
 import { BREAKPOINTS } from '../../App';
 import { useBreakpoint } from 'use-breakpoint';
