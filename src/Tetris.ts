@@ -381,7 +381,8 @@ export const clearFullRowsAndScore = (game: Game): Game => {
     0,
     Math.floor(newLinesCleared / game.CONFIG.LEVEL_LINES)
   );
-  const newScore = game.score + clearedLinesScore(rowsToClear.length);
+  const newScore =
+    game.score + clearedLinesScore(rowsToClear.length, game.CONFIG);
   //calculate the new falling speed
   const newGravityTickInterval = game.CONFIG.GRAVITY_LEVELS[newLevel] || 0;
   return {
@@ -409,8 +410,8 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   };
 };
 
-const clearedLinesScore = (lines: number): number => {
-  return [0, 40, 100, 300, 1200][lines];
+const clearedLinesScore = (lines: number, config: Config): number => {
+  return config.LINES_CLEARED_SCORE[lines];
 };
 
 /**Settle the board squares above a clear by an amount equal to the clear*/

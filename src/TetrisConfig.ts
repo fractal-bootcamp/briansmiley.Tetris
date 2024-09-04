@@ -11,6 +11,7 @@ export type Config = {
   SPEED_SCALING: number;
   GRAVITY_LEVELS: Record<number, number>;
   LEVEL_LINES: number;
+  LINES_CLEARED_SCORE: number[];
   POLL_RATES: Record<InputCategory | 'base', number>;
   SHIFT_DEBOUNCE: number;
   WALLS: boolean;
@@ -125,6 +126,7 @@ export const CONFIG: Config = {
   SPEED_SCALING: 50, //how many milliseconds to take off the tick time for each level
 
   LEVEL_LINES: 10, //how many lines between speed scaling
+  LINES_CLEARED_SCORE: [0, 50, 150, 450, 1200],
   POLL_RATES: {
     base: 10,
     drop: 250,
