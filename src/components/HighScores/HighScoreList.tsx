@@ -26,7 +26,7 @@ export default function HighScoreList({
     queryKey: ['highscores', platform],
     queryFn: async () => {
       const response = await fetch(
-        `https://bs-tetris.netlify.app/.netlify/functions/getHighScores?platform=${platform}`
+        `https://bs-tetris.netlify.app/.netlify/functions/getHighScore/${platform}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch high scores');

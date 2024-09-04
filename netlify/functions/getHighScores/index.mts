@@ -1,12 +1,26 @@
-import { Context } from '@netlify/functions';
-import { HighScore } from '@prisma/client';
+import { Config, Context } from '@netlify/functions';
 import controller from '../../lib/controller';
-import { Platform } from '../../../src/lib/highscores';
-import { GetHighScoresReqBody } from '../../lib/interface';
+import { PlatformSchema } from '../../../src/lib/highscores';
+import { z } from 'zod';
 
+const requestablePlatformSchema = z.union([PlatformSchema, z.literal('ALL')]);
 export default async (req: Request, context: Context) => {
-  const body: GetHighScoresReqBody = await req.json();
-  const platform = body.platform;
+  const url = new URL(req.url);
+  const { success, data } = requestablePlatformSchema.safeParse(
+    context.params.platform
+  );
+  if (!success) {
+    return new Response(
+      JSON.stringify({ error: 'Bad request; platform specified incorrectly' }),
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+  const platform = data;
   try {
     const highScores =
       platform === 'ALL'
@@ -26,4 +40,8 @@ export default async (req: Request, context: Context) => {
       },
     });
   }
+};
+
+export const config: Config = {
+  path: '/getHighScores/:platform',
 };
