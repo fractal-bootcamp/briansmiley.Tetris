@@ -42,13 +42,13 @@ export default function HighScoreEntry({
   //Database global highscores query
   const queryClient = useQueryClient();
   const dbMutation = useMutation({
-    mutationFn: (newHighScore: HighScore) => {
-      console.log(`Sending ${newHighScore} to database`);
+    mutationFn: async (newHighScore: HighScore) => {
+      console.log(`Sending ${JSON.stringify(newHighScore)} to database`);
       const highScorePostBody: PostHighScoreReqBody = {
         highScore: newHighScore,
         platform,
       };
-      return fetch(
+      const response = await fetch(
         `https://bs-tetris.netlify.app/.netlify/functions/postHighScore`,
         {
           method: 'POST',
@@ -58,6 +58,12 @@ export default function HighScoreEntry({
           },
         }
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
     },
     onSuccess: (res) => {
       console.log('Successfully sent highscore to database', res.body);
