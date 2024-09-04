@@ -4,8 +4,9 @@ import HighScoreList from './HighScores/HighScoreList';
 import { useState } from 'react';
 import ControlsInfo from './ControlsInfo';
 import { Game } from '../Tetris';
+import ScoringInfo from './ScoringInfo';
 
-type SubDisplay = 'highscores' | 'controls' | 'none';
+type SubDisplay = 'highscores' | 'controls' | 'scoring' | 'none';
 type SettingsModalProps = {
   closeSettings: () => void;
   restartGame: () => void;
@@ -51,6 +52,9 @@ export default function SettingsModal({
             {' '}
             {subDisplay === 'controls' ? 'Hide' : 'Show'} Controls
           </button>
+          <button onClick={toggleSubDisplay('scoring')}>
+            {subDisplay === 'scoring' ? 'Hide' : 'Show'} Scoring
+          </button>
           {gameState.blocksSpawned > 0 && (
             <button
               onClick={() => {
@@ -76,6 +80,11 @@ export default function SettingsModal({
         className={`flex w-[90%] origin-top flex-col items-center ${subDisplay === 'highscores' ? '' : 'hidden'}`}
       >
         <HighScoreList scoreCount={5} highlightScore={gameState.startTime} />
+      </div>
+      <div
+        className={`flex w-[90%] origin-top flex-col items-center ${subDisplay === 'scoring' ? '' : 'hidden'}`}
+      >
+        <ScoringInfo />
       </div>
     </div>
   );
