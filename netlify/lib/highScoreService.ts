@@ -11,7 +11,7 @@ const mutations = {
     console.log(`Retrieved ${topScores.length} top scores`);
 
     const rank =
-      topScores.findIndex((highscore) => highscore.score < newHighScore.score) +
+      topScores.findIndex((highscore) => highscore.score > newHighScore.score) +
       1;
     if (rank === -1) return null;
     const dbRes = await prisma.highScore.create({
