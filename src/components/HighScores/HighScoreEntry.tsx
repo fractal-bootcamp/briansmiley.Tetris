@@ -49,7 +49,7 @@ export default function HighScoreEntry({
         platform,
       };
       return fetch(
-        `https:bs-tetris.netlify.app/.netlify/functions/postHighScore`,
+        `https://bs-tetris.netlify.app/.netlify/functions/postHighScore`,
         {
           method: 'POST',
           body: JSON.stringify(highScorePostBody),
