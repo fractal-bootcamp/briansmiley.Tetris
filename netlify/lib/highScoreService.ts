@@ -13,6 +13,7 @@ const mutations = {
     const rank =
       topScores.findIndex((highscore) => highscore.score > newHighScore.score) +
       1;
+    console.log(`New score Rank: ${rank}`);
     if (rank === -1) return null;
     const dbRes = await prisma.highScore.create({
       data: {
@@ -23,7 +24,7 @@ const mutations = {
         platform: platform,
       },
     });
-
+    console.log(`Inserted new high score into database: ${dbRes}`);
     return { rank, newDbHighScore: dbRes };
   },
 };

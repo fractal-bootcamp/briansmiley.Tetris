@@ -48,16 +48,13 @@ export default function HighScoreEntry({
         highScore: newHighScore,
         platform,
       };
-      const response = await fetch(
-        `https://bs-tetris.netlify.app/.netlify/functions/postHighScore`,
-        {
-          method: 'POST',
-          body: JSON.stringify(highScorePostBody),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`/.netlify/functions/postHighScore`, {
+        method: 'POST',
+        body: JSON.stringify(highScorePostBody),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
