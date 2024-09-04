@@ -13,12 +13,12 @@ export default function ScoringInfo() {
           <span className="te basis-1/2 text-center underline">Points</span>
         </div>
         <div className="flex w-full flex-col">
-          {CONFIG.LINES_CLEARED_SCORE.map((score, index) => (
+          {CONFIG.LINES_CLEARED_SCORE.slice(1).map((score, index) => (
             <div
               className="flex w-full justify-between"
               key={`cleared-${index}`}
             >
-              <span className="basis-1/2 text-center">{index}</span>
+              <span className="basis-1/2 text-center">{index + 1}</span>
               <span className="basis-1/2 text-center">{score}</span>
             </div>
           ))}
