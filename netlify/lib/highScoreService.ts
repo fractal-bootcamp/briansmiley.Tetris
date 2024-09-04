@@ -16,18 +16,11 @@ const mutations = {
 
     console.log(`New score Rank: ${rank}`);
     if (rank === 0) return null;
-    console.log('didnt return, next line is prisma create');
-    const testPrisma = await prisma.highScore.findFirst({
-      where: {
-        platform: platform,
-      },
-    });
-    console.log(`Test Prisma: ${JSON.stringify(testPrisma)}`);
     const dbRes = await prisma.highScore.create({
       data: {
         score: newHighScore.score,
         initials: newHighScore.initials,
-        gameStartTime: newHighScore.gameStartTime,
+        gameStartTime: new Date(newHighScore.gameStartTime),
         linesCleared: newHighScore.linesCleared,
         platform: platform,
       },
@@ -61,7 +54,7 @@ const queries = {
 const transformHighScore = (highScore: DbHighScore): HighScore => ({
   score: highScore.score,
   initials: highScore.initials,
-  gameStartTime: highScore.gameStartTime,
+  gameStartTime: highScore.gameStartTime.getTime(),
   linesCleared: highScore.linesCleared,
 });
 type IHighScoreService = {

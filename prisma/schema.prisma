@@ -27,7 +27,7 @@ model HighScore {
   //Fields
   score         Int
   initials      String
-  gameStartTime Int
+  gameStartTime DateTime
   linesCleared  Int
   platform      PLATFORM
 }
