@@ -72,7 +72,7 @@ export default function HighScoreList({
         {scoreList.slice(0, scoreCount).map((highscore, index) => (
           <div
             key={index}
-            className={`relative flex w-full justify-between px-3 py-1 ${bgClass(index, highscore)}`}
+            className={`relative flex w-full justify-between px-3 py-1 text-lg ${bgClass(index, highscore)}`}
           >
             <div
               className={`absolute inset-0 z-10 h-full w-full animate-fastFlash bg-blue-500 ${highscore.gameStartTime === highlightScore ? '' : 'hidden'}`}
