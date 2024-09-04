@@ -6,7 +6,7 @@ export default function ScoringInfo() {
       onClick={(e) => e.stopPropagation()}
       className={`text-default border-outset flex w-[90%] flex-col items-center justify-center gap-2 bg-slate-900 p-3`}
     >
-      <div className="mb-2 text-2xl font-bold underline">Scoring</div>
+      <div className="mb-2 text-xl font-bold underline">Scoring</div>
       <div className="flex w-full flex-col gap-3 text-lg">
         <div className="flex w-full">
           <span className="basis-1/2 text-center underline">Lines</span>

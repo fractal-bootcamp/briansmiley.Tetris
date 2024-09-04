@@ -55,12 +55,12 @@ export default function HighScoreList({
           toggleGlobal={() => setDisplayGlobal(!displayGlobal)}
         />
       </div>
-      <span className="text-default self-center p-2 text-2xl font-semibold underline">
+      <span className="text-default self-center p-2 text-xl font-semibold underline">
         High Scores
       </span>
       <div className="flex flex-col items-center">
         <div
-          className={`relative flex w-full justify-between bg-slate-900 px-3 py-1 text-lg font-semibold text-white underline`}
+          className={`text-md relative flex w-full justify-between bg-slate-900 px-3 py-1 font-semibold text-white underline`}
         >
           <span className="basis-1/3">Initials </span>
           <span className="basis-1/3 text-center">Lines</span>

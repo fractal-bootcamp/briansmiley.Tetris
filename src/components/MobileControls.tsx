@@ -14,8 +14,8 @@ export default function MobileControls({}: MobileControlsProps) {
       onClick={(e) => e.stopPropagation()}
       className={`text-default border-outset flex w-[90%] flex-col items-center justify-center gap-2 bg-slate-900 p-3`}
     >
-      <div className="mb-2 text-2xl font-bold underline">Controls</div>
-      <div className="flex w-full flex-col gap-4 text-lg">
+      <div className="mb-2 text-xl font-bold underline">Controls</div>
+      <div className="text-md flex w-full flex-col gap-4">
         <div className="flex items-center justify-between gap-1">
           <div className="flex min-w-[50%] flex-row items-center justify-center">
             <ArrowLeft />
