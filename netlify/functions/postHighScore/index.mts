@@ -10,6 +10,9 @@ export default async (request: Request, context: Context) => {
   try {
     const highScoreDbPostResponse: PostHighScoreRes =
       await controller.postHighScore(highScore, platform);
+    console.log(
+      `High score db post response: ${JSON.stringify(highScoreDbPostResponse)}`
+    );
     resBody = highScoreDbPostResponse;
     return new Response(JSON.stringify(highScoreDbPostResponse), {
       status: 200,
