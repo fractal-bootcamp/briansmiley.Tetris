@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Cell } from '../Tetris';
 import { Color } from '../TetrisConfig';
+import { cellBorderColorFromColor } from '../lib/display';
 
 interface BoardCellProps {
   cellValue: Cell;
@@ -34,14 +35,8 @@ const BoardCell = ({
         return `rgba(${r}, ${g}, ${b})`;
     }
   }, [cellValue.type, r, g, b]);
-  const borderColor = useMemo(
-    () =>
-      `rgb(${Math.floor(0.8 * r)}, ${Math.floor(0.8 * g)}, ${Math.floor(
-        0.8 * b
-      )})`,
-    [r, g, b]
-  );
-  const borderStyle = useMemo(() => {
+  const borderColor = cellBorderColorFromColor(cellValue.color);
+  const borderStyle = (() => {
     switch (cellValue.type) {
       case 'empty':
         return 'none';
@@ -52,8 +47,8 @@ const BoardCell = ({
       case 'wall':
         return 'outset';
     }
-  }, [cellValue.type, cellBorderStyle]);
-  const borderWidth = useMemo(() => {
+  })();
+  const borderWidth = (() => {
     switch (cellValue.type) {
       case 'empty':
         return 0;
@@ -63,7 +58,7 @@ const BoardCell = ({
       case 'wall':
         return 6;
     }
-  }, [cellValue.type]);
+  })();
 
   const cellDynamicStyles: React.CSSProperties = {
     background: backgroundColor,
