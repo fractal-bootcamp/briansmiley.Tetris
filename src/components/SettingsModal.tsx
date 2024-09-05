@@ -71,21 +71,23 @@ export default function SettingsModal({
           <button onClick={resetHighScores}>Reset High Scores</button>
         </div>
       </div>
-      <div
-        className={`flex w-full origin-top items-center justify-center ${subDisplay === 'controls' ? '' : 'hidden'}`}
-      >
-        <ControlsInfo />
-      </div>
-      <div
-        className={`flex w-[90%] origin-top flex-col items-center ${subDisplay === 'highscores' ? '' : 'hidden'}`}
-      >
-        <HighScoreList scoreCount={5} highlightScore={gameState.startTime} />
-      </div>
-      <div
-        className={`flex w-[90%] origin-top flex-col items-center ${subDisplay === 'scoring' ? '' : 'hidden'}`}
-      >
-        <ScoringInfo />
-      </div>
+      {subDisplay === 'controls' && (
+        <div className={`flex w-full origin-top items-center justify-center`}>
+          <ControlsInfo />
+        </div>
+      )}
+      {subDisplay === 'highscores' && (
+        <div className={`flex w-[90%] origin-top flex-col items-center`}>
+          <HighScoreList scoreCount={5} highlightScore={gameState.startTime} />
+        </div>
+      )}
+      {subDisplay === 'scoring' && (
+        <div
+          className={`flex w-[90%] origin-top flex-col items-center ${subDisplay === 'scoring' ? '' : 'hidden'}`}
+        >
+          <ScoringInfo />
+        </div>
+      )}
     </div>
   );
 }

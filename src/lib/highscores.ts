@@ -30,16 +30,16 @@ export const createHighScore = (
 };
 
 export const defaultHighscores: HighScore[] = [
-  { score: 2000, initials: '---', gameStartTime: 0, linesCleared: 20 },
-  { score: 1800, initials: '---', gameStartTime: 0, linesCleared: 18 },
-  { score: 1600, initials: '---', gameStartTime: 0, linesCleared: 16 },
-  { score: 1400, initials: '---', gameStartTime: 0, linesCleared: 14 },
-  { score: 1200, initials: '---', gameStartTime: 0, linesCleared: 12 },
-  { score: 1000, initials: '---', gameStartTime: 0, linesCleared: 10 },
-  { score: 800, initials: '---', gameStartTime: 0, linesCleared: 8 },
-  { score: 600, initials: '---', gameStartTime: 0, linesCleared: 6 },
-  { score: 400, initials: '---', gameStartTime: 0, linesCleared: 4 },
-  { score: 200, initials: '---', gameStartTime: 0, linesCleared: 2 },
+  { score: 3750, initials: '---', gameStartTime: 0, linesCleared: 50 },
+  { score: 3375, initials: '---', gameStartTime: 0, linesCleared: 45 },
+  { score: 3000, initials: '---', gameStartTime: 0, linesCleared: 40 },
+  { score: 2625, initials: '---', gameStartTime: 0, linesCleared: 35 },
+  { score: 2250, initials: '---', gameStartTime: 0, linesCleared: 30 },
+  { score: 1875, initials: '---', gameStartTime: 0, linesCleared: 25 },
+  { score: 1500, initials: '---', gameStartTime: 0, linesCleared: 20 },
+  { score: 1125, initials: '---', gameStartTime: 0, linesCleared: 15 },
+  { score: 750, initials: '---', gameStartTime: 0, linesCleared: 10 },
+  { score: 300, initials: '---', gameStartTime: 0, linesCleared: 4 },
 ];
 
 export const sortHighScores = (highscores: HighScore[]) => {
