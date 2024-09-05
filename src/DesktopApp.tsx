@@ -1,5 +1,5 @@
 import BoardDisplay from './components/BoardDisplay';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Settings, Volume2, VolumeX } from 'lucide-react';
 import {
   Game,
@@ -7,8 +7,6 @@ import {
   gameInit,
   hardDropBlock,
   holdAndPopHeld,
-  miniHeldBoard,
-  miniPreviewBoard,
   pauseGame,
   rotateBlock,
   setAllowedInput,
@@ -23,6 +21,7 @@ import BoardCell from './components/BoardCell';
 import HighScoreEntry from './components/HighScores/HighScoreEntry';
 import SettingsModal from './components/SettingsModal';
 import useStateWithRef from './hooks/useStateWithRef';
+import PieceDisplay from './components/PieceDisplay';
 const music = new Audio(ThemeSong);
 const startMusic = () => {
   music.loop = true;
@@ -142,10 +141,6 @@ function DesktopApp() {
   useEffect(() => {
     music.muted = !unMuted;
   }, [unMuted]);
-  const previewBoard = useMemo(
-    () => miniPreviewBoard(gameState.shapeQueue, config),
-    [JSON.stringify(gameState.shapeQueue)]
-  );
   const toggleCellBorderStyle = () => {
     const newIndex = (cellBorderStyleIndex + 1) % cellBorderStyles.length;
     setCellBorderStyle(newIndex);
@@ -199,11 +194,12 @@ function DesktopApp() {
           <div className="flex justify-end gap-2 font-mono text-2xl text-green-500">
             Held <br />
             (c)
-            <BoardDisplay
-              board={miniHeldBoard(gameState.heldShape, config)}
-              classNames="h-[20vh] aspect-square"
-              cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            />
+            <div className="aspect-square h-[20vh]">
+              <PieceDisplay
+                piece={gameState.heldShape}
+                borderStyle={cellBorderStyles[cellBorderStyleIndex]}
+              />
+            </div>
           </div>
           <div className="min-w-[13ch] font-mono text-3xl text-green-500">
             <div className="flex flex-col">
@@ -305,11 +301,12 @@ function DesktopApp() {
           </div>
         </div>
         <div className="flex w-1/3 justify-start gap-2 font-mono text-2xl text-green-500">
-          <BoardDisplay
-            board={previewBoard}
-            cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            classNames="h-[20vh] aspect-square"
-          />
+          <div className="aspect-square h-[20vh]">
+            <PieceDisplay
+              piece={gameState.shapeQueue[0]}
+              borderStyle={cellBorderStyles[cellBorderStyleIndex]}
+            />
+          </div>
           Next
         </div>
       </div>
