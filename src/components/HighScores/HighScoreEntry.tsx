@@ -94,10 +94,10 @@ export default function HighScoreEntry({
   };
 
   return (
-    <div className="text-default border-outset relative flex w-[90%] flex-col items-center bg-slate-700">
+    <div className="text-default relative flex w-[90%] flex-col items-center bg-slate-700">
       {/* New Score Entry */}
       {entering ? (
-        <div className="flex flex-col gap-1 p-2">
+        <div className="border-outset flex flex-col gap-1 p-2">
           <span className="w-full self-center text-center text-2xl">
             New High Score!
           </span>
