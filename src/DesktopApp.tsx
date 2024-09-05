@@ -205,7 +205,7 @@ function DesktopApp() {
               cellBorderStyle={cellBorderStyles[cellBorderStyleIndex]}
             />
           </div>
-          <div className="min-w-[13ch] font-mono text-2xl text-green-500">
+          <div className="min-w-[13ch] font-mono text-3xl text-green-500">
             <div className="flex flex-col">
               <div className="">
                 Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
@@ -230,9 +230,9 @@ function DesktopApp() {
             />
             {gameState.over && !showSettingsModal && (
               <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-50 backdrop-blur-sm">
-                <div className="text-default flex h-full w-full flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
-                  <span className="animate-fadedFlash">GAME OVER</span>
-                  <span className="animate-fadedFlash">
+                <div className="text-default flex h-full w-full flex-col items-center justify-center gap-5 px-8 py-4">
+                  <span className="animate-fadedFlash text-5xl">GAME OVER</span>
+                  <span className="animate-fadedFlash text-5xl">
                     Score: {gameState.score}
                   </span>
                   <HighScoreEntry game={gameState} />
