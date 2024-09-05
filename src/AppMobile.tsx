@@ -173,18 +173,16 @@ export default function MobileApp() {
         </div>
         {/* Game over modal */}
         {gameState.over && !showSettingsModal && (
-          <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-2 bg-slate-900 bg-opacity-80 backdrop-blur-sm">
-            <div className="text-default flex w-full animate-flash flex-col items-center justify-center gap-5 px-8 py-4 text-5xl">
-              <span className="">GAME OVER</span>
-              <span>Score: {gameState.score}</span>
+          <div className="absolute inset-0 h-full w-full bg-slate-900 bg-opacity-50 backdrop-blur-sm">
+            <div className="text-default flex h-full w-full flex-col items-center justify-start gap-5 px-8 py-4">
+              <div className="mt-20 flex flex-col items-center gap-2">
+                <span className="animate-fadedFlash text-5xl">GAME OVER</span>
+                <span className="animate-fadedFlash text-5xl">
+                  Score: {gameState.score}
+                </span>
+              </div>
+              <HighScoreEntry game={gameState} displayCount={5} />
             </div>
-            <HighScoreEntry game={gameState} displayCount={5} />
-            <button
-              onClick={startNewGame}
-              className="text-default btn mt-4 bg-slate-900 bg-opacity-80 px-4 py-4"
-            >
-              Restart
-            </button>
           </div>
         )}
         {showSettingsModal && (
