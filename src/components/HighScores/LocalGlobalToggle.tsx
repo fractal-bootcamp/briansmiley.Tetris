@@ -15,9 +15,9 @@ export default function LocalGlobalToggle({
     top: '0',
     left: '0',
     transition: 'transform 0.5s',
-    transform: displayGlobal ? 'translateX(calc(45%))' : 'translateX(-45%)',
+    transform: displayGlobal ? 'translateX(calc(100%))' : 'translateX(0%)',
     zIndex: '20',
-    width: '56px',
+    width: '28px',
     height: '28px',
   };
   return (
