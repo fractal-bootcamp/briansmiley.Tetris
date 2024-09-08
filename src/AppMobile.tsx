@@ -164,7 +164,7 @@ export default function MobileApp() {
           {/* Startgame modal */}
           {gameState.blocksSpawned === 0 && (
             <button
-              className="border-inset active-outset text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 px-4 py-4"
+              className="border-outset text-default absolute left-1/2 top-1/2 -translate-x-1/2 border-[10px] border-green-500 bg-slate-900 bg-opacity-80 p-4 active:[border-style:inset]"
               onClick={startNewGame}
             >
               Start
@@ -182,6 +182,9 @@ export default function MobileApp() {
                 </span>
               </div>
               <HighScoreEntry game={gameState} displayCount={5} />
+              <button className="border-outset text-default border-[10px] border-green-500 bg-slate-900 bg-opacity-80 p-4 active:[border-style:inset]">
+                Restart
+              </button>
             </div>
           </div>
         )}
