@@ -28,7 +28,7 @@ export default function LocalGlobalToggle({
       <div className="rounded-full bg-slate-500" style={switchStyle} />
       <Computer
         size={18}
-        className={`${displayClass(false)} z-30 transition-all duration-500`}
+        className={`${displayClass(false)} z-30 transition-all duration-300`}
       />
       <Globe
         size={18}
