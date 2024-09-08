@@ -182,7 +182,10 @@ export default function MobileApp() {
                 </span>
               </div>
               <HighScoreEntry game={gameState} displayCount={5} />
-              <button className="border-outset text-default border-[10px] border-green-500 bg-slate-900 bg-opacity-80 p-4 active:[border-style:inset]">
+              <button
+                onClick={startNewGame}
+                className="border-outset text-default border-[10px] border-green-500 bg-slate-900 bg-opacity-80 p-4 active:[border-style:inset]"
+              >
                 Restart
               </button>
             </div>
