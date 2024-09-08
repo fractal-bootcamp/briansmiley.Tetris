@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    @apply bg-slate-600;
-    @apply select-none;
+  * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -13,6 +11,9 @@
     -ms-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+  }
+  html {
+    @apply bg-slate-600;
   }
 }
 @layer components {
