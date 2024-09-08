@@ -14,7 +14,7 @@ export default function LocalGlobalToggle({
     position: 'absolute',
     top: '0',
     left: '0',
-    transition: 'transform 0.5s',
+    transition: 'transform 0.4s',
     transform: displayGlobal ? 'translateX(calc(100%))' : 'translateX(0%)',
     zIndex: '20',
     width: '28px',
@@ -32,7 +32,7 @@ export default function LocalGlobalToggle({
       />
       <Globe
         size={18}
-        className={`${displayClass(true)} z-30 transition-all duration-500`}
+        className={`${displayClass(true)} z-30 transition-all duration-300`}
       />{' '}
     </button>
   );
