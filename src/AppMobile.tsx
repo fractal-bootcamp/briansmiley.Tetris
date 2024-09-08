@@ -98,7 +98,7 @@ export default function MobileApp() {
     onSwipedDown: handleSwipeDown,
     onSwipedUp: handleSwipeUp,
     preventScrollOnSwipe: false,
-    delta: 50,
+    delta: 30,
   });
   const pause = () => {
     setGameState((prev) => pauseGame(prev));
