@@ -84,7 +84,7 @@ export default function HighScoreList({
               {highscore.linesCleared === 0 ? '-' : highscore.linesCleared}
             </span>
             <span className="z-20 basis-1/3 text-end text-white">
-              {highscore.score}
+              {highscore.score.toLocaleString()}
             </span>
           </div>
         ))}
