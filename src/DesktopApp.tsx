@@ -194,7 +194,7 @@ function DesktopApp() {
           <div className="flex justify-end gap-2 font-mono text-2xl text-green-500">
             Held <br />
             (c)
-            <div className="aspect-square h-[20vh]">
+            <div className="aspect-square w-[120px]">
               <PieceDisplay
                 piece={gameState.heldShape}
                 borderStyle={cellBorderStyles[cellBorderStyleIndex]}
