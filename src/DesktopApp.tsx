@@ -304,11 +304,15 @@ function DesktopApp() {
           </div>
         </div>
         <div className="flex w-1/3 justify-start gap-2 font-mono text-2xl text-green-500">
-          <div className="aspect-square h-[20vh]">
-            <PieceDisplay
-              piece={gameState.shapeQueue[0]}
-              borderStyle={cellBorderStyles[cellBorderStyleIndex]}
-            />
+          <div className="flex flex-col">
+            {gameState.shapeQueue.slice(0, 3).map((shape, idx) => (
+              <div className="aspect-square h-[15vh]" key={`queue-${idx}`}>
+                <PieceDisplay
+                  piece={shape}
+                  borderStyle={cellBorderStyles[cellBorderStyleIndex]}
+                />
+              </div>
+            ))}
           </div>
           Next
         </div>
