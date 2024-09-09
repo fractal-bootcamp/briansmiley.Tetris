@@ -204,7 +204,10 @@ function DesktopApp() {
           <div className="min-w-[13ch] font-mono text-3xl text-green-500">
             <div className="flex flex-col">
               <div className="">
-                Score: {gameState.blocksSpawned === 0 ? '-' : gameState.score}
+                Score:{' '}
+                {gameState.blocksSpawned === 0
+                  ? '-'
+                  : gameState.score.toLocaleString()}
               </div>
               <div className="">
                 Lines:{' '}
@@ -231,8 +234,8 @@ function DesktopApp() {
                     <span className="animate-fadedFlash text-5xl">
                       GAME OVER
                     </span>
-                    <span className="animate-fadedFlash text-5xl">
-                      Score: {gameState.score}
+                    <span className="animate-fadedFlash text-center text-4xl">
+                      Score: {gameState.score.toLocaleString()}
                     </span>
                   </div>
                   <HighScoreEntry game={gameState} />

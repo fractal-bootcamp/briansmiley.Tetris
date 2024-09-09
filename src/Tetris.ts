@@ -378,11 +378,10 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   if (rowsToClear.length === 0) return game;
   const newLinesCleared = game.linesCleared + rowsToClear.length;
   const newLevel = Math.max(
-    0,
+    1,
     Math.floor(newLinesCleared / game.CONFIG.LEVEL_LINES)
   );
-  const newScore =
-    game.score + clearedLinesScore(rowsToClear.length, game.CONFIG);
+  const newScore = game.score + clearedLinesScore(rowsToClear.length, game);
   //calculate the new falling speed
   const newGravityTickInterval = game.CONFIG.GRAVITY_LEVELS[newLevel] || 0;
   return {
@@ -410,8 +409,8 @@ export const clearFullRowsAndScore = (game: Game): Game => {
   };
 };
 
-const clearedLinesScore = (lines: number, config: Config): number => {
-  return config.LINES_CLEARED_SCORE[lines];
+const clearedLinesScore = (lines: number, game: Game): number => {
+  return game.CONFIG.LINES_CLEARED_SCORE[lines] * game.level;
 };
 
 /**Settle the board squares above a clear by an amount equal to the clear*/
@@ -570,6 +569,7 @@ export const shiftBlock = (game: Game, direction: Direction): Game => {
     ? game
     : {
         ...game,
+        score: direction === 'D' ? game.score + 1 : game.score, //1 point per block for soft dropping
         fallingBlock: {
           ...game.fallingBlock,
           groundTimer: game.settleTime,
@@ -626,7 +626,9 @@ export const hardDropBlock = (game: Game): Game => {
     ...game.fallingBlock,
     self: { ...game.fallingBlock.self, origin: newBlockOrigin },
   };
-  return settleBlock({ ...game, fallingBlock: newBlock }); //move the falling block to that end position, settle, and spawn new
+  const droppedDistance = newBlockOrigin[0] - game.fallingBlock.self.origin[0];
+  const newScore = game.score + droppedDistance * 2; //2 points per cell for hard dropping
+  return settleBlock({ ...game, score: newScore, fallingBlock: newBlock }); //move the falling block to that end position, settle, and spawn new
 };
 
 /** Returns a board containing the fallingBlock cells filled in for rendering purposes */

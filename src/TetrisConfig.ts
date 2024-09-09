@@ -126,7 +126,7 @@ export const CONFIG: Config = {
   SPEED_SCALING: 50, //how many milliseconds to take off the tick time for each level
 
   LEVEL_LINES: 10, //how many lines between speed scaling
-  LINES_CLEARED_SCORE: [0, 50, 150, 300, 600],
+  LINES_CLEARED_SCORE: [0, 100, 300, 500, 800],
   POLL_RATES: {
     base: 10,
     drop: 250,
