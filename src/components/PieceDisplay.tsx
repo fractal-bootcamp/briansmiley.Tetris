@@ -21,7 +21,7 @@ export default function PieceDisplay({
       {piece &&
         shape.map((coord, i) => (
           <div
-            className="absolute left-1/2 top-1/2 border-none"
+            className="absolute left-1/2 top-1/2"
             key={i}
             style={{
               backgroundColor: `rgb(${CONFIG.SHAPE_COLORS[piece].join(',')})`,
@@ -29,7 +29,7 @@ export default function PieceDisplay({
               borderColor: cellBorderColorFromShape(piece),
               borderWidth: borderWidth,
               width: '20%',
-              height: '20%',
+              aspectRatio: '1',
               transform: `translate(${translateOffset[1] + coord[1] * 100}%, ${translateOffset[0] + coord[0] * 98}%)`,
             }}
           />
