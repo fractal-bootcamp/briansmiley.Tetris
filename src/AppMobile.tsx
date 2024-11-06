@@ -46,7 +46,7 @@ export default function MobileApp() {
     };
   }, []);
 
-  //setup polling for softdrop
+  //setup polling for softdrop; if player is touching the softdrop bottom div, shift block down at a set rate
   useEffect(() => {
     const softDropInterval = setInterval(() => {
       if (softDroppingRef.current) {
@@ -56,7 +56,7 @@ export default function MobileApp() {
     return () => clearInterval(softDropInterval);
   }, []);
   const PIXELS_PER_SHIFT_STEP = 32; //how many pixels of swiping corresponds to a side shift step
-  const Y_SHIFT_WINDOW = 50; //how far down a swipe can go before it stops shifting side to side (prevents accidental sideswiping while dropping )
+  const Y_SHIFT_WINDOW = 35; //how far down a swipe can go before it stops shifting side to side (prevents accidental sideswiping while dropping )
   const handleSwipeStart = () => {
     setLastShiftSteps(0);
     setSwipeStart(Date.now());
@@ -68,13 +68,16 @@ export default function MobileApp() {
   const handleSwiping = (e: SwipeEventData) => {
     const dx = e.deltaX;
     const dy = e.deltaY;
-    const shiftSteps = Math.floor(dx / PIXELS_PER_SHIFT_STEP);
+    const shiftSteps = Math.floor(dx / PIXELS_PER_SHIFT_STEP); //how many steps from swipe origin we have moved in the current swipe
+    //perform a shift whenever we cross a multiple of pixelsPerShiftStep, comparing to whatever threshhold we were last at,
+    //and stopping side-shifting if our delta-y gets large enough that we stop considering this a side-swipe
     if (shiftSteps !== lastShiftSteps && Math.abs(dy) < Y_SHIFT_WINDOW) {
       const direction: Direction = shiftSteps > lastShiftSteps ? 'R' : 'L';
       setGameState((prevState) => shiftBlock(prevState, direction));
-      setLastShiftSteps(shiftSteps);
+      setLastShiftSteps(shiftSteps); //keep track of current displacement bucket
     }
   };
+  //simple rotate block on tap
   const handleTap = () => {
     setGameState((prevState) => rotateBlock(prevState, 'CW'));
   };
