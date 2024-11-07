@@ -56,7 +56,7 @@ export default function MobileApp() {
     return () => clearInterval(softDropInterval);
   }, []);
   const PIXELS_PER_SHIFT_STEP = 32; //how many pixels of swiping corresponds to a side shift step
-  const Y_SHIFT_WINDOW = 35; //how far down a swipe can go before it stops shifting side to side (prevents accidental sideswiping while dropping )
+  const Y_SHIFT_WINDOW = 20; //how far down a swipe can go before it stops shifting side to side (prevents accidental sideswiping while dropping )
   const handleSwipeStart = () => {
     setLastShiftSteps(0);
     setSwipeStart(Date.now());
