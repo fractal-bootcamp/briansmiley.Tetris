@@ -1,0 +1,13 @@
+name: Ping Supabase Weekly
+
+on:
+  schedule:
+    - cron: '0 12 * * 0'  # Every Sunday at 12:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl Supabase
+        run: curl -sSf -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" https://xcltpjajzudwnzavixhm.supabase.co/rest/v1/health
